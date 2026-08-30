@@ -509,3 +509,72 @@ the save-slot hitboxes and had to be downgraded. **The user chose to keep the
 bigger fonts and forgo stack counts.** Which of the six fonts is responsible was
 deliberately never bisected; if revisited, pull `fnt_d16x16b` first (default HUD
 font, and the only one whose baseline also moved).
+
+### <a id="f25"></a>F25. `hires_patcher.exe` leaves the Area Map centring constants at 640/480 — **ROOT-CAUSED 2026-08-30. NOT OUR BUG.**
+
+**Found by the first Phase 4 Tier A pass (1920×1080). The defect is in the
+prerequisite, k1hrm's own compiled patcher — our layer is correct.**
+
+**Symptom.** In game the Area Map art was displaced down-right, overflowing the
+screen, while the `LBL_Map` box itself sat correctly. Note markers, HUD minimap,
+player/party markers and open/close all passed. All 19 of our post-write checks
+passed, and `Override/map.gui` matched the exe.
+
+**Measurement (numpy, on `downloads/swkotor_EZ07Hn8Jng.png`).** Map tile pitch
+was **66.0 px = 1320/20** horizontally and **52.4 px = 576/11** vertically — i.e.
+the art was *correctly scaled* from our private floats. Its origin was
+**(927, 566)** against a box origin of **(285, 266)**: a displacement of exactly
+**(642, 300)**. For contrast, the confirmed-good 2560×1600 screenshot puts the
+texture at exactly **x 380..2139, y 393..1245** — pixel-perfect on its
+(380, 393, 1760, 853) box, displacement **(0, 0)**.
+
+**Root cause.** `0x6928B3`/`0x6928C3` and `0x692959`/`0x69296B` are int16
+immediates inside the map GUI code:
+
+```
+0x692958  sub eax, 0x280      ; 640
+0x69295D  cdq / sub eax,edx / sar eax,1   ; signed /2
+0x692964  add esi, eax        ; esi += (screenW - 640)/2
+0x69296A  sub eax, 0x1e0      ; 480  -> edi += (screenH - 480)/2
+```
+
+They are k1hrm's `positive_offsets_x` / `positive_offsets_y` (gog set
+`[0xAA65, 0x292959, 0x2928B3]` / `[0xAA85, 0x29296B, 0x2928C3]`). k1hrm is
+supposed to overwrite 640/480 with the target resolution so the centring term
+becomes **zero**. Left at 640/480 it evaluates to
+`((1920-640)/2, (1080-480)/2)` = **(640, 300)** — the measured displacement.
+
+**Why it happened: `hires_patcher.exe` and `hires_patcher.pl` do not agree.**
+Patching the same UniWS-only 1920×1080 base, letterbox off:
+
+| tool | `0xAA65` | `0x292959` | `0x2928B3` |
+|---|---|---|---|
+| `hires_patcher.pl` (perl) | 1920 | **1920** | **1920** |
+| `hires_patcher.exe` (shipped, what `hires_patcher.bat` runs) | 1920 | **640** | **640** |
+
+A full byte diff of the two outputs is **exactly 6 bytes**, all four map sites,
+nothing else. Reading `hires_patcher.pl` shows no resolution- or aspect-dependent
+branch that could explain it — detection pushes any offset whose current value
+equals the default, and the write phase writes every pushed offset — so the
+shipped `.exe` is evidently built from an **older revision** of the script, before
+those two offsets were added to each list.
+
+**This is resolution-independent.** The earlier framing of this finding as a
+resolution-specific regression was wrong. The real variable is *which k1hrm tool
+ran*: our 2560×1600 build came from `tools/hires_patch.py` (which follows the
+`.pl`, and Phase 1 proved byte-identical to it), while this 1920×1080 build was
+the first ever made with the shipped `.exe`.
+
+**Why this matters a great deal for our release.** k1hrm's README and its
+`hires_patcher.bat` tell Windows users to run the **`.exe`**. So the *documented,
+normal* Windows install of our own stated prerequisite produces an exe that
+renders our headline feature wrong — and it looks like our bug, not k1hrm's.
+Our patcher must detect these four sites and refuse (or loudly warn) rather than
+patch on top; see [RELEASE_PLAN](RELEASE_PLAN.md) §5.1. Phase 3's offline QA
+could never have caught this: it builds its test binaries through
+`steps.apply_all` on a `.pl`-equivalent base, so the broken input never occurs.
+
+**Fix for a user already in this state:** re-run k1hrm from the UniWS-only exe
+using `perl hires_patcher.pl W H no swkotor.exe`, or patch the four int16 sites
+directly. Not fixable by reinstalling our mod.
+

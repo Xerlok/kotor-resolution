@@ -39,6 +39,25 @@ NEG_X, NEG_Y = (0xB6C7, 0xBA6C), (0xB6DA, 0xBA83)
 POS_X, POS_Y = (0xAA65,), (0xAA85,)
 VANILLA_W, VANILLA_H = 640, 480
 
+# k1hrm's positive_offsets_x / _y hold THREE gog offsets each, not one. The other
+# two of each are int16 immediates inside the Area Map GUI code, where the engine
+# offsets the map by (screen - CONST)/2:
+#
+#     0x692958  sub eax, 0x280            ; 640
+#     0x69295D  cdq / sub eax,edx / sar eax,1
+#     0x692964  add esi, eax              ; esi += (screenW - 640)/2
+#
+# k1hrm overwrites 640/480 with the target resolution so that term becomes zero.
+# Its shipped hires_patcher.EXE does not - only hires_patcher.PL does. The two
+# differ by exactly 6 bytes, all of them here, and k1hrm's .bat and README both
+# point Windows users at the .exe. Left vanilla, the Area Map art is drawn
+# ((W-640)/2, (H-480)/2) off its box: measured (642, 300) at 1920x1080 against
+# (0, 0) on the confirmed-good 2560x1600 build. See F25 in
+# docs/EXPERIMENTS_AND_FAILED_APPROACHES.md. Same gog build as POS_X/POS_Y above,
+# so the BASE_SIZE gate already covers "is this that build".
+CENTRING_X = (0x2928B3, 0x292959)
+CENTRING_Y = (0x2928C3, 0x29296B)
+
 MIN_W, MAX_W = 640, 7680
 MIN_H, MAX_H = 480, 4320
 
@@ -212,6 +231,45 @@ def read_resolution(data):
             "something other than k1hrm has edited these bytes. Refusing to "
             "patch." % (width, height))
     return width, height
+
+
+# --- did k1hrm finish the job -------------------------------------------
+def centring_state(data, width, height):
+    """'ok', 'stale' or 'unknown' for k1hrm's four Area Map centring constants.
+
+    'stale' means k1hrm ran (the canvas constants already proved that) but its
+    shipped .exe left these four at vanilla - the state every Windows user who
+    follows k1hrm's own instructions ends up in.
+    """
+    got_x = [struct.unpack_from("<h", data, o)[0] for o in CENTRING_X]
+    got_y = [struct.unpack_from("<h", data, o)[0] for o in CENTRING_Y]
+    if all(v == width for v in got_x) and all(v == height for v in got_y):
+        return "ok"
+    if all(v == VANILLA_W for v in got_x) and all(v == VANILLA_H for v in got_y):
+        return "stale"
+    return "unknown"
+
+
+def check_centring(data, width, height):
+    """Refuse anything that is neither correct nor exactly the known-stale state.
+
+    We are willing to finish k1hrm's job, but only from the one starting point we
+    have measured. Any other value means something else has edited these bytes,
+    and guessing would be writing into a subsystem on no evidence.
+    """
+    state = centring_state(data, width, height)
+    if state == "unknown":
+        got = ([struct.unpack_from("<h", data, o)[0] for o in CENTRING_X],
+               [struct.unpack_from("<h", data, o)[0] for o in CENTRING_Y])
+        raise Refusal(
+            "the Area Map centring constants read %s / %s, which is neither the "
+            "%dx%d this exe is patched for nor the vanilla %dx%d that k1hrm's "
+            "own patcher leaves behind.\n"
+            "Something other than UniWS and k1hrm has edited these bytes, so "
+            "this patcher will not guess at them. Restore a clean Editable "
+            "Executable and run UniWS and k1hrm again."
+            % (got[0], got[1], width, height, VANILLA_W, VANILLA_H))
+    return state
 
 
 # --- does the .gui set match the exe ------------------------------------

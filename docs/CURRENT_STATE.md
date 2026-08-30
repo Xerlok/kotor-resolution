@@ -164,7 +164,7 @@ python patcher/selftest.py                            # the acceptance test
   all 16 map-scale sites at vanilla defaults; four hook sites at their original
   bytes; caves zero; no `K1MAPNTS` region. Already-applied → exits clean;
   half-applied → refuses and says to revert.
-- **Post-write verification (19 checks)** re-reads from disk, re-disassembles the
+- **Post-write verification (20 checks)** re-reads from disk, re-disassembles the
   match routine with capstone, and asserts **no byte outside the declared ranges
   changed** — a chunked before/after diff, so a bad offset cannot pass silently.
 - **The note table ships frozen** (`patcher/data/note_table.bin`, 250 entries,
@@ -181,6 +181,24 @@ python patcher/selftest.py                            # the acceptance test
 exe and requires md5 `435108fdb65bac2151ab694e7fb8e36a` — byte-for-byte the exe
 confirmed in game — plus six refusal/revert cases. Any change to a written byte
 or to layer order fails it.
+
+## Phase 3 — automated QA (done 2026-08-30)
+
+    python tools/qa.py --json output/qa_report.json
+
+**PASS, 49/49 resolutions.** Builds the official-chain test binary at every one
+of k1hrm 1.5's 49 resolution sets (enumerated from disk, 800×600 to
+15360×8640) — official UniWS artifact → official k1hrm at that resolution →
+our layer — then runs `patcher/k1amf/verify.py:check`'s 20-check battery plus
+the `Override/map.gui` box check against a fresh read from disk. Separately
+proves the note-table position-key scheme collision-free across **all 340**
+map notes in the game, not just the 250 corrected ones (`tools/note_corrections`
+builds its uniqueness table from every note before filtering to corrections),
+and that the shipped frozen table matches a fresh re-derivation
+(`tools/freeze_note_table`). k1hrm's dialogue letterbox is off in this run,
+matching the live confirmed exe; letterbox-on is Phase 4's gap (§2.9). Full
+spec: [`PHASE3_SPEC.md`](PHASE3_SPEC.md); report at `output/qa_report.json`.
+Not covered here: the K1CP key-survival test, moved to Phase 5.
 
 ## Override manifest
 

@@ -62,6 +62,27 @@ def apply_all(data, width, height, table):
     """
     steps = []
 
+    # 0. finish k1hrm's job if its shipped .exe left it half-done.
+    #
+    # Not our layer and not our bug: these four int16s belong to k1hrm, and
+    # hires_patcher.PL writes them correctly. Its compiled hires_patcher.EXE -
+    # the one k1hrm's own .bat and README tell Windows users to run - does not,
+    # and the Area Map is then drawn ((W-640)/2, (H-480)/2) off its box. We fix
+    # it rather than refuse because the alternative we could honestly offer the
+    # player is "install Perl, or hex-edit four offsets k1hrm never documented".
+    # detect.check_centring has already refused anything that is neither correct
+    # nor exactly vanilla, so this only ever turns 640/480 into width/height.
+    centring = detect.check_centring(data, width, height)
+    if centring == "stale":
+        for offs, value in ((detect.CENTRING_X, width), (detect.CENTRING_Y, height)):
+            for off in offs:
+                struct.pack_into("<h", data, off, value)
+        steps.append({"step": "k1hrm Area Map centring constants",
+                      "sites": [hex(o) for o in detect.CENTRING_X + detect.CENTRING_Y],
+                      "from": [detect.VANILLA_W, detect.VANILLA_H],
+                      "to": [width, height],
+                      "why": "hires_patcher.exe leaves these vanilla; the .pl does not"})
+
     # 1. mapscale + the private float copies that keep the HUD minimap alive.
     try:
         matches = hires_patch.patch_map_scale(data, width, height)
@@ -77,6 +98,21 @@ def apply_all(data, width, height, table):
     steps.append({"step": "map scale", "sites": n_sites,
                   "private_floats": {k: hex(hires_patch.IMAGE_BASE + v)
                                      for k, v in hires_patch.PRIVATE_FLOAT_SLOTS.items()}})
+
+    # 1b. scale the Area Map marker icons - notes, player arrow and party -
+    # so they stay usable as the map box grows. All by the same factor, so
+    # their vanilla size relationship is preserved (the player arrow stays the
+    # biggest). No-ops (writes nothing) at 2560x1600 and below, which is why
+    # the confirmed exe is still reproduced byte for byte.
+    try:
+        icon_scale, icon_sites = hires_patch.patch_note_icons(data, width, height)
+    except RuntimeError as e:
+        raise PatchError(str(e))
+    if icon_sites:
+        steps.append({"step": "map marker icon scale", "scale": icon_scale,
+                      "sites": icon_sites,
+                      "note": "note, player-arrow and party markers, all x%d"
+                              % icon_scale})
 
     # 2. + 3. the three marker caves.
     try:

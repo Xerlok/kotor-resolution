@@ -39,6 +39,31 @@ with a record of exactly what was changed (installed.json). Revert restores
 that exe and leaves UniWS and k1hrm in place. Keep this folder if you want to
 be able to uninstall.
 
+ONE THING WE FIX THAT IS NOT OURS
+---------------------------------
+k1hrm ships two copies of its patcher: hires_patcher.pl (a Perl script) and
+hires_patcher.exe (a compiled build of it). They do not agree. The .exe - the
+one hires_patcher.bat runs, and the one k1hrm's own guide tells Windows users
+to use - leaves four values inside the Area Map code at their vanilla 640x480,
+where the .pl correctly writes your resolution. The two outputs differ by
+exactly 6 bytes.
+
+Those four values are what centre the Area Map on its frame. Left vanilla, the
+map is drawn (your_width - 640) / 2 pixels to the right and
+(your_height - 480) / 2 pixels down from where it belongs, so at 1920x1080 it
+sits 640 across and 300 down and runs off the screen. It looks exactly like a
+bug in this mod. It is not, and it happens with or without this mod installed.
+
+So this patcher checks those four values and finishes the job if k1hrm's .exe
+did not. It will only do that when they hold exactly the vanilla 640x480 AND
+your exe already proves k1hrm ran; anything else it refuses rather than guess.
+It is recorded in installed.json like every other change, and Revert.bat undoes
+it - which puts you back to the broken k1hrm state, not a fixed one.
+
+If you would rather k1hrm did its own job, run its .pl instead of its .exe:
+
+  perl hires_patcher.pl WIDTH HEIGHT no swkotor.exe
+
 AFTER INSTALLING
 ----------------
 Load a save and check BOTH the Area Map (the map screen) and the HUD minimap

@@ -513,6 +513,145 @@ def add_party_player_marker_fix(data):
     )
 
 
+# --------------------------------------------------------------------------
+# Area Map NOTE icon scaling
+#
+# The map-note icons are drawn at a fixed pixel size, so as the map box grows
+# with the resolution they shrink as 1/ky (RELEASE_PLAN section 6): a 14 px icon
+# is 5.5% of the map's height in vanilla and 1.2% at 3840x2400, where the user
+# called them too small to use. We scale them by an integer s.
+#
+# Only the two NOTE markers change SIZE ON SCREEN here. Textures identified by
+# the resrefs pushed in the constructor at 0x693F60, and matched to their
+# consumers through the slots the constructor stores them in:
+#     0x69404C "mm_barrow"     -> [esi+0x60] -> player draw 0x694AF3  (untouched)
+#     0x6940CD "lbl_mapcircle" -> [esi+0x64] -> party  draw 0x694A71  (see below)
+#     0x694156 "whitetarget"   -> [esi+0x68] -> selected note
+#
+# CAREFUL: "lbl_mapcircle" is SHARED by the unselected note and the PARTY
+# marker. Scaling it for the notes therefore also enlarges the material the
+# party marker samples, while its draw rect (16, at 0x694A13) stays vanilla - so
+# the party marker keeps its on-screen size but is drawn from a downsampled
+# texture. Vanilla already does this in miniature (a 16 px material drawn into
+# the note's 14 px rect), so it is the same kind of operation, not a new one.
+# The player arrow is genuinely untouched: its own material and rect are both
+# left alone.
+#
+# Both the size and its matching centring offset are scaled together, which is
+# exact at any size: F9 confirmed the draw rect is (x - size/2, y - size/2,
+# size, size), so registration with the note's position is preserved.
+#
+# CONFIRMED in game 2026-08-30 at 3840x2400, s=2: icons resample cleanly rather
+# than reading blurry - which section 6 had recorded as UNKNOWN - and the
+# markers stayed on their rooms. This is the ONLY icon size ever run in game.
+# (file offset of the immediate, struct fmt, vanilla value, what it is)
+# "draw size" entries are paired with their own two centring offsets, which are
+# always exactly -size/2; verify.py asserts that pairing after every write.
+NOTE_ICON_SITES = [
+    (0x2940DC, "<i", 16,  'material "lbl_mapcircle" (unselected note + party)'),
+    (0x29418F, "<i", 20,  'material "whitetarget" (selected note)'),
+    (0x294720, "<i", 20,  "selected note draw size"),
+    (0x29471A, "<b", -10, "selected note x centring offset"),
+    (0x294726, "<b", -10, "selected note y centring offset"),
+    (0x294763, "<i", 14,  "unselected note draw size"),
+    (0x294777, "<b", -7,  "unselected note x centring offset"),
+    (0x29477A, "<b", -7,  "unselected note y centring offset"),
+]
+
+# Added 2026-08-30 by user decision, after the notes were confirmed in game at
+# 3840x2400: scale the player arrow and the party markers by the same s.
+#
+# Two reasons beyond "they shrink too": vanilla deliberately makes the player
+# arrow the LARGEST marker (32 vs the notes' 14/20), and scaling only the notes
+# inverted that - at s=2 the selected note (40) outgrew the arrow (32), so the
+# marker showing where you actually are stopped standing out. And the party
+# marker's material is already enlarged whether we like it or not, because it
+# shares "lbl_mapcircle" with the unselected note.
+#
+# The party marker needs no material entry for that same reason - scaling its
+# draw size just stops it wasting the bigger texture it is already sampling.
+PLAYER_PARTY_ICON_SITES = [
+    (0x29405B, "<i", 32,  'material "mm_barrow" (player arrow)'),
+    (0x294AC4, "<i", 32,  "player arrow draw size"),
+    (0x294AD0, "<b", -16, "player arrow x centring offset"),
+    (0x294AD4, "<b", -16, "player arrow y centring offset"),
+    (0x294A13, "<i", 16,  "party marker draw size"),
+    (0x294A53, "<b", -8,  "party marker x centring offset"),
+    (0x294A56, "<b", -8,  "party marker y centring offset"),
+]
+
+# Every marker immediate this patcher scales, as one list. All 15 move together
+# by the same s so the markers keep their vanilla size relationship.
+#
+# Range note: the offsets are signed BYTES. The largest magnitude is the player
+# arrow's -16, so s is capped below at NOTE_ICON_MAX = 8 (-128, exactly int8's
+# floor). k1hrm's largest set, 15360x8640, only reaches s = 6.
+MARKER_ICON_SITES = NOTE_ICON_SITES + PLAYER_PARTY_ICON_SITES
+
+# ky at 2560x1600, the resolution this project played and confirmed for months.
+# It is the baseline on purpose: at 2560x1600 s == 1 and NOT ONE BYTE is
+# written, so the exe confirmed in game (md5 435108fd...) is still reproduced
+# byte for byte by patcher/selftest.py.
+NOTE_ICON_BASE_KY = 1600 / 480.0
+NOTE_ICON_MAX = 8
+
+# Step up once a resolution is a quarter past the previous step, rather than
+# half. Chosen by the user 2026-08-30 over plain rounding and over ceil:
+# plain rounding leaves 3840x2160 (the most common 4K target) at 1x, 26% SMALLER
+# than the 2560x1600 baseline and so close to the size that prompted this work;
+# ceil pushes 2880x1800 to +78% and reads chunky. This rule gives 4K 2x and
+# leaves 2880x1800 at 1x. Across k1hrm's 49 sets: 36 unchanged, 9 at 2x, 3 at
+# 3x, 1 at 6x.
+NOTE_ICON_STEP_BIAS = 0.25
+
+
+def note_icon_scale(width, height):
+    """The integer icon multiplier for a resolution. 1 means 'change nothing'.
+
+    min(kx, ky) keeps the icons square: kx alone would stretch them 2.67x at
+    32:9, and the draw rect uses one number for both width and height.
+    """
+    raw = min(width / 640.0, height / 480.0) / NOTE_ICON_BASE_KY
+    return max(1, min(NOTE_ICON_MAX, math.ceil(raw - NOTE_ICON_STEP_BIAS)))
+
+
+def note_icon_state(data, width, height):
+    """'vanilla', 'scaled' or 'unknown' for every marker-icon immediate."""
+    s = note_icon_scale(width, height)
+    vanilla = scaled = True
+    for off, tpl, default, _label in MARKER_ICON_SITES:
+        (cur,) = struct.unpack_from(tpl, data, off)
+        vanilla &= cur == default
+        scaled &= cur == default * s
+    if scaled:            # at s == 1 this is the same as vanilla, deliberately
+        return "scaled"
+    return "vanilla" if vanilla else "unknown"
+
+
+def patch_note_icons(data, width, height):
+    """Scale the note icons in place. Returns (s, sites_written).
+
+    Refuses anything that is neither vanilla nor already at the right size, so a
+    second icon mod - or an interrupted run - is never written on top of.
+    """
+    s = note_icon_scale(width, height)
+    state = note_icon_state(data, width, height)
+    if state == "unknown":
+        got = [struct.unpack_from(t, data, o)[0] for o, t, _d, _l in MARKER_ICON_SITES]
+        raise RuntimeError(
+            "the Area Map marker-icon sites read %s, which is neither their "
+            "vanilla values nor the x%d this resolution wants - something else "
+            "has already resized the map markers. Refusing to patch." % (got, s))
+    if s == 1 or state == "scaled":
+        return s, 0
+    for off, tpl, default, _label in MARKER_ICON_SITES:
+        struct.pack_into(tpl, data, off, default * s)
+    print(f"  Area Map marker icon scale: x{s} "
+          f"({len(MARKER_ICON_SITES)} immediates - notes, player arrow and "
+          f"party markers, all by the same factor)")
+    return s, len(MARKER_ICON_SITES)
+
+
 def find_matches(data):
     """Return {offset_key: [offsets whose current value == known default]}."""
     matches = {k: [] for k in OFFSETS}

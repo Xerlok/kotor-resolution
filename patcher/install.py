@@ -66,6 +66,24 @@ def main(argv):
     print("  [x] k1hrm patched this exe for %dx%d (read from the exe, not asked)"
           % (width, height))
 
+    centring = detect.check_centring(before, width, height)
+    if centring == "stale":
+        print("  [!] k1hrm left the Area Map centring constants at 640x480.")
+        print("      Its shipped hires_patcher.exe does this; hires_patcher.pl")
+        print("      does not. Without the fix the map draws %d px right and %d px"
+              % ((width - detect.VANILLA_W) // 2, (height - detect.VANILLA_H) // 2))
+        print("      below its box. This patcher will finish the job.")
+    else:
+        print("  [x] k1hrm's Area Map centring constants are already correct")
+
+    import hires_patch  # noqa: E402  (tools/ is on sys.path via k1amf)
+    icon_s = hires_patch.note_icon_scale(width, height)
+    print("  [x] map markers will be %s"
+          % ("left at their vanilla size (this resolution does not need it)"
+             if icon_s == 1 else
+             "scaled x%d - notes, player arrow and party, so they stay usable "
+             "at this resolution" % icon_s))
+
     extent = detect.check_map_gui(game_dir, width, height)
     print("  [x] Override/map.gui draws the map at %s - the .gui set matches "
           "the exe" % (extent,))

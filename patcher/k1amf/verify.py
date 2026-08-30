@@ -40,6 +40,17 @@ def declared_ranges(before, code_va, table_va, code_len, table_len):
     out += [(hp.MARKER_KX_SLOT, hp.MARKER_KX_SLOT + 4),
             (hp.MARKER_KY_SLOT, hp.MARKER_KY_SLOT + 4)]
 
+    # k1hrm's four Area Map centring constants. Declared whether or not this run
+    # had to write them: when k1hrm's .pl was used they are already correct and
+    # nothing changes here, and the positive check below asserts the end state
+    # eitherway.
+    out += [(o, o + 2) for o in detect.CENTRING_X + detect.CENTRING_Y]
+
+    # Every marker icon immediate (notes, player arrow, party). Declared
+    # unconditionally: at s == 1 nothing is written and the positive check below
+    # still asserts the size.
+    out += [(o, o + struct.calcsize(t)) for o, t, _d, _l in hp.MARKER_ICON_SITES]
+
     for va, length in ((hp.MARKER_HOOK_VA, len(hp.MARKER_HOOK_JMP)),
                        (hp.MARKER_CAVE_VA, len(hp.MARKER_CAVE_BYTES)),
                        (hp.PARTY_HOOK_VA, len(hp.PARTY_HOOK_JMP)),
@@ -113,6 +124,33 @@ def check(before, after, width, height, table, code_va, table_va):
     ok("the shared 440.0/256.0 constants are untouched, so the HUD minimap still works",
        struct.unpack_from("<f", after, hp.SHARED_FLOAT_X)[0] == 440.0 and
        struct.unpack_from("<f", after, hp.SHARED_FLOAT_Y)[0] == 256.0)
+
+    ok("the Area Map centring constants read %dx%d, so the map draws on its box"
+       % (width, height),
+       detect.centring_state(after, width, height) == "ok")
+
+    # Note icons: assert the end state AND that each centring offset is still
+    # exactly half its own draw size, which is what keeps a marker on its room.
+    s = hp.note_icon_scale(width, height)
+    good = hp.note_icon_state(after, width, height) == "scaled"
+    sizes = {}
+    for off, tpl, default, label in hp.MARKER_ICON_SITES:
+        (cur,) = struct.unpack_from(tpl, after, off)
+        good &= cur == default * s
+        if label.endswith(" draw size"):
+            sizes[label[:-len(" draw size")]] = cur
+    # Every centring offset must be exactly half its OWN marker's draw size -
+    # that is the property that keeps each marker on the thing it points at
+    # (F9), and the one thing that would silently break if a size and its
+    # offsets ever drifted apart.
+    for off, tpl, default, label in hp.MARKER_ICON_SITES:
+        if " centring offset" not in label:
+            continue
+        owner = label.split(" x centring")[0].split(" y centring")[0]
+        (cur,) = struct.unpack_from(tpl, after, off)
+        good &= owner in sizes and cur == -(sizes[owner] // 2)
+    ok("map markers (notes, player, party) are x%d and every centring offset "
+       "is half its own draw size" % s, good)
 
     # --- 2. the three marker caves --------------------------------------
     for label, va, want in (

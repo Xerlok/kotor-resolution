@@ -1,0 +1,5168 @@
+{
+  "letterbox": "no",
+  "note_table_entries": 250,
+  "resolutions_tested": 49,
+  "per_resolution": [
+    {
+      "width": 800,
+      "height": 600,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 800x600"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 800x600, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (119, 148, 550, 320) (formula: (119, 148, 550, 320), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8453
+    },
+    {
+      "width": 960,
+      "height": 720,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 960x720"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 960x720, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (143, 177, 660, 384) (formula: (143, 177, 660, 384), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8452
+    },
+    {
+      "width": 1024,
+      "height": 576,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1024x576"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1024x576, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (152, 142, 704, 307) (formula: (152, 142, 704, 307), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8459
+    },
+    {
+      "width": 1024,
+      "height": 640,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1024x640"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1024x640, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (152, 157, 704, 341) (formula: (152, 157, 704, 341), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8459
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1024x768"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1024x768, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (152, 189, 704, 410) (formula: (152, 189, 704, 410), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8459
+    },
+    {
+      "width": 1152,
+      "height": 648,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1152x648"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1152x648, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (171, 159, 792, 346) (formula: (171, 159, 792, 346), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8459
+    },
+    {
+      "width": 1152,
+      "height": 720,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1152x720"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1152x720, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (171, 177, 792, 384) (formula: (171, 177, 792, 384), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8455
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1280x720"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1280x720, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (190, 177, 880, 384) (formula: (190, 177, 880, 384), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8451
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1280x800"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1280x800, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (190, 197, 880, 427) (formula: (190, 197, 880, 427), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8455
+    },
+    {
+      "width": 1280,
+      "height": 960,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1280x960"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1280x960, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (190, 236, 880, 512) (formula: (190, 236, 880, 512), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8449
+    },
+    {
+      "width": 1280,
+      "height": 1080,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1280x1080"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1280x1080, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (190, 266, 880, 576) (formula: (190, 266, 880, 576), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8459
+    },
+    {
+      "width": 1360,
+      "height": 768,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1360x768"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1360x768, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (202, 189, 935, 410) (formula: (202, 189, 935, 410), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8458
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1366x768"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1366x768, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (203, 189, 939, 410) (formula: (203, 189, 939, 410), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8460
+    },
+    {
+      "width": 1400,
+      "height": 1050,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1400x1050"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1400x1050, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (208, 258, 963, 560) (formula: (208, 258, 963, 560), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8462
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1440x900"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1440x900, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (214, 221, 990, 480) (formula: (214, 221, 990, 480), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8454
+    },
+    {
+      "width": 1440,
+      "height": 1080,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1440x1080"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1440x1080, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (214, 266, 990, 576) (formula: (214, 266, 990, 576), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8462
+    },
+    {
+      "width": 1600,
+      "height": 900,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1600x900"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1600x900, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (238, 221, 1100, 480) (formula: (238, 221, 1100, 480), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8453
+    },
+    {
+      "width": 1600,
+      "height": 1200,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1600x1200"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1600x1200, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (238, 295, 1100, 640) (formula: (238, 295, 1100, 640), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8461
+    },
+    {
+      "width": 1680,
+      "height": 1050,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1680x1050"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1680x1050, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (249, 258, 1155, 560) (formula: (249, 258, 1155, 560), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8462
+    },
+    {
+      "width": 1856,
+      "height": 1392,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1856x1392"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1856x1392, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (276, 342, 1276, 742) (formula: (276, 342, 1276, 742), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8468
+    },
+    {
+      "width": 1920,
+      "height": 540,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1920x540"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1920x540, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (285, 133, 1320, 288) (formula: (285, 133, 1320, 288), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8452
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1920x1080"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1920x1080, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (285, 266, 1320, 576) (formula: (285, 266, 1320, 576), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8460
+    },
+    {
+      "width": 1920,
+      "height": 1200,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1920x1200"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1920x1200, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (285, 295, 1320, 640) (formula: (285, 295, 1320, 640), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8460
+    },
+    {
+      "width": 1920,
+      "height": 1440,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 1920x1440"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 1920x1440, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (285, 354, 1320, 768) (formula: (285, 354, 1320, 768), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8452
+    },
+    {
+      "width": 2048,
+      "height": 1152,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 2048x1152"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 2048x1152, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (304, 283, 1408, 614) (formula: (304, 283, 1408, 614), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8467
+    },
+    {
+      "width": 2048,
+      "height": 1280,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 2048x1280"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 2048x1280, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (304, 315, 1408, 683) (formula: (304, 315, 1408, 683), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8467
+    },
+    {
+      "width": 2048,
+      "height": 1536,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 2048x1536"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 2048x1536, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (304, 378, 1408, 819) (formula: (304, 378, 1408, 819), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8467
+    },
+    {
+      "width": 2304,
+      "height": 1440,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 2304x1440"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 2304x1440, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (342, 354, 1584, 768) (formula: (342, 354, 1584, 768), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8455
+    },
+    {
+      "width": 2560,
+      "height": 1080,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 2560x1080"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 2560x1080, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (380, 266, 1760, 576) (formula: (380, 266, 1760, 576), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8460
+    },
+    {
+      "width": 2560,
+      "height": 1440,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 2560x1440"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 2560x1440, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (380, 354, 1760, 768) (formula: (380, 354, 1760, 768), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8452
+    },
+    {
+      "width": 2560,
+      "height": 1600,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 2560x1600"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 2560x1600, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (380, 393, 1760, 853) (formula: (380, 393, 1760, 853), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8464
+    },
+    {
+      "width": 2880,
+      "height": 1800,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 2880x1800"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 2880x1800, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (428, 443, 1980, 960) (formula: (428, 443, 1980, 960), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8461
+    },
+    {
+      "width": 3200,
+      "height": 2400,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 3200x2400"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 3200x2400, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (475, 590, 2200, 1280) (formula: (475, 590, 2200, 1280), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8468
+    },
+    {
+      "width": 3440,
+      "height": 1440,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 3440x1440"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 3440x1440, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (511, 354, 2365, 768) (formula: (511, 354, 2365, 768), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8454
+    },
+    {
+      "width": 3840,
+      "height": 1080,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 3840x1080"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 3840x1080, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (570, 266, 2640, 576) (formula: (570, 266, 2640, 576), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8460
+    },
+    {
+      "width": 3840,
+      "height": 1600,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 3840x1600"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 3840x1600, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (570, 393, 2640, 853) (formula: (570, 393, 2640, 853), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8464
+    },
+    {
+      "width": 3840,
+      "height": 2160,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 3840x2160"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 3840x2160, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (570, 531, 2640, 1152) (formula: (570, 531, 2640, 1152), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8475
+    },
+    {
+      "width": 3840,
+      "height": 2400,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 3840x2400"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 3840x2400, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (570, 590, 2640, 1280) (formula: (570, 590, 2640, 1280), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8467
+    },
+    {
+      "width": 4096,
+      "height": 3072,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 4096x3072"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 4096x3072, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (608, 755, 2816, 1638) (formula: (608, 755, 2816, 1638), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8482
+    },
+    {
+      "width": 5120,
+      "height": 1440,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 5120x1440"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 5120x1440, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x1 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (760, 354, 3520, 768) (formula: (760, 354, 3520, 768), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8451
+    },
+    {
+      "width": 5120,
+      "height": 2160,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 5120x2160"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 5120x2160, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (760, 531, 3520, 1152) (formula: (760, 531, 3520, 1152), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8474
+    },
+    {
+      "width": 5120,
+      "height": 2880,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 5120x2880"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 5120x2880, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (760, 708, 3520, 1536) (formula: (760, 708, 3520, 1536), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8466
+    },
+    {
+      "width": 5120,
+      "height": 3200,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 5120x3200"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 5120x3200, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (760, 787, 3520, 1707) (formula: (760, 787, 3520, 1707), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8478
+    },
+    {
+      "width": 6016,
+      "height": 3384,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 6016x3384"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 6016x3384, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (893, 832, 4136, 1805) (formula: (893, 832, 4136, 1805), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8483
+    },
+    {
+      "width": 7680,
+      "height": 2160,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 7680x2160"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 7680x2160, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x2 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (1140, 531, 5280, 1152) (formula: (1140, 531, 5280, 1152), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8475
+    },
+    {
+      "width": 7680,
+      "height": 4320,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 7680x4320"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 7680x4320, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x3 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (1140, 1062, 5280, 2304) (formula: (1140, 1062, 5280, 2304), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8467
+    },
+    {
+      "width": 8192,
+      "height": 4608,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 8192x4608"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 8192x4608, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x3 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (1216, 1133, 5632, 2458) (formula: (1216, 1133, 5632, 2458), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8482
+    },
+    {
+      "width": 10240,
+      "height": 4320,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 10240x4320"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 10240x4320, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x3 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (1520, 1062, 7040, 2304) (formula: (1520, 1062, 7040, 2304), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8467
+    },
+    {
+      "width": 15360,
+      "height": 8640,
+      "checks": [
+        [
+          true,
+          "file size grew by exactly the reserved region (8192 bytes)"
+        ],
+        [
+          true,
+          "all 16 map-scale constants hold the values for 15360x8640"
+        ],
+        [
+          true,
+          "Area Map reads its own scaled tile-size floats"
+        ],
+        [
+          true,
+          "the shared 440.0/256.0 constants are untouched, so the HUD minimap still works"
+        ],
+        [
+          true,
+          "the Area Map centring constants read 15360x8640, so the map draws on its box"
+        ],
+        [
+          true,
+          "map markers (notes, player, party) are x6 and every centring offset is half its own draw size"
+        ],
+        [
+          true,
+          "map-note marker hook at 0x6946D3"
+        ],
+        [
+          true,
+          "party marker hook at 0x694A42"
+        ],
+        [
+          true,
+          "player marker hook at 0x694AB1"
+        ],
+        [
+          true,
+          "map-note marker routine at 0x73C1D0 (60 bytes)"
+        ],
+        [
+          true,
+          "party marker routine at 0x73C20C (38 bytes)"
+        ],
+        [
+          true,
+          "player marker routine at 0x73C232 (49 bytes)"
+        ],
+        [
+          true,
+          "8 KB region reserved at the end of .rsrc"
+        ],
+        [
+          true,
+          "the last section's data still ends at the end of the file"
+        ],
+        [
+          true,
+          "the 'Hellspawn Reborn' watermark at 0xAC0 is preserved"
+        ],
+        [
+          true,
+          "map-note hook at 0x6946EF jumps to the match routine"
+        ],
+        [
+          true,
+          "match routine at 0x73C270 is byte-exact"
+        ],
+        [
+          true,
+          "match routine re-disassembles correctly (22 instructions, branches resolve)"
+        ],
+        [
+          true,
+          "250 map-note corrections at 0x86D010 are byte-exact"
+        ],
+        [
+          true,
+          "first and last correction read back as valid float pairs"
+        ],
+        [
+          true,
+          "no byte outside this patcher's declared ranges was changed"
+        ],
+        [
+          true,
+          "Override/map.gui LBL_Map box is (2280, 2124, 10560, 4608) (formula: (2280, 2124, 10560, 4608), tolerance 1px)"
+        ],
+        [
+          true,
+          "every map-scale int16 write is in signed 16-bit range"
+        ],
+        [
+          true,
+          "a k1hrm exe left stale by hires_patcher.exe is detected and converges on the same bytes"
+        ]
+      ],
+      "pass": true,
+      "error": null,
+      "bytes_changed": 8467
+    }
+  ],
+  "note_table": {
+    "pass": true,
+    "corrections": 250,
+    "rejected": 9,
+    "awaiting_review": 0,
+    "stale_decisions": 0,
+    "total_note_keys": 340,
+    "keys_with_multiple_owners": 0,
+    "validation_problems": [],
+    "frozen_table_present": true,
+    "frozen_table_entries": 250,
+    "frozen_table_sha256": "880a325d982d74df496b02782faefdd3ae3802efbba030b9fbccc967cc0ccaa5",
+    "frozen_table_matches_fresh_derivation": true,
+    "fresh_entries": 250
+  },
+  "pass": true
+}

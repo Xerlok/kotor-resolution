@@ -28,7 +28,7 @@ resolution work is delegated to the tools that already do it.
 | Note markers land correctly | private rescaled calibration copy, cave `0x73C1D0` | **ours** |
 | Player + party markers land correctly | caves `0x73C20C` / `0x73C232` | **ours** |
 | 250 map-note position corrections | match routine `0x73C270` + table `0x86D010` | **ours** |
-| Marker icon size | — | **ours, deferred to 1.1** |
+| **Map-note icon size** | 8 immediates in `CSWGuiMapHider` | **ours — SHIPPED IN 1.0** (§6.0); player arrow + party marker still deferred |
 
 ### 0.2 Out of scope — prerequisites, not our work
 
@@ -89,7 +89,7 @@ Verified by `python tools/state.py` plus direct byte reads:
 | ~~**No one-shot patcher.**~~ **CLOSED 2026-08-30 (Phase 2)** | `patcher/install.py` applies all five layers in one pass and writes the exe once; `patcher/selftest.py` proves the result is byte-identical to the confirmed build. |
 | ~~**No exe build fingerprint**~~ **CLOSED 2026-08-30 (Phase 2)** | the patcher gates on size (4,042,752), on all 16 map-scale sites holding vanilla defaults, and on four hook sites holding their original bytes; sha256 before/after goes in `installed.json`. |
 | ~~**Never tested on an exe patched by the *official* tools**~~ **CLOSED 2026-08-30** | ~~every in-game confirmation to date is on an exe built by *our ports* of UniWS and k1hrm.~~ Half-wrong as written: the UniWS half was always the official GUI tool, and our k1hrm port turns out to be byte-identical to official k1hrm. The official chain rebuilds the live exe exactly — §2.9. |
-| **Marker icon sizes still vanilla** | `0x69405B`/`0x6940DC`/`0x69418F` = `0x20`/`0x10`/`0x14`. Deferred to 1.1. |
+| ~~**Marker icon sizes still vanilla**~~ **PARTLY CLOSED 2026-08-30** | the two **note** icons now scale with the resolution (§6.0), confirmed in game at 3840×2400. The **player arrow** (`0x69405B` = `0x20`) and the party marker are still vanilla, by decision, and are the open half. |
 | **`state.py` / `vanilla_toggle.py` hardcode this machine's Steam path** | correct for dev tools; must not ship. |
 | ~~**No version control**~~ **CLOSED 2026-08-30 (Phase 0)** | `git`-tracked, pushed to the private `github.com/Xerlok/kotor-resolution`. |
 
@@ -126,10 +126,38 @@ resolution**. This generalises the 2560×1600-only evidence in
 [F10](EXPERIMENTS_AND_FAILED_APPROACHES.md#f10) and is the core correctness
 argument for the whole release.
 
-### 2.3 The minimap box is fixed at every resolution
+### 2.3 The minimap is the ONE thing k1hrm deliberately does not scale
 
-`LBL_MAP` in `mipc16x12.gui` is **(6, 6, 512, 512) in all 49 sets**. Previously
-known only for the four vanilla buckets. Confirms across the whole range why
+**Sharpened 2026-08-30** after the question "doesn't k1hrm change the minimap
+size?" — the earlier answer here ("k1hrm does not scale the HUD") was **wrong**
+and is corrected below.
+
+**k1hrm does rescale the HUD.** Byte-comparing its `mipc*.gui` against the
+vanilla copies extracted from `source/data/gui.bif`: all eight files differ, and
+in `mipc16x12.gui` **116 of 120 controls** have rescaled extents (×1.6 / ×1.333
+at 2560×1600, relative to the 1600×1200 bucket they are authored in) — e.g.
+`LBL_MENUBG` (1348, 6, 245, 28) → (2157, 8, 392, 37).
+
+**The 4 controls it leaves alone are exactly the minimap group**, and they are
+byte-identical to vanilla *and* to each other across **all 49 sets**:
+
+| control | extent, all 49 sets | what it is |
+|---|---|---|
+| `LBL_MAP` | (6, 6, **512, 512**) | the map quad — the 512 the tile math divides into |
+| `LBL_MAPVIEW` | (6, 6, **120, 120**) | the **visible** minimap viewport |
+| `LBL_MAPBORDER` | (−2, −3, 136, 137) | its frame |
+| `LBL_ARROW` | (47, 49, 32, 32) | player arrow drawn on it |
+
+So the on-screen minimap is a fixed **120×120** at every resolution: 10 % of a
+1200-px-tall screen, 5 % of a 2400-px one. That is why it looks small at high
+resolution while the rest of the HUD keeps up, and it is a deliberate choice by
+ndix UR, not an oversight — almost certainly for the reason this project
+rediscovered the hard way in [F6](EXPERIMENTS_AND_FAILED_APPROACHES.md#f6) /
+[F8](EXPERIMENTS_AND_FAILED_APPROACHES.md#f8): the minimap's tile size comes from
+the shared 440.0/256.0 constants against a fixed 512 map space, so growing its
+box makes the engine smear or drop the quad rather than draw more map.
+
+Previously known only for the four vanilla buckets. Confirms across the whole range why
 rewriting the shared constants had to break the minimap
 ([F6](EXPERIMENTS_AND_FAILED_APPROACHES.md#f6),
 [F8](EXPERIMENTS_AND_FAILED_APPROACHES.md#f8)) and why the private-float redirect
@@ -284,6 +312,94 @@ shrinks to what is actually ours.
 Hardware constraint: one 2560×1600 panel. Anything larger needs **Nvidia DSR or
 AMD VSR**. Enable it before Tier A.
 
+### Results so far (Phase 4, 2026-08-30)
+
+| resolution | aspect | tier | result |
+|---|---|---|---|
+| 2560×1600 | 16:10 | A | **PASS** — the reference build, confirmed in game before Phase 4 |
+| 1920×1080 | 16:9 | A | **PASS**, all 5 checklist items, *after* [F25](EXPERIMENTS_AND_FAILED_APPROACHES.md#f25). The first pass failed on item 1 and root-caused to k1hrm's `hires_patcher.exe`, not to us. Markers re-verified as registered with the art after the fix moved both. |
+| 3840×2400 | 16:10 via DSR 2.25× | A | **PASS**, all 5 items — the largest scale factors run in game (kx=6, ky=5), and what brought marker icon scaling forward into 1.0 (§6.0) |
+| 1600×1200 | 4:3 | B | **PASS**, all 5 items, 2026-08-30. The control: the only aspect where **kx == ky**, so the only one that catches a regression anisotropic scaling would mask. Marker scale ×1. |
+| 2560×1080 | 21:9 | B | **NOT TESTABLE on this hardware** — Tier C. See the hardware correction below. |
+
+Deploying a test build at any of the 49 sets is now one command,
+`python tools/build_test_install.py WxH [--letterbox yes|no] [--home patcher]`
+(dev tool, not shipped — see STATE.md for what it backs up and where it records
+what is live).
+
+### The letterbox gap — §2.9's question answered offline, 2026-08-30
+
+**CLOSED**: run at 2560×1600 with the letterbox on, conversations normal.
+
+What the option is: one float at `0x355788`, the height factor for the black
+bars in the conversation cinematic view. Vanilla holds `0.428571` =
+`1/((4/3)·1.75)`, the 4:3 aspect baked in; k1hrm rewrites it to
+`1/(aspect·1.75)` (`hires_patcher.pl:179-180`), which at 16:10 is `0.357143` — a
+17 % correction, so the visible difference is slightly thinner bars and nothing
+else. It has no bearing on the Area Map. Three facts, found while trying to fold
+it into the 4:3 control:
+
+1. **It is a no-op at 4:3.** `hires_patcher.pl:181-184` sets `letterbox = 0`
+   whenever `width/height == 4/3`, and the 1600×1200 builds for `yes` and `no`
+   are byte-identical, 0 differing bytes. So a 4:3 build cannot test it however
+   the question is answered, and no 4:3 user is ever affected by it.
+2. **It is 3 bytes, outside everything we touch.** At 2560×1600 the
+   letterbox-off chain rebuilds the in-game-confirmed exe
+   (md5 `435108fd…`) and the letterbox-on build differs from it at exactly
+   `0x355788`–`0x35578a`. **Our five layers are byte-identical under either
+   answer**, so the published install order ("yes") cannot change our result —
+   which is what §2.9 was actually asking. The remaining in-game check is
+   cosmetic: does the dialogue bar look right, which is k1hrm's business.
+
+Tested by running the 2560×1600 restore build with `--letterbox yes`, so normal
+play doubles as the observation.
+
+### Correction to the hardware assumption below — 2026-08-30
+
+**"Anything larger needs Nvidia DSR" is wrong as a plan for Tier A.** DSR only
+offers multiples of the panel's own resolution, so on a 2560×1600 (16:10) panel
+it cannot produce 3440×1440 (21:9) or 3840×2160 (16:9) at all — those need
+*custom resolutions*, not DSR.
+
+It does not matter much for the *judgement*, because **the stretch is a property
+of the aspect ratio, not of the size**: `kx/ky` is 1.792 at both 2560×1080 and
+3440×1440, so the 21:9 call in Tier A can be made at 2560×1080.
+
+**Second correction, same day — "fits the panel" is not the test.** Trying
+2560×1080 proved it: the exe was correct at every layer (UniWS, k1hrm and ours
+all read 2560×1080) and the game still ran at 1920×1080 with the whole 2560-wide
+UI overflowing the right edge, because **a fullscreen mode must be *enumerated by
+the display*, not merely be smaller than it**. A 16:10 panel exposes no ultrawide
+modes. Nor does a bordered window help at 2560×1080: the window is ~8 px wider
+than a 2560-wide screen.
+
+The workable rig, then:
+
+| aspect | how to test on a 2560×1600 panel |
+|---|---|
+| 16:10 | native (2560×1600); **3840×2400** via DSR 2.25× for the large case |
+| 16:9 | 2560×1440 / 1920×1080 — standard modes, fullscreen just works |
+| 4:3 | 2048×1536 / 1600×1200 — standard modes |
+| 21:9 | **NVIDIA custom resolution required** (2560×1080) |
+| 32:9 | custom resolution too (1920×540 is not a standard mode either) |
+
+Diagnostic worth reusing: if the UI overflows but the patcher's checks all pass,
+compare the *screenshot's* pixel size against `swkotor.ini` — a mismatch means
+the engine fell back to another mode and the exe is not at fault.
+
+**Windowed mode does not rescue 2560×1080 either — tried 2026-08-30.** With
+`FullScreen=0` and `Width=2560` the engine fell back to **800×600** and did not
+rewrite the ini. A window needs its client area *plus borders* to fit the
+desktop, so 2560 px of client area cannot fit a 2560 px-wide desktop; this is a
+hard refusal, not the few-pixel clip that was predicted. Windowed testing is
+therefore only available for sets **strictly narrower** than the desktop.
+
+**Consequence: 21:9 stays Tier C on this hardware** — offline-verified across all
+49 sets, never run in game — unless someone tests it on a real ultrawide or
+accepts NVIDIA's custom-resolution warranty warning. Recorded rather than
+worked around, because §2.5 already establishes the 21:9 stretch is inherited
+from k1hrm's box shape and is not ours to regress.
+
 ### Tier A — full manual pass. Only these may be called "tested".
 
 | resolution | aspect | why |
@@ -336,7 +452,7 @@ peers.
 | mod | class | relationship | status | test |
 |---|---|---|---|---|
 | **UniWS** | exe | **REQUIRED** | CONFIRMED | test against the official tool, not our port |
-| **k1hrm 1.5** | exe + `.gui` | **REQUIRED** — our `mapscale` targets its box | CONFIRMED across 49 sets (§2.2) | precondition check + official-tool test |
+| **k1hrm 1.5** | exe + `.gui` | **REQUIRED** — our `mapscale` targets its box. **Its shipped `hires_patcher.exe` is defective** (leaves the Area Map centring constants vanilla, [F25](EXPERIMENTS_AND_FAILED_APPROACHES.md#f25)); we detect and finish the job, §5.1 | CONFIRMED across 49 sets (§2.2); the `.exe`/`.pl` divergence CONFIRMED 2026-08-30 | precondition check + official-tool test |
 | KOTOR Editable Executable | exe replacement | required on Steam | CONFIRMED | baseline |
 | **K1CP 1.11** | data (HoloPatcher) | if it moves a note, our key stops matching → their fix wins | **ASSUMED, unverified** | decisive test below |
 | **K1 Ultrawide Letterbox Fix** | exe patcher | complementary (§2.8); also claims "last" | byte range UNKNOWN | range check + in-game |
@@ -405,6 +521,27 @@ most common failure mode in this whole mod category: a mismatch between the
 resolution in the exe, the `.gui` set, and `swkotor.ini`. **This is the single
 highest-value feature in the release.** The `.gui` check code already exists.
 
+**A third check, added 2026-08-30 (Phase 4): finish k1hrm's job when its own
+patcher didn't.** `hires_patcher.exe` — which k1hrm's `.bat` and README both
+point Windows users at — leaves four Area Map centring constants at vanilla
+640/480, where `hires_patcher.pl` writes the target resolution. The map art is
+then drawn `((W-640)/2, (H-480)/2)` off its box. Full evidence:
+[F25](EXPERIMENTS_AND_FAILED_APPROACHES.md#f25).
+
+The patcher now reads `0x2928B3`/`0x292959` and `0x2928C3`/`0x29296B` and
+accepts exactly two states — already correct (do nothing), or exactly vanilla
+*while the canvas constants already prove k1hrm ran at W×H* (write W/H, as its
+own manifest step, undone by `Revert.bat`). Anything else is refused as an
+edited build rather than guessed at.
+
+**We fix rather than refuse** because the only honest alternative to offer the
+player is "install Perl on Windows, or hex-edit four offsets k1hrm never
+documented" — its README's manual technique misses them too. The decisive
+evidence that this is a fix and not a guess: `patcher/selftest.py` rolls those
+four sites back to vanilla on the official-chain base and requires the result to
+converge on md5 `435108fd…`, **the in-game-confirmed exe**; `tools/qa.py` makes
+the same convergence assertion at all 49 resolutions.
+
 ### 5.2 Other requirements
 
 1. **One entry point.** Fingerprint → backup → `mapscale` + private floats →
@@ -426,7 +563,61 @@ highest-value feature in the release.** The `.gui` check code already exists.
 
 ---
 
-## 6. Map-note / icon scaling — deferred to 1.1
+## 6. Map-note / icon scaling — **NOTE icons SHIPPED IN 1.0 (2026-08-30)**; player/party still open
+
+### 6.0 What actually happened, 2026-08-30 (Phase 4)
+
+Testing 3840×2400 in game, the user found the note markers too small to use and
+asked for them doubled. Applied by hand to the live exe first, then wired into
+the patcher once it looked right. **This section's design survived contact, with
+three corrections recorded below.**
+
+**The three marker materials are now catalogued** — they were listed as
+uncatalogued sites here. Identified from the resrefs pushed in the constructor
+at `0x693F60`:
+
+| VA of push | resref | what it is | material size site |
+|---|---|---|---|
+| `0x69404C` | `mm_barrow` | player arrow | `0x69405B` (32) — **not scaled** |
+| `0x6940CD` | `lbl_mapcircle` | unselected note | `0x6940DC` (16) |
+| `0x694156` | `whitetarget` | selected note reticle | `0x69418F` (20) |
+
+The note draw rects, both confirmed by disassembly: **selected** `0x69471F` size
+20 with `0x694718`/`0x694724` offsets −10; **unselected** `0x694762` size 14 with
+`0x694775`/`0x694778` offsets −7. The "uncatalogued −7 partner" this section
+worried about is `0x694778`, and it is an `add edx, -7`, not a separate rect.
+
+**Open question 4 is RESOLVED: the materials resample cleanly.** At s=2 and
+3840×2400 the icons are crisp, not blurry, and the markers stayed on their rooms
+— confirming [F9](EXPERIMENTS_AND_FAILED_APPROACHES.md#f9)'s half-size centring
+holds at a scaled size. **CONFIRMED in game; it is the only icon size ever run.**
+
+**The scale rule changed.** `clamp(round(min(kx, ky)), 1, 8)` as designed below
+would give **3** at 2560×1600 — it rescales a baseline this project has played
+for months and never complained about, and would break `selftest.py`'s
+byte-for-byte reproduction of the confirmed exe. The shipped rule anchors on that
+baseline instead:
+
+    s = clamp(ceil(min(kx, ky) / (1600/480) - 0.25), 1, 8)
+
+so **2560×1600 → 1 and writes not one byte**, and 3840×2400 → 2 as tested. The
+`-0.25` steps up a quarter past each step rather than half — user decision
+2026-08-30, taken over plain rounding (which leaves **3840×2160**, the commonest
+4K target, at 1×, i.e. 26 % *smaller* than the baseline and near the size that
+prompted this work) and over `ceil` (which pushes 2880×1800 to +78 % and reads
+chunky). Across k1hrm's 49 sets: **36 unchanged, 9 at 2×, 3 at 3×, 1 at 6×**.
+
+**Only the note icons ship.** The player arrow and party marker are untouched
+pending a separate decision, so at a scaled resolution the player arrow is now
+*smaller relative to the notes* than in vanilla. That is a deliberate, reversible
+state, not an oversight.
+
+Implementation: `hires_patch.NOTE_ICON_SITES` / `note_icon_scale()` /
+`patch_note_icons()`, applied by `steps.apply_all` as its own manifest step, with
+a `verify.check` assertion that each centring offset is exactly half its own draw
+size — the property that keeps a marker on its room.
+
+### 6.1 Original design notes (superseded where §6.0 says so)
 
 **They do need to scale.** A 14 px icon was **5.5 %** of the map's height in
 vanilla, is **1.6 %** at 2560×1600 and **1.2 %** at 3840×2160; in map-space terms
@@ -487,6 +678,7 @@ cannot relocate. That is a rewrite, not a port.
 | 6 | Latent banker's-rounding bug at exact-half resolutions (§2.4). | low | `floor(x+0.5)`. |
 | 7 | `lea ebx,[esp-0x400]` borrows below ESP; Win32 x86 has no red zone. | low but real | Recorded hazard. Shipping to strangers widens the sample; `sub esp, N` is strictly safer and cheap. |
 | 8 | K1CP note interaction unquantified. | low | The `finalize` re-derivation test (§4). |
+| 9 | **We write four bytes that belong to k1hrm** (§5.1, [F25](EXPERIMENTS_AND_FAILED_APPROACHES.md#f25)). Scope creep into a prerequisite, and `Revert.bat` puts the player back to a *broken* k1hrm rather than a good one. | low | Gated to the one measured starting state; refuses anything else; convergence on the confirmed exe asserted by `selftest.py` and at all 49 resolutions by `qa.py`. Say plainly in the README what we change and why, and report it upstream to ndix UR. |
 
 Risks 2, 5 and 10 of the 2026-08-29 draft (interface bucket, letterbox, GPL) are
 **closed by the scope decision** in §0.
@@ -545,24 +737,39 @@ fresh Tier A pass was required at 2560×1600.** Repro script:
 configuration (§2.9), deferred to Phase 4.
 
 **Phase 2 — the patcher. DONE 2026-08-30.** `patcher/` — one entry point,
-resolution auto-detect (§5.1), build fingerprint, 19 post-write checks, JSON
+resolution auto-detect (§5.1), build fingerprint, 20 post-write checks, JSON
 manifest, `Apply.bat`/`Revert.bat`. Acceptance test `patcher/selftest.py`
 reproduces the in-game-confirmed exe byte for byte (md5 `435108fd…`) and covers
 six refusal/revert cases. See §2.10 and CURRENT_STATE.md.
 
-**Phase 3 — automated QA.** Per-resolution checks across all 49 sets; the
-note-table end-to-end simulation (exists, wire it in); the K1CP key-survival
-test. One command, one report.
+**Phase 3 — automated QA. DONE 2026-08-30.** `tools/qa.py` — **PASS, 49/49
+k1hrm 1.5 resolutions**, plus the note-table position-key scheme proven
+collision-free across all 340 map notes in the game and the frozen table proven
+to match a fresh derivation. One command, one report:
+`python tools/qa.py --json output/qa_report.json`. Full spec:
+[`PHASE3_SPEC.md`](PHASE3_SPEC.md). **The K1CP key-survival test moved
+to Phase 5 (user decision 2026-08-30)** — it needs a K1CP download and a
+throwaway HoloPatcher install, and Phase 3 is worth more if it stays fully
+offline and re-runnable with zero setup.
 
-**Phase 4 — resolution testing.** Enable DSR/VSR. Tier A manual, then Tier B
-smoke. Results become the README's support matrix.
+**Phase 4 — resolution testing. DONE 2026-08-30.** Four resolutions confirmed in
+game across three aspects — 2560×1600, 1920×1080, 3840×2400 (DSR) and 1600×1200
+as the 4:3 control — all 5 checklist items each. It found the F25 defect in
+k1hrm's shipped `hires_patcher.exe` (root-caused, detected and fixed by our
+patcher, §5.1) and brought marker icon scaling forward into 1.0 (§6.0). 21:9 and
+32:9 are recorded as **not testable on this hardware** and stay Tier C. §2.9's
+letterbox gap is closed. `tools/qa.py` re-run after the marker work: **OVERALL
+PASS, 49/49**. The table above is the README's support matrix.
 
-**Phase 5 — compatibility testing.** §4's matrix; K1CP and the Ultrawide
-Letterbox Fix first.
+**Phase 5 — compatibility testing.** §4's matrix; the K1CP key-survival test
+(moved here from Phase 3) and the Ultrawide Letterbox Fix first.
 
 **Phase 6 — package and release 1.0.** Freeze, hashes, GPLv3 licence file and
 ndix UR credit, README with raw offsets and cave ranges (k1hrm precedent),
-troubleshooting doc.
+troubleshooting doc. **Decide here, not earlier: the bigger-minimap question
+(§10)** — user request 2026-08-30 to weigh it at the final stages. Also tidy the
+backup filenames (repeat installs currently accumulate timestamped 4 MB copies,
+seen 2026-08-30).
 
 **Phase 7 — 1.1: marker icon scaling** (§6).
 
@@ -571,7 +778,29 @@ troubleshooting doc.
 ## 10. Deferred to a future release
 
 - **`dinput8.dll` / ASI and packed-Steam-exe support** (§7).
-- **Marker icon scaling** — 1.1 (§6).
+- ~~**Marker icon scaling** — 1.1 (§6).~~ **SHIPPED IN 1.0 2026-08-30** — notes,
+  player arrow and party markers all scale together (§6.0).
+- **A bigger HUD minimap — DECIDE AT THE FINAL STAGES, before 1.0 is packaged.**
+  User request 2026-08-30. §2.3 now establishes the facts: the visible minimap is
+  `LBL_MAPVIEW` at a fixed **120×120** at every resolution, and it is the one
+  thing k1hrm deliberately declines to rescale while scaling 116 of the HUD's 120
+  controls. At 3840×2400 that is 5 % of screen height and the user reports it as
+  too small.
+  **Why it is not a GUI-extent tweak:** the minimap's tile size comes from the
+  shared 440.0/256.0 constants against a fixed 512 map space, so enlarging the box
+  alone makes the engine smear or drop the quad — that is
+  [F6](EXPERIMENTS_AND_FAILED_APPROACHES.md#f6)/[F8](EXPERIMENTS_AND_FAILED_APPROACHES.md#f8),
+  and ndix UR evidently hit the same wall.
+  **Why it now looks tractable:** we already solved this exact shape of problem
+  for the Area Map — private scaled float copies plus a redirect of only the
+  *consumer's* operands (`BIGMAP_FLOAT_OPERANDS`). The minimap's draw is a
+  separate function at `0x688100` with its own `fdivr [0x747748]` at `0x688153`,
+  so the same technique should apply to it independently.
+  **Why it is not in 1.0:** it is new work in the subsystem with the worst track
+  record in this project, it would also need `LBL_MAPVIEW`/`LBL_MAPBORDER`/
+  `LBL_ARROW` moved in a file **k1hrm owns**, and 1.0's scope is deliberately
+  "our own work only" (§0). Decide at packaging time whether it is a 1.1 feature
+  or a separate mod; do not let it delay 1.0.
 - **The player/party double-rounding fix** (≤2 px; vanilla is imprecise too). The
   right fix is at the writer `0x5790C0`, in the subsystem that broke twice.
 - **The Area Map frame line** — DXT1 art editing on an asset k1hrm owns.
@@ -595,12 +824,21 @@ Recorded so they are not quietly promoted to CONFIRMED:
    (3 bytes at `0x355788`), while §4's install order recommends it.
 2. **GOG and retail 4-CD patchability** — researched, no binary here.
 3. **Byte-range overlap** with the Ultrawide Letterbox Fix.
-4. **Marker materials: procedural or resampled textures?** (§6)
+4. ~~**Marker materials: procedural or resampled textures?** (§6)~~
+   **RESOLVED 2026-08-30: they resample cleanly** — CONFIRMED in game at
+   3840×2400, s=2, icons crisp and still registered on their rooms (§6.0).
 5. **Does K1CP move any map note?** (§4) — cheaply answerable, not yet answered.
 6. Carried from [FUTURE_WORK](FUTURE_WORK.md): the widened bound check's effect on
    the generic HUD path, and the vanilla float twins `0x747748`/`0x7455D4`.
-7. **Does "3440x1440 Enhanced HUD/UI and Menus" ship or edit `map.gui`?** (§4) —
-   if it does, it collides with k1hrm's per-resolution GUI set rather than adding
-   alongside it. Cheaply answerable by inspecting the mod's file list; not yet
-   checked. Researched 2026-08-30 alongside the Flawless Widescreen finding
+7. ~~**Does "3440x1440 Enhanced HUD/UI and Menus" ship or edit `map.gui`?**~~
+   **RESOLVED 2026-08-30 by inspecting `downloads/enhanced-hud-3440x1440/`.**
+   **Yes** — it ships **82 `.gui` files**, including `map.gui` and all nine
+   `mipc*.gui`. But its boxes are the *same* as k1hrm's: `map.gui` `LBL_Map` is
+   `(511, 354, 2365, 768)`, byte-for-byte k1hrm's own `21-by-9/gui.3440x1440`
+   value, and `mipc16x12.gui` `LBL_MAP` is `(6, 6, 512, 512)`, the same fixed
+   minimap box as every one of the 49 sets (§2.3). So it is a **k1hrm-set
+   replacement for one resolution, not an addition** — treat it that way in §4 —
+   and it does **not** enlarge the HUD or minimap. Our `mapscale` formula and
+   the `check_map_gui` gate agree with it at 3440×1440, so a user running it
+   would pass our precondition check. Researched 2026-08-30 alongside the Flawless Widescreen finding
    (different mechanism, declared incompatible — not an open uncertainty).

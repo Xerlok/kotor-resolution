@@ -19,6 +19,7 @@ from __future__ import annotations
 import hashlib
 import os
 import shutil
+import struct
 import subprocess
 import sys
 
@@ -29,8 +30,14 @@ GAME = os.path.join(WORK, "game")
 
 BASE = os.path.join(ROOT, "staging", "verify-chain", "official", "swkotor.exe")
 VANILLA = os.path.join(ROOT, "downloads", "swkotor.exe")
-LIVE_GUI = (r"C:\Program Files (x86)\Steam\steamapps\common\swkotor"
-            r"\Override\map.gui")
+# k1hrm's own shipped 2560x1600 map.gui, to match BASE's resolution. Was the
+# LIVE install's copy until 2026-08-30, which made the selftest depend on
+# whatever resolution this machine happened to be patched for - it broke the
+# moment Phase 4 rebuilt the install at 1920x1080. The shipped file is
+# byte-identical to the live one (RELEASE_PLAN section 2.9, point 4: all 81
+# files match), md5 4a9b423f4bf823f3b69405e0decf1e0f.
+LIVE_GUI = os.path.join(ROOT, "downloads", "k1hrm-1.5", "16-by-10",
+                        "gui.2560x1600", "map.gui")
 
 EXPECTED_MD5 = "435108fdb65bac2151ab694e7fb8e36a"   # the live, in-game-confirmed exe
 
@@ -140,6 +147,58 @@ def main():
         run("install.py", GAME)
         assert md5(exe) == EXPECTED_MD5
 
+    def finishes_a_stale_k1hrm_exe():
+        """The state every Windows user who runs hires_patcher.EXE ends up in.
+
+        Roll k1hrm's four Area Map centring constants back to vanilla 640/480 -
+        the exact 6-byte difference between hires_patcher.exe's output and
+        hires_patcher.pl's - and require the patcher to notice and finish the
+        job. The result must be the SAME in-game-confirmed exe, which is what
+        makes this a fix rather than a guess. See F25.
+        """
+        sys.path.insert(0, PATCHER)
+        from k1amf import detect
+        stale = os.path.join(WORK, "stale-k1hrm")
+        os.makedirs(os.path.join(stale, "Override"), exist_ok=True)
+        shutil.copyfile(LIVE_GUI, os.path.join(stale, "Override", "map.gui"))
+        with open(BASE, "rb") as fh:
+            data = bytearray(fh.read())
+        for offs, value in ((detect.CENTRING_X, detect.VANILLA_W),
+                            (detect.CENTRING_Y, detect.VANILLA_H)):
+            for off in offs:
+                struct.pack_into("<h", data, off, value)
+        assert detect.centring_state(data, 2560, 1600) == "stale"
+        stale_exe = os.path.join(stale, "swkotor.exe")
+        with open(stale_exe, "wb") as fh:
+            fh.write(data)
+
+        out = run("install.py", stale)
+        assert "left the Area Map centring constants" in out, out[-1500:]
+        for line in out.splitlines():
+            if line.startswith("  [ ]"):
+                raise SystemExit("a verification check failed:\n" + out[-3000:])
+        got = md5(stale_exe)
+        if got != EXPECTED_MD5:
+            raise SystemExit(
+                "finishing a stale k1hrm exe did not converge on the confirmed "
+                "exe\n  expected %s\n  got      %s" % (EXPECTED_MD5, got))
+        print("    detected, fixed, and converged on the confirmed exe")
+
+    def refuses_unknown_centring():
+        """Neither correct nor the known-stale state - we must not guess."""
+        sys.path.insert(0, PATCHER)
+        from k1amf import detect
+        odd = os.path.join(WORK, "odd-centring")
+        os.makedirs(os.path.join(odd, "Override"), exist_ok=True)
+        shutil.copyfile(LIVE_GUI, os.path.join(odd, "Override", "map.gui"))
+        with open(BASE, "rb") as fh:
+            data = bytearray(fh.read())
+        struct.pack_into("<h", data, detect.CENTRING_X[0], 1234)
+        with open(os.path.join(odd, "swkotor.exe"), "wb") as fh:
+            fh.write(data)
+        out = run("install.py", odd, expect=1)
+        assert "neither" in out and "will not guess" in out, out[-1500:]
+
     case("refuses an exe k1hrm has not touched", refuses_without_k1hrm)
     case("refuses a .gui set from another resolution", refuses_mismatched_gui)
     case("--dry-run leaves the exe alone", dry_run_writes_nothing)
@@ -147,6 +206,10 @@ def main():
     case("refuses to patch its own output again", refuses_to_patch_twice)
     case("revert restores the original bytes", reverts_exactly)
     case("reinstall after revert works", can_reinstall_after_revert)
+    case("finishes a k1hrm exe left stale by hires_patcher.exe",
+         finishes_a_stale_k1hrm_exe)
+    case("refuses centring constants it does not recognise",
+         refuses_unknown_centring)
 
     print("\nALL PASS - patcher output md5 %s" % EXPECTED_MD5)
     return 0
