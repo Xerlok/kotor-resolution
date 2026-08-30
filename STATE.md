@@ -17,8 +17,109 @@ The project has moved from development into **shipping**. The plan is
 [`docs/RELEASE_PLAN.md`](docs/RELEASE_PLAN.md) (plain-language version:
 [`docs/RELEASE_PLAN_SIMPLE.md`](docs/RELEASE_PLAN_SIMPLE.md)).
 **Approved by the user 2026-08-30. Phases 0-4 (§9) are done; Phase 5
-(compatibility testing) is NEXT.** Phases pause for the user's go-ahead at each boundary
+(compatibility testing) is IN PROGRESS.** Phases pause for the user's go-ahead at each boundary
 and carry a Sonnet/Opus recommendation — see §9.0 of the plan.
+
+### Phase 5 — DONE 2026-08-30
+
+**The whole published stack was confirmed in game together**, 2560×1600, the
+first time every layer has run at once:
+
+    k1hrm (letterbox ON) -> K1CP v1.10.0 -> Ultrawide Letterbox Fix -> ours
+
+| check | result |
+|---|---|
+| Area Map fills its box | PASS |
+| HUD minimap alive | PASS |
+| map notes correct in a K1CP-patched module (`danm13`, Sandral estate) | PASS |
+| player arrow + party markers | PASS |
+| **Ebon Hawk area map** — `ebo_m40ad`, where K1CP moves 6 of the 35 waypoints it moves game-wide | **PASS, untouched** — `k1cp_keytest`'s "none of them are map notes" now holds in game, not just on disk |
+
+**The Ultrawide Letterbox Fix's own feature is NOT observable at 16:10.** The
+user reports the first-cutscene bottom bar and subtitles correct *both before
+and after* applying it — consistent with it being an ultrawide fix for a bug
+16:10 never had. **We claim coexistence, not that their fix works**; proving the
+latter needs the 21:9 hardware Phase 4 recorded as unavailable (Tier C).
+
+**True Controller Support** stays INFERRED — process-level `dinput8.dll` ASI,
+no static overlap, not worth hardware time.
+
+### Phase 5 detail
+
+Three §4 rows closed with **no downloads and no game run**:
+
+1. **KPM / KotorUniResPatch — incompatible, and detectable.** No static overlap
+   with our hooks, caves, `.rsrc` region or private floats; it hooks the same
+   function (`CSWGuiMapHider::Draw`) at `0x69473A`+9, past our `0x6946D3` /
+   `0x6946EF`, and allocates at runtime. The conflict is the shared constants
+   `0x747748`/`0x7455D4` and the rect immediates — it rescales what we already
+   scaled. On-disk tells: `KotorPatcher.dll`, `hooks.toml`, `manifest.toml`,
+   `patch_config.toml`, `KPatchLauncher`. **Open Phase 6 decision: warn or
+   refuse?**
+2. **Flawless Widescreen — incompatible, undetectable.** Live-process Lua
+   injection, nothing on disk. Stays INFERRED; never run here.
+3. **3440×1440 Enhanced HUD — compatible with us**, mutually exclusive with
+   k1hrm's own 3440×1440 set (it ships all 81 of those filenames plus its own
+   pre-patched exe). Its `map.gui` differs in size from k1hrm's but its
+   **`LBL_Map` box is identical** — (511, 354, 2365, 768) = `expected_map_extent(3440,1440)`
+   — so `check_map_gui` passes on either.
+
+**F25 now has a second, independent witness.** That mod's bundled
+`swkotor.exe` (4,042,752 B) carries the defect: canvas constants −3440/−1440,
+all four centring sites left vanilla 640/480 → `detect.centring_state() ==
+"stale"`. A *published* mod ships users into exactly the state §5.1 repairs.
+
+Then, after the user downloaded the three archives:
+
+4. **K1 Ultrawide Letterbox Fix — compatible, but THE INSTALL ORDER FLIPS.**
+   No byte overlap (one 71-byte region at file `0x22B74E` + the PE `CheckSum`;
+   it only *reads* `0x355788`). But **its patcher gates on exact file size
+   `EXPECT_LEN = 4042752`**, and we grow the exe to 4,050,944 — so
+   **ours-then-theirs is refused**, with a message that misleadingly blames the
+   game build. Theirs-then-ours works: their patch survives byte-intact and all
+   20 of our checks pass. Its *revert* has the same gate, so uninstall mirrors
+   it: our `Revert.bat` first. §4.1 has the evidence; §4's published order is
+   updated.
+5. **4 GB patch (LAA) — compatible in both orders. CONFIRMED with the real
+   NTCore binary** (the user ran it against our confirmed build `435108fd…`;
+   `staging/4gb-real/`). It changes **exactly 3 bytes**: Characteristics
+   `0x010F`→`0x012F` at file `0x926`, CheckSum `0x003E73F7`→`0x003E2782` at
+   `0x968`. Section table and the whole `K1MAPNTS` region are byte-identical.
+   The Python emulation used earlier predicted **both values exactly**, so that
+   test is retroactively validated. `verify.check` returns **20/21** on the
+   result — the one flag is `first stray: 0x926`, the LAA bit itself, correctly
+   reported rather than a fault. **Phase 6 question: whitelist that byte, or
+   leave the honest flag and explain it in the README?**
+   **no-CD patchers are dropped from the matrix** — sourcing one means a cracked
+   exe, and this covers the same PE-header risk.
+
+**Documentation defect found and fixed while doing it.** §4's "byte ranges to
+publish" list was unlabelled **virtual addresses**. File offset is `VA −
+0x400000` for the hooks, caves and private floats — but the reserved `.rsrc`
+region's delta is **`0x492000`** (`0x86D000` VA = file `0x3DB000`), because it
+lives in our *extended* section. The exe is only `0x3DD000` bytes, so the
+obvious subtraction sends a third-party investigator past EOF. Both numbers are
+now published per range.
+
+6. **K1CP v1.10.0 — CONFIRMED COMPATIBLE.** (Note the version: 1.10.0 is
+   current; §4 had assumed 1.11.) Installed into a throwaway copy via
+   HoloPatcher's CLI — 2227 patches, 0 errors, 0 warnings — then measured:
+   **0 map notes moved, 0 added, 0 removed; 250/250 of our corrections still
+   match.** Coverage: 85 of 90 note-bearing modules read from K1CP's own
+   `.mod`. The pass is proved non-blind by `tools/k1cp_verify.py`: of **4,064
+   waypoints compared, K1CP moves 35** — and **none of the 35 is a map note**.
+   Report: `output/k1cp_keytest.json`.
+
+**New tool: `tools/k1cp_keytest.py`** (read-only, no game needed beyond a
+throwaway copy). Two reasons it is not `note_corrections.py finalize`:
+`finalize` has no `--game` flag and would overwrite the shipped
+`output/note_corrections.csv`; and — the load-bearing one —
+`map_calibration.iter_modules` reads **`modules/*.rim` only**, while
+HoloPatcher/TSLPatcher mods install **`modules/*.mod`**, which the engine
+prefers. Reading `.rim` against a modded install reports zero changes whatever
+the mod did: a false pass. The new tool reads `.mod` first, mirroring engine
+priority. Validated against a clean copy: 90 modules, 340 notes, 250/250
+corrections matching, 0 moved.
 
 **Phase 3 — done 2026-08-30 (Sonnet). `tools/qa.py` passes: 49/49 resolutions,
 note-table block clean.**
@@ -79,6 +180,10 @@ was patched for and broke the moment Phase 4 rebuilt at 1920×1080. It now uses
 k1hrm's shipped `gui.2560x1600/map.gui` (byte-identical, §2.9 point 4).
 
 **Still open:** report the `hires_patcher.exe` defect upstream to ndix UR.
+
+**Process rule added by the user 2026-08-30: `git push` at the end of every
+phase**, not just commit. §9.0 rule 1's checkpoint now means
+checkpoint + commit + push.
 
 ### Phase 4 results — final
 
@@ -177,10 +282,32 @@ box at every resolution. An earlier claim in §2.3 that "k1hrm does not scale th
 HUD" was **wrong** and is corrected there. Whether to make it bigger is
 **deferred to Phase 6 by user request** — see §10.
 
-**⚠ The live install is 2560×1600 with k1hrm's letterbox ON** (md5
-`08567b16…`), which is the confirmed build `435108fd…` plus those 3 letterbox
-bytes — not the confirmed md5 itself. `python tools/build_test_install.py
-2560x1600 --letterbox no --home patcher` puts the exact confirmed build back.
+**The live install was restored to its pre-test state 2026-08-30, byte-exactly,
+after the Phase 5 combined test.** It is again 2560×1600 with k1hrm's letterbox
+ON and only our mod on top: **md5 `08567b1614e58db8d15e294018269a96`,
+4,050,944 bytes — byte-identical to `backups/pre-k1cp-20260830-195230/swkotor.exe`.**
+K1CP is gone (`modules/` back to 234 files, 0 `.mod`; `Override/` back to 81),
+the Ultrawide Letterbox Fix is reverted, `tools/state.py` shows all five of our
+layers, and the game folder holds no backup of ours.
+
+`python tools/build_test_install.py 2560x1600 --letterbox no --home patcher`
+still puts the exact confirmed build `435108fd…` back if a clean baseline is
+wanted (the live build is that plus k1hrm's 3 letterbox bytes).
+
+**One trap that restoration exposed, worth knowing before Phase 6.** Reverting
+the Ultrawide Letterbox Fix does **not** return the exe to its previous bytes:
+their patcher **recomputes the PE checksum** on both apply and revert, while
+UniWS, k1hrm and our patcher all leave the field alone. So their revert left a
+*correct* checksum `0x003E6A8C` where the chain base had a stale
+`0x003E73F7` — same size, different md5, everything else identical (`0x22B74E`
+verified restored). Restoring the field at file `0x968` made the base
+byte-exact again, after which our patcher reproduced `08567b16…` on the nose.
+
+**Consequence for our own docs and for users:** an md5 published for "k1hrm
+output" is only stable if nobody has run a checksum-fixing tool over it. Our
+patcher must keep identifying builds by *content* — the canvas constants and the
+`detect.py` fingerprint — never by whole-file hash. It already does; do not
+"improve" it into a hash check in Phase 6.
 
 **`tools/qa.py` re-run 2026-08-30 after the marker-icon work: OVERALL PASS,
 49/49 resolutions**, 800×600 to 15360×8640, ~17 min. The note-table block passes

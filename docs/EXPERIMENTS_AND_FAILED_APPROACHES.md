@@ -578,3 +578,20 @@ could never have caught this: it builds its test binaries through
 using `perl hires_patcher.pl W H no swkotor.exe`, or patch the four int16 sites
 directly. Not fixable by reinstalling our mod.
 
+**Found in the wild — CONFIRMED 2026-08-30 (Phase 5).** The defect is not
+hypothetical and not confined to this machine: the published third-party mod
+**"KotOR 3440×1440 Enhanced v1.1"** ships a **pre-patched `swkotor.exe`**
+(4,042,752 bytes) that carries it. Read straight out of that file:
+
+| site | value | should be |
+|---|---|---|
+| canvas `0xB6C7` / `0xB6DA` (file offsets) | −3440 / −1440 | correct |
+| centring `0x2928B3`, `0x292959` | **640**, **640** | 3440 |
+| centring `0x2928C3`, `0x29296B` | **480**, **480** | 1440 |
+
+`detect.centring_state()` returns `"stale"` on it — the exact fixable-stale state
+§5.1 was built for, so our patcher repairs it rather than refusing. Two
+consequences: the state we handle is one real users are already shipped into by a
+mod that has nothing to do with us, and this is a second, independent witness for
+the upstream report to ndix UR.
+
