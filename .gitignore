@@ -1,0 +1,16 @@
+# Copyrighted/redistribution-risk game data and third-party downloads
+backups/
+downloads/
+staging/
+
+# Python
+__pycache__/
+*.pyc
+
+# Patcher run artefacts: a player's own exe backup and install record, written
+# when the patcher is run from the repo. Never part of the release.
+patcher/backup/
+patcher/installed.json
+patcher/installed.json.reverted
+patcher/dist/
+patcher/build/
