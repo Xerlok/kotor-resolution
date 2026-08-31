@@ -1,0 +1,176 @@
+K1 Area Map Fixes - troubleshooting
+===================================
+
+First, the reassuring bit. This patcher does all its checking before it writes
+anything. If it stops and tells you something, your game has not been touched.
+And if a write doesn't come out right, it says so and points you at your
+backup instead of pretending it worked. There is no "half-patched" state to
+get stuck in.
+
+Every run also writes last-run-log.txt next to Install.bat, with the full
+technical detail of what happened. You never need to read it. It's the thing
+to attach if you report a problem.
+
+
+MESSAGES YOU MIGHT GET, AND WHAT THEY MEAN
+------------------------------------------
+
+"Not ready yet - two other mods have to go first"
+    UniWS and KotOR High Resolution Menus have to be installed before this.
+    They're the mods that actually change your resolution; this one only
+    fixes the map afterwards. The README has both, with links.
+
+"This isn't the version of the game this mod can patch"
+    Your swkotor.exe is the locked one Steam and GOG ship. No mod can edit
+    it - not this one, not UniWS, not the menus mod. Install the KOTOR
+    Editable Executable first (link in the README), then the other two,
+    then this.
+
+"I couldn't find your KOTOR folder"
+    Drag your KOTOR folder onto Install.bat and let go. That's the folder
+    with swkotor.exe in it.
+
+"Your menu files and your game don't match"
+    Your game is set for one resolution and the menu files in your Override
+    folder were made for another. This is the most common mistake in this
+    kind of mod. Copy the menu files for the right resolution into Override
+    and try again.
+
+"A menu file the game needs is missing"
+    The high-res menus mod hasn't been run, or its menu files were never
+    copied into your Override folder. It's not enough to run its patcher -
+    you also have to copy the menu files for your resolution.
+
+"Something has already changed the part of the game this mod patches"
+    Some other exe mod got there first, and it isn't one this recognises.
+    It won't guess. Put back an unmodified swkotor.exe, redo UniWS and the
+    menus mod, then run this.
+
+"A previous install didn't finish"
+    Run Uninstall.bat, then try again. It refuses to patch on top of a
+    half-finished install because that really would break the game.
+
+"This mod is already installed"
+    Not a problem. Run Uninstall.bat first if you want to install it again.
+
+"This download is damaged"
+    The map data doesn't match its own checksum. Download the mod again.
+
+"Heads up: Kotor Patch Manager is installed here"
+    Not an error - it carries on. But if you have KPM's "KotorUniResPatch"
+    switched on, turn it off. It fixes the same map this does, and with both
+    on the map comes out wrong. See COMPATIBILITY.txt.
+
+
+PROBLEMS IN THE GAME
+--------------------
+
+The map is off to one side, or hanging off the screen
+    That's the high-res menus mod not finishing its own job, and it happens
+    with or without this mod. Install this mod and it fixes it - it'll tell
+    you it's doing so. (If you'd rather that mod did its own job, run its
+    hires_patcher.pl instead of its .exe, which needs Perl.)
+
+The small corner map is black or missing
+    This mod can't cause that. It specifically avoids the change that does,
+    because that exact thing went wrong twice while building it. Suspect
+    another exe mod. Run Uninstall.bat and see if it's still black - if it
+    is, this wasn't it.
+
+The map looks doubly stretched, or markers are wildly off
+    Almost certainly Kotor Patch Manager's KotorUniResPatch or Flawless
+    Widescreen running at the same time. See COMPATIBILITY.txt.
+
+A map note is still in the wrong place
+    250 notes are corrected out of the 340 in the game. Ones that weren't
+    reviewed are left exactly as BioWare shipped them. Expected, not a bug.
+
+The game won't start after patching
+    Run Uninstall.bat. That puts your original game file back. Then please
+    report it, with last-run-log.txt and installed.json attached.
+
+
+WINDOWS AND STEAM
+-----------------
+
+"Windows protected your PC" when I run Install.bat
+    Windows says that about any program without a paid code signature, which
+    is every small mod tool. Click "More info", then "Run anyway". If you'd
+    rather not, run the Python source instead - see the bottom of this file.
+
+My antivirus deleted it or flagged it
+    Two things here look suspicious to antivirus heuristics without being
+    suspicious: the patcher is a packaged Python program, and it grows a
+    section of an executable. Both are normal for this kind of mod. That's
+    why the release is a folder rather than one big self-extracting exe, why
+    the Python source is included, and why SHA256SUMS.txt lists a checksum
+    for every file.
+
+Steam's "verify integrity of game files" deleted my patched game
+    Steam replaces any exe it doesn't recognise. It'll do this to any exe
+    mod, not just this one. Keep a copy of your patched swkotor.exe outside
+    the game folder and copy it back in afterwards.
+
+It says to unzip the download first
+    You opened the zip and double-clicked Install.bat inside it. Windows
+    allows that, but it runs from a temporary folder it deletes later, taking
+    Uninstall.bat with it. Right-click the zip, "Extract All...", and run
+    Install.bat from the folder that comes out.
+
+I deleted the mod folder and now I want to uninstall
+    Download the mod again, unzip it, and run Uninstall.bat. Your backup is
+    not in that folder - it's in %LOCALAPPDATA%\K1AreaMapFixes - so a fresh
+    copy of the mod finds it and puts your game back.
+
+The game runs at the wrong resolution
+    swkotor.ini has to match what UniWS and the menus mod were set to. This
+    mod reads your game and your menu files but doesn't touch the ini.
+
+Everything is blurry, or the mouse is offset, on a high-DPI screen
+    Right-click swkotor.exe, Properties, Compatibility, "Change high DPI
+    settings", and set the scaling override to Application. Nothing to do
+    with this mod.
+
+
+CHANGING RESOLUTION LATER
+-------------------------
+    1. Uninstall.bat
+    2. put back an unmodified swkotor.exe
+    3. UniWS, then the high-res menus mod, at the new resolution
+    4. copy that resolution's menu files into Override
+    5. Install.bat
+
+Step 1 isn't optional. This mod checks that the values it's about to change
+are untouched, so it will refuse rather than stack a second set of changes on
+the first.
+
+
+RUNNING IT WITHOUT THE PACKAGED PROGRAM
+---------------------------------------
+You don't have to run our exe. The patcher is a Python script and it's here:
+
+    python "More info\source\install.py"
+    python "More info\source\revert.py"
+
+That does exactly what Install.bat and Uninstall.bat do. Needs Python 3.8 or
+newer, plus the capstone and keystone packages:
+
+    python -m pip install capstone keystone-engine
+
+
+REPORTING A PROBLEM
+-------------------
+Attach two files:
+
+    last-run-log.txt                            next to Install.bat
+    %LOCALAPPDATA%\K1AreaMapFixes\installed.json   if it exists
+
+Between them they record your resolution, every change made, the checksums
+before and after, and where your backup went. That's usually enough to work
+out what happened without a back-and-forth.
+
+Both name the folder your game is installed in, so if you'd rather not post
+that publicly, say so and send them privately instead.
+
+Be aware that both files contain the path to your game folder, so if that
+includes your Windows username, it'll be in there.

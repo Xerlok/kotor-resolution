@@ -46,9 +46,11 @@ def load_note_table():
     if hashlib.sha256(table).hexdigest() != meta.get("sha256") or \
             len(table) != meta.get("bytes"):
         raise PatchError(
-            "the map-note table in this patcher does not match its own "
-            "checksum - the download is damaged. Re-download rather than "
-            "patching with it.")
+            "This download is damaged.\n"
+            "\n"
+            "The map data that came with the patcher doesn't match its own\n"
+            "checksum, so something went wrong downloading or unzipping it.\n"
+            "Download it again.")
     if len(table) % ntp.ENTRY_BYTES:
         raise PatchError("the map-note table is not a whole number of entries")
     return table, meta

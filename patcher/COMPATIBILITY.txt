@@ -1,0 +1,134 @@
+K1 Area Map Fixes - install order and other mods
+================================================
+
+INSTALL ORDER
+-------------
+Do these in order. Steps 1-3 are not ours and are not optional.
+
+  1. KOTOR Editable Executable        (Steam users; the packed Steam exe
+                                       cannot be patched by anyone)
+  2. UniWS                            unlocks the resolution in the engine
+  3. KotOR High Resolution Menus      rebuilds the menus and .gui files at
+     (k1hrm) by ndix UR                that resolution
+  4. K1 Ultrawide Letterbox Fix       IF YOU WANT IT - see below, it must go
+                                       here, before us
+  5. 4 GB / LAA patch                 IF YOU WANT IT - see below
+  6. K1 Area Map Fixes                this mod, last
+
+Uninstall in the reverse order: Uninstall.bat first, then the others.
+
+This patcher reads your resolution out of the exe rather than asking, and
+cross-checks it against Override\map.gui, so it will tell you if steps 2 and 3
+disagree with each other. That mismatch is the most common failure in this
+whole category of mod.
+
+WHY THE ULTRAWIDE LETTERBOX FIX MUST GO BEFORE US
+-------------------------------------------------
+Both projects publish "install last". Only one of us can be, and it has to be
+us, for a mechanical reason:
+
+Their patcher checks that swkotor.exe is exactly 4,042,752 bytes before it will
+run. We grow the exe by 8 KB. So if we go first, their patcher refuses - and
+its message blames your game build, which is misleading, because your build is
+fine.
+
+Theirs first, then ours, works: their change survives untouched and all 21 of
+our post-write checks pass. Their uninstaller has the same size check, so the
+same order applies in reverse - Uninstall.bat first, then theirs.
+
+Confirmed 2026-08-30, both orders tested. There is no byte overlap between us:
+they write one 71-byte region at file offset 0x22B74E and recompute the PE
+checksum; they only read the value at 0x355788, never write it.
+
+Note that their patcher recomputes the PE checksum on install AND on uninstall,
+while UniWS, k1hrm and this patcher all leave that field alone. So running
+their uninstaller does not return the exe to its exact previous bytes - the
+checksum field will differ. This is harmless; Windows does not enforce it for
+normal programs. It does mean that if you compare md5 hashes of "a k1hrm exe"
+against a published one, they can differ for this reason alone.
+
+THE 4 GB (LARGE ADDRESS AWARE) PATCH
+-------------------------------------
+Compatible. Confirmed with the real NTCore tool 2026-08-30: it changes exactly
+three bytes, both in the PE header, and leaves the section table and our
+reserved region byte-identical.
+
+Install it BEFORE this mod. Not because it breaks anything if you do not, but
+because Uninstall.bat restores the exe from the backup taken when this mod was
+installed - so if you 4 GB-patch afterwards and later uninstall this mod, the
+4 GB patch goes with it, silently.
+
+If you run a byte comparison across a 4 GB patch and see a lone difference at
+file offset 0x926, that is the large-address-aware flag itself. It is the thing
+the patch exists to change, not damage.
+
+KNOWN INCOMPATIBLE
+------------------
+Kotor Patch Manager's KotorUniResPatch
+  Not an addition to this mod - an alternative to it. It hooks the same Area
+  Map draw function at runtime and re-scales the map using the same two shared
+  constants we scale, so with both live the map is scaled twice and is wrong.
+  There is no install order that fixes it. Turn that one patch off in KPM;
+  everything else KPM does is unaffected.
+
+  This patcher looks for KotorPatcher.dll, KPatchLauncher.exe, hooks.toml,
+  manifest.toml and patch_config.toml in the game folder and warns you if it
+  finds them. It warns rather than refuses, because KPM is a patch manager and
+  its presence does not prove that particular patch is switched on.
+
+Flawless Widescreen
+  Injects into the running process; nothing lands on disk, so we cannot detect
+  it and cannot warn you. Do not use it together with this stack. WSGF itself
+  recommends UniWS + k1hrm for KOTOR 1 and reserves Flawless Widescreen for
+  KOTOR 2. Not supported, and never tested here.
+
+CONFIRMED COMPATIBLE
+--------------------
+Kotor 1 Community Patch (K1CP) 1.10.0
+  Confirmed 2026-08-30 by measurement, not assumption. Our 250 note
+  corrections are keyed on world position, so the question was whether K1CP
+  moves any map note. It moves 35 waypoints game-wide; none of them is a map
+  note, and all 250 of our corrections still match after it is installed. This
+  was checked across 90 note-bearing modules, reading K1CP's installed .mod
+  files rather than the original .rim files.
+
+  The whole stack was then run together in game at 2560x1600 - k1hrm, K1CP,
+  the Ultrawide Letterbox Fix and this mod - with the Area Map, the HUD
+  minimap, notes in a K1CP-patched module, and the markers all correct.
+
+3440x1440 Enhanced HUD/UI and Menus
+  Compatible with us. Be aware it is a REPLACEMENT for k1hrm's own 3440x1440
+  set, not an addition - it ships all 81 of those filenames plus its own
+  pre-patched exe. Its map box is identical to k1hrm's, so our precondition
+  check passes on either. Its bundled exe has the k1hrm centring defect
+  described in README.txt, which this patcher detects and fixes.
+
+Override art and texture mods
+  HD UI Menu Pack, Pretty Good! Icons, HD portraits, Main Menu Widescreen Fix,
+  KOTOR Widescreen Fade Fix - no shared ground with anything we write.
+
+Larger Text Fonts
+  Works with us, but it is known on its own to break item stack counts. That
+  is not caused by this mod.
+
+True Controller Support
+  Expected to be fine - it is a dinput8.dll ASI that works at the process
+  level and touches none of our bytes - but it has not been run here. Not
+  confirmed.
+
+NOT SUPPORTED
+-------------
+GOG and 4-CD retail builds
+  Probably patchable in principle, but we have no such binary to test against
+  and their spare code space is not guaranteed to match. The patcher refuses
+  anything that is not the 4,042,752-byte Editable Executable rather than
+  writing into space it has not verified is free.
+
+No-CD patched executables
+  Not tested. If yours still measures 4,042,752 bytes the patcher will accept
+  it, but nothing here has been checked against one.
+
+Ultrawide (21:9) and super-ultrawide (32:9)
+  The maths is verified offline at every one of k1hrm's 49 resolution sets,
+  including the ultrawide ones, but no ultrawide display was available to test
+  on. Treated as untested - see README.txt's support table.

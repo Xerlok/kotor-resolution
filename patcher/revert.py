@@ -25,21 +25,40 @@ from k1amf.detect import Refusal          # noqa: E402
 
 def main(argv):
     force = "--force" in argv
-    print("%s - revert" % PRODUCT)
+    print("%s - uninstall" % PRODUCT)
+    print("")
 
     record = manifest.read()
     if record is None:
         raise Refusal(
-            "no record of an install (%s is missing), so there is nothing to "
-            "revert.\nIf you moved or re-downloaded the patcher folder, use the "
-            "backup you kept instead." % os.path.basename(manifest.MANIFEST))
+            "I can't find a record of this mod being installed, so there's\n"
+            "nothing to undo.\n"
+            "\n"
+            "If you have already uninstalled it, that is all this means.\n"
+            "\n"
+            "If you did install it and it was a different Windows account, or\n"
+            "the record has been deleted, put back the backup copy of\n"
+            "swkotor.exe yourself - or reinstall the Editable Executable and\n"
+            "redo UniWS and the high-res menus mod.\n"
+            "\n"
+            "(Looking for %s.)" % manifest.MANIFEST)
 
     exe_path = os.path.join(record["game_dir"], record["exe"])
     backup = os.path.join(manifest.HERE, record["backup"])
     if not os.path.isfile(backup):
-        raise Refusal("the backup this install recorded is gone:\n    %s" % backup)
+        raise Refusal(
+            "The backup of your original game file is gone:\n"
+            "    %s\n"
+            "\n"
+            "Without it I can't put your game back. If you kept a copy of\n"
+            "swkotor.exe somewhere else, copy it back by hand." % backup)
     if not os.path.isfile(exe_path):
-        raise Refusal("the exe this install recorded is gone:\n    %s" % exe_path)
+        raise Refusal(
+            "Your game file isn't where it was when this mod was installed:\n"
+            "    %s\n"
+            "\n"
+            "Did the game move, or did Steam repair it? There's nothing for\n"
+            "me to undo here." % exe_path)
 
     with open(exe_path, "rb") as fh:
         current = fh.read()
@@ -47,30 +66,49 @@ def main(argv):
         original = fh.read()
 
     if detect.sha256(original) != record["before"]["sha256"]:
-        raise Refusal("the backup file has changed since it was made - it is no "
-                      "longer the exe you had before. Refusing to restore it.")
+        raise Refusal(
+            "The backup file has been changed since it was made, so it's no\n"
+            "longer the game file you had before.\n"
+            "\n"
+            "I won't copy it over your game - it could make things worse\n"
+            "rather than better.")
 
     if detect.sha256(current) != record["after"]["sha256"]:
-        msg = ("%s is not the file this patcher wrote - something has changed it "
-               "since (another mod, k1hrm re-run, or Steam's file verification).\n"
-               "Restoring the backup would throw those changes away."
-               % record["exe"])
+        msg = ("Your swkotor.exe isn't the one this mod created - something\n"
+               "changed it afterwards. Another mod, or Steam repairing the\n"
+               "game, most likely.\n"
+               "\n"
+               "If I put the old backup back now, whatever that other thing\n"
+               "did gets thrown away.")
         if not force:
-            raise Refusal(msg + "\nRun  Revert.bat --force  if that is what you want.")
-        print("\nWARNING: " + msg + "\n--force given; restoring anyway.")
+            raise Refusal(
+                msg + "\n\nIf you're happy to lose it, run:   "
+                "Uninstall.bat --force")
+        print("WARNING")
+        print(msg)
+        print("")
+        print("--force was given, so restoring anyway.")
+        print("")
 
     shutil.copy2(backup, exe_path)
     with open(exe_path, "rb") as fh:
         if detect.sha256(fh.read()) != record["before"]["sha256"]:
-            raise Refusal("the restore did not read back identical. Copy\n    %s\n"
-                          "over\n    %s\nby hand before running the game."
-                          % (backup, exe_path))
+            raise Refusal(
+                "I put the backup back, but reading it again didn't give the\n"
+                "same file, so I can't promise your game is right.\n"
+                "\n"
+                "Don't start the game. Copy this file:\n"
+                "    %s\n"
+                "over this one:\n"
+                "    %s\n"
+                "by hand, replacing it." % (backup, exe_path))
 
-    print("restored %s (%dx%d, as it was before this mod)"
-          % (exe_path, *record["resolution"]))
+    print("Put your original game file back.")
     os.replace(manifest.MANIFEST, manifest.MANIFEST + ".reverted")
-    print("UniWS and KotOR High Resolution Menus are still installed; only this "
-          "mod's changes were undone.")
+    print("")
+    print("UniWS and the high-res menus mod are untouched - your game still")
+    print("runs at %dx%d, it just doesn't have the map fixes any more."
+          % tuple(record["resolution"]))
     return 0
 
 
@@ -78,8 +116,10 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main(sys.argv[1:]))
     except Refusal as exc:
-        print("\n" + "!" * 72)
-        print(exc)
-        print("\nYour game has not been changed.")
-        print("!" * 72)
+        print("\n" + "=" * 70)
+        for line in str(exc).splitlines():
+            print(("  " + line).rstrip())
+        print("")
+        print("  Your game has not been changed.")
+        print("=" * 70)
         raise SystemExit(1)

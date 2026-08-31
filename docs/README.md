@@ -20,6 +20,7 @@ a session months from now can resume without rediscovering anything.
 | 10 | [FUTURE_WORK.md](FUTURE_WORK.md) | Open questions, known limits, next steps |
 | 11 | [RELEASE_PLAN.md](RELEASE_PLAN.md) | **The 2026-08-30 shipping/QA plan** — test matrices, install design, risks, order of work. Awaiting user approval |
 | 12 | [RELEASE_PLAN_SIMPLE.md](RELEASE_PLAN_SIMPLE.md) | The same plan in plain language, no addresses |
+| 13 | [DISTRIBUTION_DECISION.md](DISTRIBUTION_DECISION.md) | Installer-vs-archive decision (archive wins) + 3 open questions for next session |
 
 `archive/` holds the original chronological notes. **Do not read the archive
 unless the user explicitly asks for it** — everything load-bearing has been

@@ -12,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import os
 import struct
+import tempfile
 
 from . import _toolpath  # noqa: F401  (side effect: tools/ on sys.path)
 
@@ -165,15 +166,133 @@ def find_game_dir(explicit=None, start=None):
     if explicit:
         exe = os.path.join(explicit, "swkotor.exe")
         if not os.path.isfile(exe):
-            raise Refusal("no swkotor.exe in %s" % explicit)
+            raise Refusal(
+                "That folder doesn't have swkotor.exe in it:\n"
+                "    %s\n"
+                "\n"
+                "I need the folder the game itself is in - the one with\n"
+                "swkotor.exe, and folders called Override and modules." % explicit)
         return explicit
     for cand in candidate_game_dirs(start):
         if os.path.isfile(os.path.join(cand, "swkotor.exe")):
             return cand
     raise Refusal(
-        "could not find your KOTOR install.\n"
-        "Run the patcher again with the folder that holds swkotor.exe:\n"
-        '    Apply.bat "C:\\Path\\To\\swkotor"')
+        "I couldn't find your KOTOR folder.\n"
+        "\n"
+        "Easiest fix: drag your KOTOR folder onto Install.bat and let go.\n"
+        "\n"
+        "That's the folder with swkotor.exe in it, usually something like\n"
+        "    C:\\Program Files (x86)\\Steam\\steamapps\\common\\swkotor")
+
+
+# --- other mods we know we fight with -----------------------------------
+# Kotor Patch Manager's KotorUniResPatch hooks CSWGuiMapHider::Draw at runtime
+# and re-scales the Area Map using the same two shared constants we scale
+# (0x747748 / 0x7455D4), so with both live the map is scaled twice. Nothing of
+# it is on disk in the exe - it allocates its own code at load - so we cannot
+# gate on bytes; these are the files its installer leaves behind.
+#
+# We WARN rather than refuse (decision 2026-08-30). KPM is a patch *manager*:
+# its presence does not prove the UniRes patch is enabled, the clash is
+# cosmetic and reversible on both sides, and refusing would block people who
+# use KPM for unrelated patches.
+KPM_FILES = ("KotorPatcher.dll", "KPatchLauncher.exe", "hooks.toml",
+             "manifest.toml", "patch_config.toml")
+
+
+def conflicting_mods(game_dir):
+    """Warnings (not refusals) about mods on disk that fight with this one."""
+    seen = [n for n in KPM_FILES if os.path.isfile(os.path.join(game_dir, n))]
+    if not seen:
+        return []
+    return [
+        "Heads up: Kotor Patch Manager is installed here.",
+        "  If you have its \"KotorUniResPatch\" switched on, turn it off. It",
+        "  fixes the same map this mod does, and with both on the map comes",
+        "  out wrong. Nothing else in Kotor Patch Manager is affected.",
+        "  Carrying on with the install.",
+        "  (Found: %s)" % ", ".join(seen),
+    ]
+
+
+# --- are we running from inside the zip ---------------------------------
+# Double-clicking a .bat while looking at a zip in Explorer does not fail: it
+# extracts to %TEMP%\Temp1_<zipname>\ and runs there. 7-Zip (%TEMP%\7z*) and
+# WinRAR (%TEMP%\Rar$*) do the same from their own viewers. Windows empties
+# those folders whenever it likes, so Uninstall.bat and last-run-log.txt are
+# gone by the time they are wanted - the beginner-killer documented in
+# TROUBLESHOOTING.txt. The backup no longer lives there (manifest._data_home),
+# so this is a backstop rather than the fix, and it is cheap: every one of them
+# lands under a temp root.
+def temp_roots():
+    """Directories a zip viewer might have extracted us into."""
+    roots = [tempfile.gettempdir(),
+             os.environ.get("TEMP"), os.environ.get("TMP")]
+    local = os.environ.get("LOCALAPPDATA")
+    if local:
+        roots.append(os.path.join(local, "Temp"))
+    win = os.environ.get("SystemRoot") or os.environ.get("windir")
+    if win:
+        roots.append(os.path.join(win, "Temp"))
+    out = []
+    for root in roots:
+        if not root:
+            continue
+        try:
+            root = os.path.normcase(os.path.realpath(root))
+        except OSError:
+            continue
+        if root not in out:
+            out.append(root)
+    return out
+
+
+def in_temp_folder(path):
+    path = os.path.normcase(os.path.realpath(path))
+    for root in temp_roots():
+        if path == root or path.startswith(root + os.sep):
+            return True
+    return False
+
+
+def check_not_temp(folder):
+    """Refuse to install from a temp folder, naming the fix first."""
+    if not in_temp_folder(folder):
+        return
+    raise Refusal(
+        "Unzip the download first, then run Install.bat from the unzipped\n"
+        "folder.\n"
+        "\n"
+        "This is running from a temporary folder Windows made for it:\n"
+        "    %s\n"
+        "\n"
+        "That happens when you open the zip and double-click Install.bat\n"
+        "inside it, without unzipping first. Windows deletes that folder\n"
+        "whenever it feels like it, and Uninstall.bat would go with it.\n"
+        "\n"
+        "Right-click the zip file, choose \"Extract All...\", put the folder\n"
+        "somewhere you'll keep it - your Desktop is fine - and run\n"
+        "Install.bat from in there." % folder)
+
+
+# Three different gates end up here: the menu-size values disagree with each
+# other, they say something impossible, or the map centring values are neither
+# correct nor the one wrong state we know how to finish. Same cause every time
+# - something has already edited this part of the game - and the same fix, so
+# they say the same thing rather than three variations a player has to tell
+# apart. The specific values follow in brackets; that is what a bug report
+# needs, and it reads as detail rather than as the headline.
+_MEDDLED = (
+    "Something has already changed the part of the game this mod patches,\n"
+    "and I don't recognise what it did.\n"
+    "\n"
+    "I'm not going to guess and risk breaking your game. The safe fix is to\n"
+    "start clean:\n"
+    "\n"
+    "  1. put back an unmodified swkotor.exe (or reinstall the Editable\n"
+    "     Executable)\n"
+    "  2. run UniWS, then the high-res menus mod\n"
+    "  3. run this again")
 
 
 # --- is this the build we know ------------------------------------------
@@ -182,14 +301,17 @@ def check_build(data, exe_path):
         return          # already ours; layer_state() reports it properly
     if len(data) != BASE_SIZE:
         raise Refusal(
-            "%s is %d bytes; this patcher only knows the %d-byte "
-            '"Editable Executable" that UniWS and KotOR High Resolution Menus '
-            "are made for.\n"
-            "If you are on the Steam release, swap in the Editable Executable "
-            "first (it ships with the game as swkotor.exe in the game folder "
-            "after running the UniWS patcher). The GOG and 4-CD builds are "
-            "untested and will be refused here rather than guessed at."
-            % (os.path.basename(exe_path), len(data), BASE_SIZE))
+            "This isn't the version of the game this mod can patch.\n"
+            "\n"
+            "The Steam and GOG releases ship a swkotor.exe that no mod can\n"
+            "patch - not this one, not UniWS, not the high-res menus mod.\n"
+            "Everyone gets around it the same way: install the \"KOTOR\n"
+            "Editable Executable\" first. It's a free download on\n"
+            "DeadlyStream and it's the normal first step for this kind of\n"
+            "mod. Then run UniWS and the high-res menus mod, then this.\n"
+            "\n"
+            "(Your swkotor.exe is %d bytes; the one I'm expecting is %d.)"
+            % (len(data), BASE_SIZE))
 
 
 # --- what resolution is this exe patched for ----------------------------
@@ -207,29 +329,30 @@ def read_resolution(data):
 
     if set(xs) == {VANILLA_W} and set(ys) == {VANILLA_H}:
         raise Refusal(
-            "this exe still has the vanilla 640x480 canvas constants, which "
-            "means KotOR High Resolution Menus (k1hrm) has not been run on it.\n"
-            "Install order:\n"
-            "  1. UniWS  - unlocks the resolution\n"
-            "  2. KotOR High Resolution Menus (k1hrm) - rebuilds the menus at "
-            "that resolution\n"
-            "  3. this patcher\n"
-            "Both are required; this mod fixes the Area Map on top of them and "
-            "does not replace either.")
+            "Not ready yet - two other mods have to go first.\n"
+            "\n"
+            "This mod only fixes the map. It doesn't change your resolution,\n"
+            "and it can't run until the mods that do are in place:\n"
+            "\n"
+            "  1. UniWS                        makes the game offer your\n"
+            "                                  resolution\n"
+            "  2. KotOR High Resolution Menus  redraws the menus to fit it\n"
+            "     (k1hrm, by ndix UR)\n"
+            "  3. this mod\n"
+            "\n"
+            "Your game still has the original 640x480 menu sizes, so step 2\n"
+            "hasn't been done. Install those two, then run this again.\n"
+            "\n"
+            "The README has the full list with links.")
 
     if len(set(xs)) != 1 or len(set(ys)) != 1:
-        raise Refusal(
-            "this exe is only half-patched: the canvas constants disagree "
-            "(width %s, height %s).\n"
-            "Restore a clean Editable Executable and run UniWS and k1hrm again "
-            "before this patcher." % (xs, ys))
+        raise Refusal(_MEDDLED + "\n\n(Menu size values found: %s / %s.)"
+                      % (xs, ys))
 
     width, height = xs[0], ys[0]
     if not (MIN_W <= width <= MAX_W and MIN_H <= height <= MAX_H):
-        raise Refusal(
-            "the resolution read out of the exe (%dx%d) is not plausible, so "
-            "something other than k1hrm has edited these bytes. Refusing to "
-            "patch." % (width, height))
+        raise Refusal(_MEDDLED + "\n\n(The resolution I read out of the game "
+                      "was %dx%d, which can't be right.)" % (width, height))
     return width, height
 
 
@@ -262,12 +385,8 @@ def check_centring(data, width, height):
         got = ([struct.unpack_from("<h", data, o)[0] for o in CENTRING_X],
                [struct.unpack_from("<h", data, o)[0] for o in CENTRING_Y])
         raise Refusal(
-            "the Area Map centring constants read %s / %s, which is neither the "
-            "%dx%d this exe is patched for nor the vanilla %dx%d that k1hrm's "
-            "own patcher leaves behind.\n"
-            "Something other than UniWS and k1hrm has edited these bytes, so "
-            "this patcher will not guess at them. Restore a clean Editable "
-            "Executable and run UniWS and k1hrm again."
+            _MEDDLED + "\n\n(The map centring values read %s / %s. I expected "
+            "either %dx%d or %dx%d.)"
             % (got[0], got[1], width, height, VANILLA_W, VANILLA_H))
     return state
 
@@ -286,10 +405,12 @@ def read_map_extent(game_dir):
     path = os.path.join(game_dir, MAP_GUI)
     if not os.path.isfile(path):
         raise Refusal(
-            "%s is missing.\n"
-            "KotOR High Resolution Menus installs it, along with the rest of "
-            "the .gui set for your resolution. Run k1hrm before this patcher."
-            % MAP_GUI)
+            "A menu file the game needs is missing:\n"
+            "    %s\n"
+            "\n"
+            "The high-res menus mod puts it there, along with the rest of the\n"
+            "menu files for your resolution. Run that mod first, and make sure\n"
+            "you copy its menu files into your Override folder." % MAP_GUI)
     g = gff.load(path)
 
     def val(v):
@@ -299,8 +420,12 @@ def read_map_extent(game_dir):
         if val(c.fields.get("TAG")) == "LBL_Map":
             ef = val(c.fields["EXTENT"]).fields
             return tuple(int(val(ef[k])) for k in ("LEFT", "TOP", "WIDTH", "HEIGHT"))
-    raise Refusal("%s has no LBL_Map control - it is not a KOTOR map screen."
-                  % MAP_GUI)
+    raise Refusal(
+        "This file isn't a KOTOR map screen:\n"
+        "    %s\n"
+        "\n"
+        "Something has replaced it with a different file. Re-copy the menu\n"
+        "files from the high-res menus mod into your Override folder." % MAP_GUI)
 
 
 def check_map_gui(game_dir, width, height):
@@ -309,12 +434,18 @@ def check_map_gui(game_dir, width, height):
     want = expected_map_extent(width, height)
     if any(abs(a - b) > GUI_TOLERANCE for a, b in zip(got, want)):
         raise Refusal(
-            "the exe is patched for %dx%d, but %s draws the map at %s instead "
-            "of %s.\n"
-            "That means the .gui files in Override/ are from a different "
-            "resolution than the exe. Re-run KotOR High Resolution Menus and "
-            "pick the same resolution you patched the exe with."
-            % (width, height, MAP_GUI, got, want))
+            "Your menu files and your game don't match.\n"
+            "\n"
+            "Your game is set up for %dx%d, but the menu files in your\n"
+            "Override folder were made for a different resolution.\n"
+            "\n"
+            "This usually means the high-res menus mod was run at one\n"
+            "resolution and its menu files were copied from another. Copy the\n"
+            "menu file set for %dx%d into your Override folder and run this\n"
+            "again.\n"
+            "\n"
+            "(%s draws the map at %s; at %dx%d it should be %s.)"
+            % (width, height, width, height, MAP_GUI, got, width, height, want))
     return got
 
 

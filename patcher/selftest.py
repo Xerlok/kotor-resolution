@@ -93,7 +93,7 @@ def main():
         shutil.copyfile(VANILLA, os.path.join(stray, "swkotor.exe"))
         shutil.copyfile(LIVE_GUI, os.path.join(stray, "Override", "map.gui"))
         out = run("install.py", stray, expect=1)
-        assert "k1hrm" in out and "has not been run" in out, out[-1500:]
+        assert "two other mods have to go first" in out, out[-1500:]
 
     def refuses_mismatched_gui():
         odd = os.path.join(WORK, "wronggui")
@@ -110,11 +110,11 @@ def main():
         with open(os.path.join(odd, "Override", "map.gui"), "wb") as fh:
             fh.write(gff_writer.dumps(g))
         out = run("install.py", odd, expect=1)
-        assert "different resolution" in out, out[-1500:]
+        assert "menu files and your game don't match" in out, out[-1500:]
 
     def dry_run_writes_nothing():
         out = run("install.py", GAME, "--dry-run")
-        assert "nothing was written" in out
+        assert "nothing was written to your game" in out
         assert md5(exe) == base_md5
 
     def applies_to_the_confirmed_exe():
@@ -173,7 +173,7 @@ def main():
             fh.write(data)
 
         out = run("install.py", stale)
-        assert "left the Area Map centring constants" in out, out[-1500:]
+        assert "didn't quite" in out and "finish its own job" in out, out[-1500:]
         for line in out.splitlines():
             if line.startswith("  [ ]"):
                 raise SystemExit("a verification check failed:\n" + out[-3000:])
@@ -197,7 +197,7 @@ def main():
         with open(os.path.join(odd, "swkotor.exe"), "wb") as fh:
             fh.write(data)
         out = run("install.py", odd, expect=1)
-        assert "neither" in out and "will not guess" in out, out[-1500:]
+        assert "already changed the part of the game" in out, out[-1500:]
 
     case("refuses an exe k1hrm has not touched", refuses_without_k1hrm)
     case("refuses a .gui set from another resolution", refuses_mismatched_gui)

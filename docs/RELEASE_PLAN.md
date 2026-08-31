@@ -455,7 +455,7 @@ peers.
 | **k1hrm 1.5** | exe + `.gui` | **REQUIRED** — our `mapscale` targets its box. **Its shipped `hires_patcher.exe` is defective** (leaves the Area Map centring constants vanilla, [F25](EXPERIMENTS_AND_FAILED_APPROACHES.md#f25)); we detect and finish the job, §5.1 | CONFIRMED across 49 sets (§2.2); the `.exe`/`.pl` divergence CONFIRMED 2026-08-30 | precondition check + official-tool test |
 | KOTOR Editable Executable | exe replacement | required on Steam | CONFIRMED | baseline |
 | **K1CP 1.10.0** | data (HoloPatcher) | if it moves a note, our key stops matching → their fix wins | **CONFIRMED COMPATIBLE 2026-08-30 (Phase 5)** — it moves **35 waypoints, 0 of them map notes**; all **250/250** of our corrections still match. Note the version: 1.10.0 is current, not the 1.11 this plan assumed | `tools/k1cp_keytest.py`, below |
-| **K1 Ultrawide Letterbox Fix** | exe patcher | complementary (§2.8) — **but it must be installed BEFORE us, not after**, reversing the order both projects publish. See §4.1 | **CONFIRMED 2026-08-30 (Phase 5)** — no byte overlap: one 71-byte region at file offset `0x22B74E` plus the PE `CheckSum` field. It only *reads* `0x355788`, never writes it | both orders tested offline; theirs-then-ours passes all 20 of our checks, ours-then-theirs is refused |
+| **K1 Ultrawide Letterbox Fix** | exe patcher | complementary (§2.8) — **but it must be installed BEFORE us, not after**, reversing the order both projects publish. See §4.1 | **CONFIRMED 2026-08-30 (Phase 5)** — no byte overlap: one 71-byte region at file offset `0x22B74E` plus the PE `CheckSum` field. It only *reads* `0x355788`, never writes it | both orders tested offline; theirs-then-ours passes all 21 of our checks, ours-then-theirs is refused |
 | True Controller Support | `dinput8.dll` ASI | process-level, no static overlap | INFERRED | launch + play |
 | **KPM / KotorUniResPatch** | runtime DLL | **alternative, not addition — double-scales** | **RESOLVED 2026-08-30 (Phase 5)** — no static overlap with our hooks/caves/`.rsrc`/private floats; it hooks the same function at `0x69473A`+9, past our `0x6946D3`/`0x6946EF`, and allocates its own code via `VirtualAlloc`. The conflict is the **shared constants** `0x747748`/`0x7455D4` and the rect immediates: it re-scales what we already scaled, by `scale = max(1,(h+300)/600)` | declare incompatible; **detectable on disk** — `KotorPatcher.dll`, `hooks.toml`, `manifest.toml`, `patch_config.toml`, `KPatchLauncher` (+ a `binkw32.dll` proxy on Wine/Proton only) |
 | **Flawless Widescreen** | runtime memory injection (Lua plugin, live process) | **different mechanism from our whole stack — nothing on disk to detect or gate against** | **RESOLVED 2026-08-30 (Phase 5) as far as it can be** — stays INFERRED; never run here. WSGF itself recommends UniWS+k1hrm for K1 and reserves FWS for K2/TSL | none possible; declare "not supported", same posture as KPM |
@@ -532,7 +532,7 @@ Both orders were built and tested offline at 2560×1600:
 
 | order | result |
 |---|---|
-| **theirs → ours** | **works.** Their 71-byte patch at `0x22B74E` survives our layer byte-intact, and all 20 of our post-write checks pass |
+| **theirs → ours** | **works.** Their 71-byte patch at `0x22B74E` survives our layer byte-intact, and all 21 of our post-write checks pass |
 | ours → theirs | **refused**, no changes written: `REFUSING: … is 4050944 bytes, expected 4042752. This patch targets the Steam/GOG English build.` — the size gate at `patch_letterbox.py:154-157`, which fires before their backup step |
 
 Note their refusal message blames the *build*, not the size collision, so a user
@@ -560,11 +560,17 @@ publish both numbers for it rather than letting a reader assume:
 
 | what | VA | file offset |
 |---|---|---|
-| marker hook | `0x6946D3` +5 | `0x2946D3` |
+| map-note marker hook | `0x6946D3` +5 | `0x2946D3` |
+| party marker hook | `0x694A42` +5 | `0x294A42` |
+| player marker hook | `0x694AB1` +5 | `0x294AB1` |
 | note-table hook | `0x6946EF` +5 | `0x2946EF` |
 | caves | `0x73C1D0`–`0x73C2A9` | `0x33C1D0`–`0x33C2A9` |
 | private floats | `0x78CC00`–`0x78CC0F` | `0x38CC00`–`0x38CC0F` |
 | reserved region (8 KB, magic `K1MAPNTS`) | `0x86D000` | **`0x3DB000`** |
+
+**Corrected in Phase 6:** this table listed one marker hook where there are
+three. All four hook sites are now published, generated from the same
+`hires_patch` constants the patcher writes, in `patcher/TECHNICAL.txt`.
 
 Verified against the live exe 2026-08-30: the magic occurs exactly once, at file
 offset `0x3DB000`; the exe is `0x3DD000` bytes, so `0x86D000` is not a file
@@ -821,7 +827,7 @@ fresh Tier A pass was required at 2560×1600.** Repro script:
 configuration (§2.9), deferred to Phase 4.
 
 **Phase 2 — the patcher. DONE 2026-08-30.** `patcher/` — one entry point,
-resolution auto-detect (§5.1), build fingerprint, 20 post-write checks, JSON
+resolution auto-detect (§5.1), build fingerprint, 21 post-write checks, JSON
 manifest, `Apply.bat`/`Revert.bat`. Acceptance test `patcher/selftest.py`
 reproduces the in-game-confirmed exe byte for byte (md5 `435108fd…`) and covers
 six refusal/revert cases. See §2.10 and CURRENT_STATE.md.
@@ -873,10 +879,69 @@ a K1CP install would overwrite the shipped 250-correction table. The test needs 
 read-only wrapper (`tools/k1cp_keytest.py`) that calls `build(game=<throwaway>)`
 and diffs the derived position keys against the frozen table.
 
-**Phase 6 — package and release 1.0.** Freeze, hashes, GPLv3 licence file and
-ndix UR credit, README with raw offsets and cave ranges (k1hrm precedent),
-troubleshooting doc. **Decide here, not earlier: the bigger-minimap question
-(§10)** — user request 2026-08-30 to weigh it at the final stages.
+**Phase 6 — package release 1.0. DONE 2026-08-30 (packaging only; nothing
+published).** One command builds it, one command proves it:
+
+    python tools/build_release.py      # freeze + assemble + hash + zip
+    python tools/verify_release.py     # acceptance test on the ARTIFACT
+
+`dist/K1-Area-Map-Fixes-1.0.0/` + `.zip`, 12.0 MB, 43 files. Version frozen at
+**1.0.0**. `--onedir` per §5, source shipped alongside, `SHA256SUMS.txt` over
+every file. Docs written: `README.txt` (rewritten: what is in the box, the
+four in-game-confirmed resolutions, Steam/AV warnings, credits),
+`COMPATIBILITY.txt` (install order + every §4 verdict in players' language),
+`TROUBLESHOOTING.txt` (every refusal message, §5.2.5's list),
+`TECHNICAL.txt` (every byte written, VA **and** file offset — the k1hrm
+precedent, and §4's "byte ranges to publish" made complete). `LICENSE` is the
+verbatim GPLv3.
+
+**The four Phase 6 decisions, all user calls 2026-08-30:**
+
+1. **KPM: warn, do not refuse.** KPM is a patch *manager*; `KotorPatcher.dll`
+   on disk does not prove KotorUniResPatch is enabled, and the clash is
+   cosmetic and reversible on both sides. `detect.conflicting_mods()` looks for
+   the five files §4 lists and prints a named warning; `install.py` prints
+   "no mod known to clash" otherwise. Confirmed firing.
+2. **The LAA byte at `0x926`: leave the code alone, document it.** The question
+   was near-moot on inspection: `install.py:57` reads the before-image at the
+   start of the run and compares it to the read-back from that *same* run, so a
+   third-party patcher's bytes appear in both images and cancel. The 20/21 in
+   §4 is reachable only by running another patcher *between* our snapshot and
+   our verify, which is what the Phase 5 test deliberately did — a player
+   cannot hit it through `Apply.bat`. Whitelisting would have spent two bytes
+   of stray-detection to fix a message nobody sees. `COMPATIBILITY.txt`
+   explains the byte and tells users to LAA-patch *before* us, since
+   `Revert.bat` restores a pre-LAA backup.
+3. **The bigger minimap (§10): not in 1.0.** Stays deferred, unchanged reasons.
+4. **Package only; publish nothing.** No DeadlyStream/Nexus upload, no GitHub
+   release, repo stays private.
+
+**Two defects found by testing the packaged artifact rather than the source** —
+neither reachable from `patcher/selftest.py`, which is why
+`tools/verify_release.py` exists:
+
+- **PyInstaller collected keystone's `.py` files but not `keystone.dll`.**
+  `note_table_patch.build_code` assembles the match routine at install time, so
+  keystone is a *runtime* dependency. Without the DLL beside its own
+  `__file__`, `keystone.py` falls through to a `distutils.sysconfig` fallback —
+  removed from the stdlib in 3.12 — and the frozen patcher died mid-run with
+  `No module named 'distutils'`. Fixed by bundling the DLL into `keystone/`.
+  PyInstaller has a hook for capstone and none for keystone.
+- **The frozen build wrote the player's only exe backup into `_internal/`.**
+  `manifest.HERE` was derived from `__file__`, which under PyInstaller resolves
+  inside `_MEIPASS`. `manifest._home()` now prefers the folder holding
+  `Apply.bat` when frozen, falling back to the exe's own folder.
+
+Also trimmed: PyKotor (and so numpy and Pillow) was being pulled in through
+`note_table_patch.build()`'s lazy `map_calibration` import, a path the shipped
+patcher never takes — 40 MB of a 63 MB build. Excluded; **40.3 MB → 12.0 MB**.
+
+**Acceptance.** `tools/verify_release.py` runs the *shipped* `.exe` files end to
+end against a throwaway game folder: apply → **md5
+`435108fdb65bac2151ab694e7fb8e36a`**, the in-game-confirmed exe; refuses a
+second apply; reverts to the exact pre-patch bytes; and asserts the install
+record lands beside `Apply.bat`, not in `_internal`. **All pass.**
+`patcher/selftest.py` still passes 9/9 to the same md5.
 
 ~~Also tidy the backup filenames.~~ **DONE 2026-08-30, and it needs no code
 change.** `manifest.backup_exe` timestamping rather than overwriting is *correct*
@@ -896,8 +961,12 @@ longer write into `patcher/` at all. The four stale 4 MB copies were pruned
 - **`dinput8.dll` / ASI and packed-Steam-exe support** (§7).
 - ~~**Marker icon scaling** — 1.1 (§6).~~ **SHIPPED IN 1.0 2026-08-30** — notes,
   player arrow and party markers all scale together (§6.0).
-- **A bigger HUD minimap — DECIDE AT THE FINAL STAGES, before 1.0 is packaged.**
-  User request 2026-08-30. §2.3 now establishes the facts: the visible minimap is
+- **A bigger HUD minimap — DECIDED 2026-08-30 at packaging: NOT in 1.0.** The
+  user weighed it at the Phase 6 boundary as requested and deferred it, on the
+  three reasons already recorded below. It is a 1.1 candidate alongside the
+  remaining marker work; whether it lands as a feature of this mod or as a
+  separate one is still open. The evidence gathered for the decision:
+  §2.3 establishes the facts: the visible minimap is
   `LBL_MAPVIEW` at a fixed **120×120** at every resolution, and it is the one
   thing k1hrm deliberately declines to rescale while scaling 116 of the HUD's 120
   controls. At 3840×2400 that is 5 % of screen height and the user reports it as

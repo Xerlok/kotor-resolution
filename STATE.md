@@ -11,14 +11,184 @@ Before trusting any document, run:
 It reconstructs what is applied straight from the binary and the CSVs, so it is
 correct even when the docs are stale.
 
-## Active work (2026-08-30): shipping & QA
+## Active work (2026-08-31): shipping & QA
 
 The project has moved from development into **shipping**. The plan is
 [`docs/RELEASE_PLAN.md`](docs/RELEASE_PLAN.md) (plain-language version:
 [`docs/RELEASE_PLAN_SIMPLE.md`](docs/RELEASE_PLAN_SIMPLE.md)).
-**Approved by the user 2026-08-30. Phases 0-4 (§9) are done; Phase 5
-(compatibility testing) is IN PROGRESS.** Phases pause for the user's go-ahead at each boundary
-and carry a Sonnet/Opus recommendation — see §9.0 of the plan.
+**Approved by the user 2026-08-30. Phases 0-6 (§9) are DONE. The 1.0 release
+is built and its acceptance test passes; nothing has been published.** The only
+phase left in the plan is Phase 7 (1.1). Phases pause for the user's go-ahead at
+each boundary and carry a Sonnet/Opus recommendation — see §9.0 of the plan.
+
+### Distribution shape — decided 2026-08-30. Backup relocation + Python-free install DONE 2026-08-31
+
+**Ship the multi-file archive that is already built; do NOT wrap it in an
+installer exe.** Full record, including the arguments to stop re-litigating:
+[`docs/DISTRIBUTION_DECISION.md`](docs/DISTRIBUTION_DECISION.md).
+
+**Done 2026-08-31 (user go-ahead), no patch bytes changed —
+`patcher/selftest.py` 9/9 to md5 `435108fd…`, `tools/verify_release.py` 33/33:**
+
+1. **The player's backup no longer lives in the download.**
+   `backup\swkotor.exe.original` + `installed.json` now go to
+   `%LOCALAPPDATA%\K1AreaMapFixes\`. `manifest._home()` split into
+   `visible_home()` (holds `last-run-log.txt`, found by walking up to
+   `Install.bat`) and `_data_home()`. **A development checkout still uses
+   `patcher/`** — the marker is `patcher/selftest.py`, which never ships — so
+   `tools/state.py`, the docs, and **the user's live install's `Revert.bat`**
+   are unaffected (verified: record still found in `patcher/`). An
+   `installed.json` left in an older release folder also keeps working.
+2. **Running from inside the zip is refused**, `detect.check_not_temp()` from
+   `install.py`. In the patcher rather than in `Install.bat`, so it also covers
+   double-clicking `Patcher\K1AreaMapFixes.exe`. Revert is deliberately not
+   gated — that is the recovery route.
+3. **Python is NOT required, and the README now says so.** Both frozen exes do
+   a full apply → uninstall with `PATH` cut to `System32` and every `PYTHON*`
+   var removed, and no shipped module contains `subprocess`/`os.system`/
+   `os.popen`/`shutil.which` at all. Caveat: stripped environment, not a clean
+   VM — see Q1 in the decision doc.
+4. **`tools/verify_release.py` grew 12 checks** and **redirects
+   `%LOCALAPPDATA%` into `staging/`** instead of mocking the path, so what the
+   player gets is what is tested. The load-bearing one: **delete the release
+   folder, re-extract it, and uninstall anyway.**
+
+Docs rewritten for the new location: `README.txt` (no more "keep this folder";
+names `%LOCALAPPDATA%\K1AreaMapFixes\backup` and the re-download route),
+`TROUBLESHOOTING.txt` (two entries replaced — "it says to unzip first" and "I
+deleted the mod folder", plus where `installed.json` is now and that both files
+contain the player's game path), `TECHNICAL.txt`, `Uninstall.bat`'s no-Python
+fallback message.
+
+**Release rebuilt: 43 files, 12.0 MB, zip sha256
+`17c209e985db909778e9b9e812d9b313948ceb051e29fb167013db401ad8bfbe`.** Version
+still **1.0.0** — nothing was ever published, so there is nothing to supersede.
+
+**Still open from that doc:** Q2 — do we publish a direct link to the
+DeadlyStream "Editable Executable"? Q3 — rework the "I couldn't find your KOTOR
+folder / drag it onto Install.bat" prompt.
+
+### Phase 6b — release polish, DONE 2026-08-30
+
+A user-experience pass over the packaged release, driven by "pretend you have
+never modded KOTOR". **The patch logic did not change: `selftest.py` still
+reproduces md5 `435108fd…` and `verify_release.py` still passes.**
+
+**Three real defects the packaging pass found:**
+
+1. **The shipped source did not run.** `python source/install.py` died on
+   `ModuleNotFoundError: backup_paths` — three of the four bundled `tools`
+   modules import it and it was never copied in. Both README and
+   TROUBLESHOOTING offer that command as the way to avoid running an unsigned
+   exe, so we were shipping a promise that failed on first use. PyInstaller
+   had found the module on its own, so the *frozen* build worked and hid it.
+   `verify_release.py` now runs the shipped source and would catch it.
+2. **`selftest.py` shipped but could not work** — it needs
+   `staging/verify-chain/official/swkotor.exe`, a development fixture. Anyone
+   curious got `missing fixture:` and would reasonably conclude the mod was
+   broken. No longer shipped.
+3. **Three docs pointed at `patcher\installed.json`**, which does not exist in
+   the release — and that is the file bug reports are asked to attach.
+
+**Layout: 8 files + 2 folders at top level → 3 files + 2 folders.**
+
+    Install.bat  Uninstall.bat  README.txt  Patcher\  "More info"\
+
+`Apply/Revert.bat` were renamed `Install/Uninstall.bat` (user decision; note
+this breaks the community `Apply X.bat` convention deliberately, for people who
+have never modded). `manifest._home()` anchors on `Install.bat` — **if the bat
+is ever renamed again, that function must change with it.** Licence, hashes,
+technical/compatibility notes and the Python source moved under `More info\`.
+
+**Output rewritten for a non-technical player.** Default install output is
+plain English with no hex, no "cave"/"hook"/"operand", no `Hellspawn Reborn`
+line. **`--details` reproduces the old engineer output verbatim, and
+`last-run-log.txt` is written next to `Install.bat` on every run regardless**,
+so a bug report is a file to attach rather than a flag to re-run with.
+Refusals lead with what to do, and the three "someone else edited this" gates
+now share one message (`detect._MEDDLED`) instead of three variants. Full
+rationale and before/after: [`PROPOSED_MESSAGES.md`](PROPOSED_MESSAGES.md) —
+**`selftest.py` asserts on several of those strings.**
+
+**README rewritten** for someone who has never modded: names all three
+prerequisites with links (verified live 2026-08-30), and covers four things
+that previously stopped a beginner dead and were documented nowhere —
+SmartScreen's "Windows protected your PC", running the bat from *inside* the
+zip (backup goes to a temp folder, uninstall later fails), **drag-and-drop of
+the game folder onto `Install.bat`, which already worked and was never written
+down**, and UniWS needing the **1024x768** interface, not 800x600.
+
+**Privacy audit: clean.** All 44 files scanned — text, both frozen `.exe`s,
+`base_library.zip` decompressed, every DLL/PYD, and the note table. No
+username, machine name, real path, email or GitHub handle. Build-machine paths
+do not survive freezing. The only absolute path is the invented
+`D:\SteamLibrary\...` example. Note that `installed.json` and
+`last-run-log.txt` *do* contain the player's own game path — TROUBLESHOOTING
+now says so where it asks for them.
+
+### Phase 6 — DONE 2026-08-30. There is a shippable release.
+
+    python tools/build_release.py      # freeze + assemble + hash + zip
+    python tools/verify_release.py     # acceptance test on the ARTIFACT
+
+`dist/K1-Area-Map-Fixes-1.0.0/` and `.zip` — 12.0 MB, 43 files, version frozen
+at **1.0.0**. `dist/` is gitignored: the artifact is regenerable, and the two
+commands above are the record. **Nothing was published** — no upload, no GitHub
+release, repo still private (user decision).
+
+`tools/verify_release.py` runs the **shipped `.exe` files**, not the source,
+end to end against a throwaway game folder: apply → md5
+`435108fdb65bac2151ab694e7fb8e36a`, the in-game-confirmed exe; second apply
+refused; revert byte-exact; install record lands beside `Apply.bat`. All pass.
+`patcher/selftest.py` still 9/9 to the same md5.
+
+**Freezing the patcher found two defects the source test could not.** Both are
+the reason `verify_release.py` exists as a separate gate:
+
+1. **PyInstaller collected keystone's `.py` files but not `keystone.dll`.**
+   The match routine is assembled at install time, so keystone is a *runtime*
+   dependency; without the DLL beside its own `__file__`, `keystone.py` falls
+   through to a `distutils.sysconfig` fallback that Python 3.12 removed, and
+   the frozen patcher died mid-run on `No module named 'distutils'`. Fixed by
+   bundling the DLL into `keystone/`. PyInstaller hooks capstone, not keystone.
+2. **The frozen build wrote the player's only exe backup into `_internal/`.**
+   `manifest.HERE` came from `__file__`, which under PyInstaller resolves
+   inside `_MEIPASS`. `manifest._home()` now prefers the folder holding
+   `Apply.bat` when frozen. Burying someone's only backup in `_internal` also
+   means a re-download takes it with them.
+
+Also: PyKotor — and so numpy and Pillow — was being pulled in through
+`note_table_patch.build()`'s lazy `map_calibration` import, a path the shipped
+patcher never takes. Excluded: **40.3 MB → 12.0 MB**.
+
+**Four decisions, all the user's, 2026-08-30:**
+
+1. **KPM: warn, don't refuse.** `detect.conflicting_mods()` looks for the five
+   files §4 lists and prints a named warning; KPM is a patch *manager*, so its
+   presence does not prove KotorUniResPatch is on. Confirmed firing.
+2. **The LAA byte at `0x926`: no code change, document it.** On inspection the
+   question was near-moot — `install.py:57` reads the before-image at the start
+   of the run and compares it to the read-back from that same run, so a third
+   party's bytes are in both images and cancel. The 20/21 in §4 needs another
+   patcher to run *between* our snapshot and our verify, which is exactly what
+   the Phase 5 test did; **a player cannot reach it through `Apply.bat`.**
+3. **Bigger minimap: not in 1.0.** Deferred, §10 updated.
+4. **Package only, publish nothing.**
+
+**Documentation corrections made while packaging.** The post-write check count
+is **21**, not 20 — counted from `verify.py` (18 `ok()` calls, two of them in
+three-iteration loops), which matches Phase 5's measured 21/21. Fixed in
+`STATE.md`, `CURRENT_STATE.md` and `RELEASE_PLAN.md`. And §4's "byte ranges to
+publish" listed **one** marker hook where there are **three** (`0x6946D3`,
+`0x694A42`, `0x694AB1`); all four hook sites are now published, in
+`patcher/TECHNICAL.txt`.
+
+**What ships:** `README.txt`, `COMPATIBILITY.txt`, `TROUBLESHOOTING.txt`,
+`TECHNICAL.txt`, `LICENSE` (verbatim GPLv3, from k1hrm's own copy),
+`SHA256SUMS.txt`, `Apply.bat`, `Revert.bat`, `source/`, `K1AreaMapFixes/`.
+
+**Still open before anything is published:** report the `hires_patcher.exe`
+defect (F25) upstream to ndix UR, and decide the release channel.
 
 ### Phase 5 — DONE 2026-08-30
 
@@ -320,7 +490,7 @@ Report: `output/qa_report.json`. `patcher/selftest.py` passes 9/9.
 
 `patcher/install.py` (`Apply.bat`) applies all five layers in one pass, reads the
 resolution out of the exe instead of asking, cross-checks `Override/map.gui`,
-runs 20 post-write checks against a fresh read from disk, and writes a JSON
+runs 21 post-write checks against a fresh read from disk, and writes a JSON
 manifest that `patcher/revert.py` (`Revert.bat`) undoes exactly. The self-test
 patches the official-chain exe and requires md5 `435108fdb65bac2151ab694e7fb8e36a`
 — **byte-for-byte the exe confirmed in game** — plus six refusal/revert cases.

@@ -164,16 +164,22 @@ python patcher/selftest.py                            # the acceptance test
   all 16 map-scale sites at vanilla defaults; four hook sites at their original
   bytes; caves zero; no `K1MAPNTS` region. Already-applied → exits clean;
   half-applied → refuses and says to revert.
-- **Post-write verification (20 checks)** re-reads from disk, re-disassembles the
+- **Post-write verification (21 checks)** re-reads from disk, re-disassembles the
   match routine with capstone, and asserts **no byte outside the declared ranges
   changed** — a chunked before/after diff, so a bad offset cannot pass silently.
 - **The note table ships frozen** (`patcher/data/note_table.bin`, 250 entries,
   4,000 B, sha256 `880a325d…`) rather than re-derived from the player's modules.
   `tools/freeze_note_table.py [--check]` regenerates it from
   `output/note_corrections.csv` + the real module files and fails on drift.
-- **Backup + manifest live beside the patcher**, not in the game folder:
-  `patcher/backup/swkotor.exe.original` and `patcher/installed.json` (sha256
-  before/after, resolution, every offset touched). `K1AMF_HOME` moves both.
+- **Backup + manifest never go in the game folder, and since 2026-08-31 not in
+  the mod folder either** — `%LOCALAPPDATA%\K1AreaMapFixes\` holds
+  `backup/swkotor.exe.original` and `installed.json` (sha256 before/after,
+  resolution, every offset touched), because the mod folder is a download and
+  people delete downloads. `manifest._data_home()` resolves it: `K1AMF_HOME`
+  wins outright; a **development checkout keeps using `patcher/`** (marked by
+  `selftest.py`, which never ships, so the paths above still hold in this repo);
+  an install recorded in an older release folder keeps using that folder.
+  `last-run-log.txt` stays next to `Install.bat` — `manifest.visible_home()`.
 - Nothing of k1hrm's or UniWS's is bundled or reimplemented; `tools/uniws_patch.py`
   and `hires_patch.patch()` remain dev-only.
 
