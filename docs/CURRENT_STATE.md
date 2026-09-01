@@ -1,8 +1,19 @@
 # CURRENT STATE — what is live, what works, what must not be touched
 
-Last updated **2026-08-29**. Authoritative check: `python tools/state.py`, which
-reconstructs the applied state from the binary and the CSVs, so it is right even
-if this file goes stale.
+Last updated **2026-08-29** (release status below updated 2026-09-02).
+Authoritative check: `python tools/state.py`, which reconstructs the applied
+state from the binary and the CSVs, so it is right even if this file goes
+stale.
+
+## Release status
+
+**Released as v1.0.0**, published to Nexus Mods and DeadlyStream under the name
+"K1 Area Map Fixes." Public-facing description: [`MOD_PAGE.md`](MOD_PAGE.md).
+Full shipping/packaging history and the decisions behind the distribution
+format (multi-file archive, not an installer exe) are in
+[`RELEASE_PLAN.md`](RELEASE_PLAN.md) and
+[`DISTRIBUTION_DECISION.md`](DISTRIBUTION_DECISION.md). Licensed GPLv3
+([`LICENSE`](../LICENSE)).
 
 ## Install
 
