@@ -174,11 +174,19 @@ So: **the prerequisite is Steam-only.** `README.txt`, `TROUBLESHOOTING.txt`,
 message were all rewritten 2026-09-01 to say so instead of grouping Steam and
 GOG together. `RELEASE_PLAN_SIMPLE.md:30` had this right all along.
 
-**Point 1 — the legal/naming question — is still open**, and now applies to
-Steam owners only. **State of play 2026-08-31, unchanged: a three-agent
-web-research pass was started and aborted before any agent reported** — one
-died on an API error, all three were stopped to save tokens. **There are no
-external findings yet; do not treat anything in this session as researched.**
+**Point 1 — the legal/naming question — ANSWERED 2026-09-01, user decision: yes,
+link directly.** We will link the exe directly both in `README.txt` (already
+does, see below) and in the description text on DeadlyStream and Nexus. No
+further research was done to reach this decision; the earlier three-agent
+web-research pass was started and aborted before any agent reported (one died
+on an API error, all three were stopped to save tokens) and stays unresearched
+— the user chose to proceed without it.
+
+`README.txt:25` already links straight to the DeadlyStream file page
+(`https://deadlystream.com/files/file/1320-kotor-editable-executable/`), so no
+text change was needed there. **Still to do when actually uploading:** include
+the same direct link in the DeadlyStream and Nexus page descriptions — no
+draft of that page text exists yet.
 
 1. **`docs/REVERSE_ENGINEERING.md` records the crack as tagged "Hellspawn
    Reborn"** (corrected 2026-08-31 — it was wrongly attributed to "FairLight"
@@ -202,9 +210,10 @@ Decide:
   redistribute a pre-patched or unpacked `swkotor.exe`. That rule is not in
   question — only whether we link to someone else's.
 
-### Q3. The "I couldn't find your KOTOR folder" prompt
+### Q3. The "I couldn't find your KOTOR folder" prompt — CLOSED 2026-09-01, keep as-is
 
-Current text:
+User decision: leave the current wording and drag-and-drop flow unchanged, no
+further polish. Current text, for the record:
 
 ```
 ? I couldn't find your KOTOR folder.

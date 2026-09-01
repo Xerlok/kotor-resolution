@@ -171,11 +171,13 @@ everything else.
 
 CREDITS
 -------
-  ndix UR       KotOR High Resolution Menus, and the resolution work this is
-                built on top of. Required, and not included here.
+  ndix UR       KotOR High Resolution Menus, and hires_patcher.pl, which the
+                map scaling here is derived from. Required, and not included
+                here.
   wsgf.org      UniWS. Required, and not included here.
-  LaneDibello   Kotor Patch Manager, whose address database was a useful
-                cross-check while working this out.
+  LaneDibello   Kotor Patch Manager, whose published address database was a
+                useful cross-check against findings worked out here
+                independently.
   PyKotor       for reading the game's file formats.
   Everyone at DeadlyStream who documented this engine over the last decade.
 

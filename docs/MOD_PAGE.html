@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>K1 Area Map Fixes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#e9ecef; --surface:#fff; --surface-2:#f3f5f7;
+  --ink:#131a20; --ink-2:#3d4a55; --muted:#697887;
+  --line:#d2d9e0; --line-soft:#e2e7ec;
+  --accent:#1c6b74; --accent-soft:#e0eef0; --accent-line:#9fc9ce;
+  --amber:#8e5f1c; --amber-soft:#f8efdf; --amber-line:#dfc08a;
+  --danger:#9c3128; --danger-soft:#f9e8e6; --danger-line:#e0b0ab;
+  --code-bg:#f0f3f5;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0b1015; --surface:#121a21; --surface-2:#182129;
+  --ink:#dde5eb; --ink-2:#b3c0cb; --muted:#8593a1;
+  --line:#25313b; --line-soft:#1d272f;
+  --accent:#5cb8c1; --accent-soft:#102d31; --accent-line:#27585e;
+  --amber:#d6a256; --amber-soft:#2a2214; --amber-line:#5c4a28;
+  --danger:#e08d84; --danger-soft:#2e1d1b; --danger-line:#5e3a35;
+  --code-bg:#0e161c;
+}}
+:root[data-theme="dark"]{
+  --ground:#0b1015; --surface:#121a21; --surface-2:#182129;
+  --ink:#dde5eb; --ink-2:#b3c0cb; --muted:#8593a1;
+  --line:#25313b; --line-soft:#1d272f;
+  --accent:#5cb8c1; --accent-soft:#102d31; --accent-line:#27585e;
+  --amber:#d6a256; --amber-soft:#2a2214; --amber-line:#5c4a28;
+  --danger:#e08d84; --danger-soft:#2e1d1b; --danger-line:#5e3a35;
+  --code-bg:#0e161c;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;color-scheme:light dark}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1.62;
+  -webkit-font-smoothing:antialiased}
+img{max-width:100%}
+[hidden]{display:none!important}
+
+.bar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:16px;padding:12px 24px;flex-wrap:wrap}
+.bar-id{display:flex;flex-direction:column;gap:1px;margin-right:auto;min-width:0}
+.bar-id b{font-family:Saira,sans-serif;font-weight:600;font-size:15px}
+.bar-id span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:500}
+.btn{font:inherit;font-size:13px;font-weight:500;font-family:Saira,sans-serif;letter-spacing:.02em;
+  padding:7px 14px;border-radius:3px;border:1px solid var(--line);background:var(--surface-2);
+  color:var(--ink-2);cursor:pointer;transition:border-color .14s,color .14s,background .14s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+.shell{display:grid;grid-template-columns:minmax(0,1fr);max-width:1140px;margin:0 auto;padding:0 24px}
+@media (min-width:1000px){.shell{grid-template-columns:216px minmax(0,1fr);gap:44px;padding:0 32px}}
+nav{display:none}
+@media (min-width:1000px){nav{display:block;position:sticky;top:78px;align-self:start;padding:44px 0;
+  max-height:calc(100vh - 78px);overflow-y:auto}}
+nav ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+nav a{display:block;padding:5px 0 5px 12px;border-left:2px solid var(--line-soft);color:var(--muted);
+  text-decoration:none;font-size:13.5px;line-height:1.35;transition:color .14s,border-color .14s}
+nav a:hover{color:var(--ink)}
+nav a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+nav a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rail-label{font-family:Saira,sans-serif;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding-bottom:10px}
+
+main{padding:44px 0 96px;min-width:0}
+.doc{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:44px 48px 52px}
+@media (max-width:640px){.doc{padding:28px 22px 36px;border-radius:0;margin:0 -24px;border-left:0;border-right:0}}
+
+.doc h1{font-family:Saira,sans-serif;font-weight:700;font-size:clamp(30px,4.6vw,42px);line-height:1.08;
+  letter-spacing:-.015em;margin:0;text-wrap:balance}
+.subtitle{font-family:Saira,sans-serif;font-weight:500;font-size:16px;color:var(--accent);margin:8px 0 0}
+.rule{height:1px;background:var(--line);margin:30px 0 34px;border:0}
+.doc h2{font-family:Saira,sans-serif;font-weight:600;font-size:23px;margin:52px 0 0;padding-top:26px;
+  border-top:1px solid var(--line-soft);text-wrap:balance;scroll-margin-top:88px}
+.doc h2:first-of-type{margin-top:0;border-top:0;padding-top:0}
+.doc h3{font-family:Saira,sans-serif;font-weight:600;font-size:16px;margin:32px 0 0;color:var(--ink)}
+
+.doc p{margin:14px 0 0;max-width:66ch;color:var(--ink-2)}
+.doc h2 + p,.doc h3 + p{margin-top:12px}
+.doc strong{color:var(--ink);font-weight:600}
+.doc a{color:var(--accent);text-underline-offset:2px;word-break:break-word}
+.doc a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.doc ul,.doc ol{margin:14px 0 0;padding-left:22px;max-width:66ch;color:var(--ink-2)}
+.doc li{margin-top:8px}
+.doc li::marker{color:var(--muted)}
+.doc ol.steps{list-style:none;counter-reset:s;padding-left:0}
+.doc ol.steps > li{counter-increment:s;position:relative;padding-left:40px;margin-top:14px}
+.doc ol.steps > li::before{content:counter(s);position:absolute;left:0;top:1px;width:25px;height:25px;
+  display:grid;place-items:center;border:1px solid var(--accent);border-radius:50%;color:var(--accent);
+  font-family:Saira,sans-serif;font-weight:600;font-size:13px;font-variant-numeric:tabular-nums}
+
+/* tinted TL;DR panel */
+.tldr{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:4px;
+  padding:22px 26px 26px;margin-top:14px;max-width:70ch}
+.tldr p{color:var(--ink);max-width:64ch}
+.tldr p:first-child{margin-top:0}
+
+/* amber callout */
+.note{margin:18px 0 0;max-width:66ch;background:var(--amber-soft);border:1px solid var(--amber-line);
+  border-radius:4px;padding:14px 18px}
+.note p{margin:0;color:var(--ink)}
+
+/* numbered prerequisite card */
+.prereq{margin-top:18px;border:1px solid var(--line);border-radius:4px;overflow:hidden;max-width:66ch}
+.prereq-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;background:var(--surface-2);
+  border-bottom:1px solid var(--line);padding:11px 16px}
+.prereq-n{font-family:Saira,sans-serif;font-weight:700;font-size:12px;color:var(--accent);
+  letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.prereq-name{font-family:Saira,sans-serif;font-weight:600;font-size:15.5px;color:var(--ink)}
+.tag{font-family:Saira,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;padding:2px 7px;border-radius:2px;background:var(--amber-soft);
+  color:var(--amber);border:1px solid var(--amber-line)}
+.prereq-body{padding:13px 16px 16px}
+.prereq-body p{margin:0;max-width:60ch}
+.prereq-body p + p{margin-top:10px}
+.prereq-body .lnk{display:block;margin-bottom:10px;font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+
+/* compatibility tier cards */
+.cgroup{margin-top:20px;border:1px solid var(--line);border-radius:4px;overflow:hidden;max-width:66ch}
+.cgroup > header{display:flex;align-items:center;gap:9px;padding:9px 15px;border-bottom:1px solid var(--line)}
+.cgroup > header b{font-family:Saira,sans-serif;font-weight:600;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase}
+.cbody{padding:4px 0 14px}
+.cbody ul{margin-top:10px;padding-left:34px;padding-right:18px;max-width:none}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--muted)}
+.c-tested > header{background:var(--accent-soft);border-bottom-color:var(--accent-line)}
+.c-tested > header b{color:var(--accent)} .c-tested .dot{background:var(--accent)}
+.c-ok > header{background:var(--surface-2)}
+.c-ok > header b{color:var(--ink-2)} .c-ok .dot{background:var(--accent);opacity:.55}
+.c-partial > header{background:var(--amber-soft);border-bottom-color:var(--amber-line)}
+.c-partial > header b{color:var(--amber)} .c-partial .dot{background:var(--amber)}
+.c-maybe > header{background:var(--surface-2)}
+.c-maybe > header b{color:var(--muted)} .c-maybe .dot{background:var(--muted)}
+.c-untested > header{background:var(--surface-2)}
+.c-untested > header b{color:var(--muted)} .c-untested .dot{background:var(--muted);opacity:.45}
+.c-bad > header{background:var(--danger-soft);border-bottom-color:var(--danger-line)}
+.c-bad > header b{color:var(--danger)} .c-bad .dot{background:var(--danger)}
+.c-no > header{background:var(--surface-2)}
+.c-no > header b{color:var(--danger);opacity:.85} .c-no .dot{background:var(--danger);opacity:.55}
+
+/* ticked safety-check list */
+ul.checks{list-style:none;padding-left:0}
+ul.checks li{position:relative;padding-left:26px;margin-top:11px}
+ul.checks li::before{content:"";position:absolute;left:3px;top:9px;width:7px;height:7px;
+  border-left:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:rotate(-45deg)}
+
+code{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace;font-size:.875em;background:var(--code-bg);
+  border:1px solid var(--line-soft);border-radius:3px;padding:1px 5px;color:var(--ink);word-break:break-word}
+pre{margin:16px 0 0;max-width:66ch;background:var(--code-bg);border:1px solid var(--line-soft);
+  border-left:2px solid var(--accent);border-radius:3px;padding:13px 16px;overflow-x:auto}
+pre code{background:none;border:0;padding:0;font-size:13.5px}
+
+.tw{overflow-x:auto;margin-top:16px;max-width:66ch}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--line-soft)}
+th{font-family:Saira,sans-serif;font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);border-bottom:1px solid var(--line)}
+td{color:var(--ink-2);font-variant-numeric:tabular-nums}
+td:first-child{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-size:13.5px}
+tr:last-child td{border-bottom:0}
+
+#raw-pre,#nexus-pre{max-width:none;border-left-width:1px;max-height:74vh;overflow:auto;white-space:pre-wrap;
+  font-size:13px;line-height:1.55}
+.raw-hint{font-size:13px;color:var(--muted);margin:0 0 14px;max-width:66ch}
+
+/* the DeadlyStream tab deliberately carries NO custom styling below this
+   line - that plainness is what proves the copy is paste-safe */
+#ds-content{max-width:66ch}
+#ds-content :first-child{margin-top:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-id">
+    <b>K1 Area Map Fixes</b>
+    <span>DeadlyStream page copy &middot; local preview</span>
+  </div>
+  <button class="btn on" id="btn-view-rendered" type="button" aria-pressed="true">Page Preview</button>
+  <button class="btn" id="btn-view-ds" type="button" aria-pressed="false">DeadlyStream Paste</button>
+  <button class="btn" id="btn-view-nexus" type="button" aria-pressed="false">Nexus BBCode</button>
+  <button class="btn" id="btn-view-raw" type="button" aria-pressed="false">Markdown</button>
+  <button class="btn" id="btn-copy" type="button">Copy Rich Text</button>
+</div>
+
+<div class="shell">
+  <nav aria-label="Sections">
+    <div class="rail-label">On this page</div>
+    <ol id="rail"><li><a href="#tl-dr">TL;DR</a></li><li><a href="#what-this-fixes">What this fixes</a></li><li><a href="#requirements">Requirements</a></li><li><a href="#installation">Installation</a></li><li><a href="#compatibility">Compatibility</a></li><li><a href="#uninstallation">Uninstallation</a></li><li><a href="#what-the-patcher-does">What the patcher does</a></li><li><a href="#technical-details">Technical details</a></li><li><a href="#credits">Credits</a></li><li><a href="#license">License</a></li></ol>
+  </nav>
+  <main>
+    <article class="doc" id="rendered">
+<h1>K1 Area Map Fixes</h1>
+<p class="subtitle">High Resolution Area Map &amp; Map Marker Fix</p>
+<hr class="rule">
+<h2 id="tl-dr">TL;DR</h2>
+<div class="tldr"><p>When you play KOTOR 1 at widescreen or high resolution the area map screen is broken: the map sits shrunken in a corner instead of filling its frame. This mod fixes that. It also corrects 250 map note positions that BioWare put in a strange spot in 2003.</p><p>It does not change your resolution. It fixes the map after something else has already got the game running at your resolution, so <strong>UniWS</strong> and <strong>KotOR High Resolution Menus</strong> have to be installed first, in that order. Steam users need the <strong>KOTOR Editable Executable</strong> before either of those; GOG users do not.</p><p>Unzip the folder somewhere and double-click <code>Install.bat</code>. It finds the game and reads your resolution out of the exe, so there is nothing to configure and nothing to pick wrong. <code>Uninstall.bat</code> puts your original exe back.</p><p>Detailed installation instructions are bellow.</p></div>
+<h2 id="what-this-fixes">What this fixes</h2>
+<p>At widescreen and high resolutions the area map is drawn at its old size in a corner of the frame. This mod rescales the map to fill the frame, puts all three kinds of marker where they belong (scaling the icons up at very high resolutions so they stay big enough to see), and corrects 250 map notes that BioWare left in the slightly (sometimes majorly) wrong spot.</p>
+<h3>One thing it fixes that is not its own bug</h3>
+<p>KotOR High Resolution Menus ships two copies of its patcher and they disagree; the <code>.exe</code> one, leaves the area map shoved off to one side (at 1920x1080, 640 pixels right and 300 down, hanging off the screen). That happens whether or not you install this mod, but it looks exactly like this mod&#x27;s fault, so the patcher checks for it and finishes the job, and <code>Uninstall.bat</code> undoes that along with everything else.</p>
+<h2 id="requirements">Requirements</h2>
+<h3>Required, in this order</h3>
+<div class="prereq"><div class="prereq-head"><span class="prereq-n">01</span><span class="prereq-name">KOTOR Editable Executable</span><span class="tag">for Steam only</span></div><div class="prereq-body"><a class="lnk" href="https://deadlystream.com/files/file/1320-kotor-editable-executable/">deadlystream.com/files/file/1320-kotor-editable-executable/</a><p>Steam ships a locked <code>swkotor.exe</code> that no mod can edit, including the two below. This is an unlocked copy you drop into your game folder.</p><p><strong>On GOG, skip this step.</strong> GOG&#x27;s own v1.03 <code>swkotor.exe</code> is already the same unlocked file, byte for byte, apart from 16 bytes of unused header padding. Start at step 2.</p></div></div>
+<div class="prereq"><div class="prereq-head"><span class="prereq-n">02</span><span class="prereq-name">UniWS</span></div><div class="prereq-body"><a class="lnk" href="https://www.wsgf.org/article/universal-widescreen-uniws-patcher">www.wsgf.org/article/universal-widescreen-uniws-patcher</a><p>Makes the game run at your screen resolution. Pick &quot;Star Wars: KOTOR&quot; from the list, choose 1024x768 interface. Choose your game folder, type in resolution of your screen and patch it.</p></div></div>
+<div class="prereq"><div class="prereq-head"><span class="prereq-n">03</span><span class="prereq-name">KotOR High Resolution Menus (k1hrm)</span><span class="tag">by ndix UR</span></div><div class="prereq-body"><a class="lnk" href="https://deadlystream.com/files/file/1159-kotor-high-resolution-menus/">deadlystream.com/files/file/1159-kotor-high-resolution-menus/</a><p>Redraws all the menus for your resolution. Run its patcher, then copy the menu files for your resolution into your game&#x27;s <code>Override</code> folder.</p></div></div>
+<p>Then this mod, last.</p>
+<p>If those links are dead by the time you read this, search DeadlyStream for the mod names. They have all been up for years.</p>
+<h3>Resolutions support</h3>
+<p>The maths is checked automatically against all 49 resolutions k1hrm supports, from 800x600 up to 15360x8640. Four of them have actually been played:</p>
+<div class="tw"><table><thead><tr><th scope="col">Resolution</th><th scope="col">Aspect</th></tr></thead><tbody><tr><td>2560x1600</td><td>16:10</td></tr><tr><td>1920x1080</td><td>16:9</td></tr><tr><td>3840x2400</td><td>16:10</td></tr><tr><td>1600x1200</td><td>4:3</td></tr></tbody></table></div>
+<p>Everything else is checked but has not been looked at on a real screen. That includes ultrawide (21:9 and 32:9), because there was no ultrawide monitor here to test on. If you run one, we would genuinely like to hear how it goes, either way. Should be working.</p>
+<h2 id="installation">Installation</h2>
+<ol class="steps"><li>Install the requirements above first, in that order. Steam needs all three, GOG needs UniWS and k1hrm only.</li><li>Unzip this mod&#x27;s folder somewhere. Do not run it from inside the zip; if you try, it stops and tells you to unzip first.</li><li>Double-click <code>Install.bat</code>.</li><li>Wait until it says it has finished. It can take a moment to think.</li></ol>
+<p>That is the whole thing. It finds your game folder on its own and reads the resolution out of the exe, so it never asks you questions.</p>
+<div class="note"><p><strong>If it cannot find your game:</strong> drag your KOTOR folder onto <code>Install.bat</code> and let go. That means the whole main game folder, the one with <code>swkotor.exe</code> inside it, not the exe itself.</p></div>
+<div class="note"><p><strong>If Windows shows a blue &quot;Windows protected your PC&quot; box:</strong> click &quot;More info&quot;, then &quot;Run anyway&quot;. Any small unsigned mod tool gets this warning.</p></div>
+<div class="note"><p><strong>If you would rather not run an exe at all:</strong> the whole thing is a Python script and it is in the download.</p></div>
+<pre><code>python &quot;More info\source\install.py&quot;</code></pre>
+<p>That does exactly what <code>Install.bat</code> does. This route needs Python installed; <code>Install.bat</code> does not. <code>More info\SHA256SUMS.txt</code> lists a checksum for every file in the download if you want to check nothing changed in transit.</p>
+<h2 id="compatibility">Compatibility</h2>
+<section class="cgroup c-tested"><header><span class="dot"></span><b>Tested and working</b></header><div class="cbody"><ul><li><strong>KOTOR 1 Community Patch (K1CP) 1.10.0.</strong> Checked by measurement: K1CP moves 35 waypoints and none of them is a map note, so all 250 note corrections still match. The whole stack was then played at 2560x1600 with K1CP, k1hrm and this mod together, and everything was working.</li><li><strong>K1 Ultrawide Letterbox Fix.</strong> Both install orders were tested, and it has to go <strong>before</strong> this mod. The other way round its patcher refuses to run and blames your game build, which is misleading, because your build is fine. Uninstall in reverse: this mod first, theirs second.</li><li><strong>4 GB (Large Address Aware) patch.</strong> Confirmed with the real NTCore tool, and it leaves everything this mod uses untouched. Apply it <strong>before</strong> this mod: nothing breaks if you do it afterwards, but <code>Uninstall.bat</code> restores the exe from the backup taken at install time, so uninstalling this mod later would quietly take the 4 GB patch with it.</li><li><strong>GOG retail v1.03.</strong> Played at 3840x2400, area map and HUD minimap both correct.</li></ul></div></section>
+<section class="cgroup c-ok"><header><span class="dot"></span><b>Compatible</b></header><div class="cbody"><ul><li><strong>3440x1440 Enhanced HUD/UI and Menus.</strong> Be aware it is a <em>replacement</em> for k1hrm&#x27;s own 3440x1440 set, not an addition to it. Its map frame is identical to k1hrm&#x27;s, so this mod&#x27;s checks pass on either. Its bundled exe carries the k1hrm centring defect described above, which this patcher detects and fixes.</li><li><strong>Override art and texture mods,</strong> including HD UI Menu Pack, Pretty Good! Icons, HD portraits, Main Menu Widescreen Fix and KOTOR Widescreen Fade Fix. No shared ground with anything this mod writes. Anything that does not modify the game exe will probably work.</li><li><strong>Larger Text Fonts.</strong> Works alongside this mod. Be aware it is separately known to break item stack counts on its own; that is not caused by this mod.</li></ul></div></section>
+<section class="cgroup c-partial"><header><span class="dot"></span><b>Works, with one setting turned off</b></header><div class="cbody"><ul><li><strong>Kotor Patch Manager (KPM).</strong> Fine alongside this mod as long as you switch off its KotorUniResPatch. Everything else KPM does is unaffected. That one patch is an alternative to this mod rather than an addition to it: it rescales the same area map at runtime using the same shared constants, so with both live the map gets scaled twice and comes out wrong, and no install order fixes that. This patcher warns you if it spots KPM&#x27;s files in your game folder rather than refusing to run, because having KPM installed does not mean that particular patch is switched on.</li></ul></div></section>
+<section class="cgroup c-maybe"><header><span class="dot"></span><b>Expected to work, not tested</b></header><div class="cbody"><ul><li><strong>True Controller Support.</strong> It is a <code>dinput8.dll</code> ASI that works at the process level and touches none of the same bytes, so there is no reason for it to conflict, but it has not been tested.</li><li><strong>The other 45 resolutions.</strong> Checked automatically, never seen on a screen.</li></ul></div></section>
+<section class="cgroup c-untested"><header><span class="dot"></span><b>Not tested</b></header><div class="cbody"><ul><li><strong>No-CD executables.</strong> If yours still measures 4,042,752 bytes the patcher will accept it, but nothing here has been checked against one.</li></ul></div></section>
+<section class="cgroup c-bad"><header><span class="dot"></span><b>Incompatible</b></header><div class="cbody"><ul><li><strong>Flawless Widescreen.</strong> It injects into the running process and leaves nothing on disk, so this mod cannot detect it and cannot warn you. Do not use it together with this stack. WSGF themselves recommend UniWS and k1hrm for KOTOR 1 and reserve Flawless Widescreen for KOTOR 2.</li></ul><p>Maybe we will add support for it in the future.</p></div></section>
+<section class="cgroup c-no"><header><span class="dot"></span><b>Not supported</b></header><div class="cbody"><ul><li><strong>4-CD retail build.</strong> Probably patchable in principle, but there is no such binary here to test against and its spare code space is not guaranteed to match. The patcher refuses anything that is not 4,042,752 bytes.</li></ul></div></section>
+<div class="note"><p>One thing that is not about mod conflicts but will bite you anyway: Steam&#x27;s &quot;verify integrity of game files&quot; replaces any exe it does not recognise, which undoes this mod and every other exe mod. Keep a copy of your patched <code>swkotor.exe</code> somewhere outside the game folder.</p></div>
+<h2 id="uninstallation">Uninstallation</h2>
+<p>Double-click <code>Uninstall.bat</code>. It puts your original <code>swkotor.exe</code> back, exactly as it was. UniWS and k1hrm stay installed, so your game still runs at your resolution, it just does not have the map fixes any more.</p>
+<p>You can drag your game folder onto <code>Uninstall.bat</code> as well, the same way as with install, which helps if you have two separate KOTOR installs.</p>
+<p>Your original exe is copied somewhere safe before anything is changed:</p>
+<pre><code>%LOCALAPPDATA%\K1AreaMapFixes\backup</code></pre>
+<p>Paste that into File Explorer&#x27;s address bar to see it. It is kept out of the download folder and out of the game folder deliberately, so deleting the download cannot cost you your original game file. <strong>If you have already deleted the mod folder and want to uninstall, download the mod again and run <code>Uninstall.bat</code> from the new copy.</strong> It will find the backup.</p>
+<p>If you installed the K1 Ultrawide Letterbox Fix, uninstall this mod first and theirs second.</p>
+<h2 id="what-the-patcher-does">What the patcher does</h2>
+<p>It is built to refuse rather than guess.</p>
+<ul class="checks"><li>Copies your <code>swkotor.exe</code> to <code>%LOCALAPPDATA%\K1AreaMapFixes\backup</code> before changing anything.</li><li>Reads your resolution out of the exe instead of asking, then cross-checks it against <code>Override\map.gui</code>, so it will tell you if UniWS and k1hrm disagree with each other. That mismatch is the most common failure in this category of mod.</li><li>Refuses an executable that is not the expected build, an install where UniWS or k1hrm has not been run, and a second install on top of itself.</li><li>Refuses to run from inside the zip, so your backup cannot end up in a temp folder Windows later deletes.</li><li>Warns you if it finds Kotor Patch Manager in your game folder.</li><li>After writing, re-reads the file from disk and runs 21 checks against it, including one that no byte outside the intended ranges changed. If any check fails it says so and points you at the backup. It does not report success on a write it has not verified.</li><li>Writes an install record next to the backup listing every step, its offsets, and hashes of the exe before and after.</li></ul>
+<p>Every run also writes <code>last-run-log.txt</code> next to <code>Install.bat</code>, so if something goes wrong there is a file to attach to a report rather than a command to re-run.</p>
+<h2 id="technical-details">Technical details</h2>
+<p>Every offset this mod writes is documented in <code>More info\TECHNICAL.txt</code> in the download, and the full source is in <code>More info\source\</code>. It is published so that a collision with another executable patcher can be diagnosed by someone other than the author, which is the precedent k1hrm set by publishing its own offsets.</p>
+<p>A few things worth knowing without reading all of it:</p>
+<ul><li>The patcher only accepts the 4,042,752-byte executable, which is what you have after the Editable Executable (or GOG&#x27;s own exe) plus UniWS and k1hrm. Anything else is refused rather than written into on the assumption that the spare space matches.</li><li>The exe grows by 8 KB. That is a reserved region added at the end of the resource section, holding the 250-entry note correction table, and it is the only change to the file&#x27;s size.</li><li>The two float constants the area map divides by are shared with the HUD minimap, so they are <strong>not</strong> rewritten in place. Editing them directly turns the minimap black. Scaled private copies are written elsewhere instead, and only the area map&#x27;s own operands are pointed at them.</li></ul>
+<p>The note corrections are keyed on each note&#x27;s position in the game world rather than on module or index numbers, which is why they survive mods that edit module files.</p>
+<h2 id="credits">Credits</h2>
+<ul><li><strong>ndix UR</strong> for KotOR High Resolution Menus, and for <code>hires_patcher.pl</code>, which the map scaling here is derived from. Required, and not included here.</li><li><strong>wsgf.org</strong> for UniWS. Required, and not included here.</li><li><strong>LaneDibello</strong> for Kotor Patch Manager, whose published address database was a useful cross-check against findings worked out here independently.</li><li><strong>PyKotor</strong> for reading the game&#x27;s file formats.</li><li>Everyone at DeadlyStream who documented this engine over the last decade.</li></ul>
+<h2 id="license">License</h2>
+<p>GPL version 3 or later. The full text is in <code>More info\LICENSE</code>.</p>
+<p>The resolution work this builds on is ndix UR&#x27;s <code>hires_patcher.pl</code>, also GPLv3. None of it is included in this download; you install it yourself, as step 3 of the requirements.</p>
+    </article>
+    <article class="doc" id="ds-view" hidden>
+      <p class="raw-hint">This box uses your browser's default styling on purpose - no
+      custom colours, cards or classes. That plainness is what survives DeadlyStream's
+      paste filter: headings, bold, links, lists, tables and code blocks come through;
+      anything fancier gets stripped anyway, so faking it here would be misleading.
+      Click "Copy Rich Text" above, paste into the description field, and choose
+      "keep formatting" if it asks.</p>
+      <div id="ds-content">
+<h2>K1 Area Map Fixes</h2>
+<p><strong>High Resolution Area Map &amp; Map Marker Fix</strong></p>
+<hr>
+<h3>TL;DR</h3>
+<p>When you play KOTOR 1 at widescreen or high resolution the area map screen is broken: the map sits shrunken in a corner instead of filling its frame. This mod fixes that. It also corrects 250 map note positions that BioWare put in a strange spot in 2003.</p>
+<p>It does not change your resolution. It fixes the map after something else has already got the game running at your resolution, so <strong>UniWS</strong> and <strong>KotOR High Resolution Menus</strong> have to be installed first, in that order. Steam users need the <strong>KOTOR Editable Executable</strong> before either of those; GOG users do not.</p>
+<p>Unzip the folder somewhere and double-click <code>Install.bat</code>. It finds the game and reads your resolution out of the exe, so there is nothing to configure and nothing to pick wrong. <code>Uninstall.bat</code> puts your original exe back.</p>
+<p>Detailed installation instructions are bellow.</p>
+<h3>What this fixes</h3>
+<p>At widescreen and high resolutions the area map is drawn at its old size in a corner of the frame. This mod rescales the map to fill the frame, puts all three kinds of marker where they belong (scaling the icons up at very high resolutions so they stay big enough to see), and corrects 250 map notes that BioWare left in the slightly (sometimes majorly) wrong spot.</p>
+<h4>One thing it fixes that is not its own bug</h4>
+<p>KotOR High Resolution Menus ships two copies of its patcher and they disagree; the <code>.exe</code> one, leaves the area map shoved off to one side (at 1920x1080, 640 pixels right and 300 down, hanging off the screen). That happens whether or not you install this mod, but it looks exactly like this mod&#x27;s fault, so the patcher checks for it and finishes the job, and <code>Uninstall.bat</code> undoes that along with everything else.</p>
+<h3>Requirements</h3>
+<h4>Required, in this order</h4>
+<p><strong>1. KOTOR Editable Executable</strong> (for Steam only) <a href="https://deadlystream.com/files/file/1320-kotor-editable-executable/">https://deadlystream.com/files/file/1320-kotor-editable-executable/</a></p>
+<p>Steam ships a locked <code>swkotor.exe</code> that no mod can edit, including the two below. This is an unlocked copy you drop into your game folder.</p>
+<p><strong>On GOG, skip this step.</strong> GOG&#x27;s own v1.03 <code>swkotor.exe</code> is already the same unlocked file, byte for byte, apart from 16 bytes of unused header padding. Start at step 2.</p>
+<p><strong>2. UniWS</strong> <a href="https://www.wsgf.org/article/universal-widescreen-uniws-patcher">https://www.wsgf.org/article/universal-widescreen-uniws-patcher</a></p>
+<p>Makes the game run at your screen resolution. Pick &quot;Star Wars: KOTOR&quot; from the list, choose 1024x768 interface. Choose your game folder, type in resolution of your screen and patch it.</p>
+<p><strong>3. KotOR High Resolution Menus (k1hrm)</strong> by ndix UR <a href="https://deadlystream.com/files/file/1159-kotor-high-resolution-menus/">https://deadlystream.com/files/file/1159-kotor-high-resolution-menus/</a></p>
+<p>Redraws all the menus for your resolution. Run its patcher, then copy the menu files for your resolution into your game&#x27;s <code>Override</code> folder.</p>
+<p>Then this mod, last.</p>
+<p>If those links are dead by the time you read this, search DeadlyStream for the mod names. They have all been up for years.</p>
+<h4>Resolutions support</h4>
+<p>The maths is checked automatically against all 49 resolutions k1hrm supports, from 800x600 up to 15360x8640. Four of them have actually been played:</p>
+<table><thead><tr><th>Resolution</th><th>Aspect</th></tr></thead><tbody><tr><td>2560x1600</td><td>16:10</td></tr><tr><td>1920x1080</td><td>16:9</td></tr><tr><td>3840x2400</td><td>16:10</td></tr><tr><td>1600x1200</td><td>4:3</td></tr></tbody></table>
+<p>Everything else is checked but has not been looked at on a real screen. That includes ultrawide (21:9 and 32:9), because there was no ultrawide monitor here to test on. If you run one, we would genuinely like to hear how it goes, either way. Should be working.</p>
+<h3>Installation</h3>
+<ol><li>Install the requirements above first, in that order. Steam needs all three, GOG needs UniWS and k1hrm only.</li><li>Unzip this mod&#x27;s folder somewhere. Do not run it from inside the zip; if you try, it stops and tells you to unzip first.</li><li>Double-click <code>Install.bat</code>.</li><li>Wait until it says it has finished. It can take a moment to think.</li></ol>
+<p>That is the whole thing. It finds your game folder on its own and reads the resolution out of the exe, so it never asks you questions.</p>
+<blockquote><p><strong>If it cannot find your game:</strong> drag your KOTOR folder onto <code>Install.bat</code> and let go. That means the whole main game folder, the one with <code>swkotor.exe</code> inside it, not the exe itself.</p></blockquote>
+<blockquote><p><strong>If Windows shows a blue &quot;Windows protected your PC&quot; box:</strong> click &quot;More info&quot;, then &quot;Run anyway&quot;. Any small unsigned mod tool gets this warning.</p></blockquote>
+<blockquote><p><strong>If you would rather not run an exe at all:</strong> the whole thing is a Python script and it is in the download.</p></blockquote>
+<pre><code>python &quot;More info\source\install.py&quot;</code></pre>
+<p>That does exactly what <code>Install.bat</code> does. This route needs Python installed; <code>Install.bat</code> does not. <code>More info\SHA256SUMS.txt</code> lists a checksum for every file in the download if you want to check nothing changed in transit.</p>
+<h3>Compatibility</h3>
+<h4>Tested and working</h4>
+<ul><li><strong>KOTOR 1 Community Patch (K1CP) 1.10.0.</strong> Checked by measurement: K1CP moves 35 waypoints and none of them is a map note, so all 250 note corrections still match. The whole stack was then played at 2560x1600 with K1CP, k1hrm and this mod together, and everything was working.</li><li><strong>K1 Ultrawide Letterbox Fix.</strong> Both install orders were tested, and it has to go <strong>before</strong> this mod. The other way round its patcher refuses to run and blames your game build, which is misleading, because your build is fine. Uninstall in reverse: this mod first, theirs second.</li><li><strong>4 GB (Large Address Aware) patch.</strong> Confirmed with the real NTCore tool, and it leaves everything this mod uses untouched. Apply it <strong>before</strong> this mod: nothing breaks if you do it afterwards, but <code>Uninstall.bat</code> restores the exe from the backup taken at install time, so uninstalling this mod later would quietly take the 4 GB patch with it.</li><li><strong>GOG retail v1.03.</strong> Played at 3840x2400, area map and HUD minimap both correct.</li></ul>
+<h4>Compatible</h4>
+<ul><li><strong>3440x1440 Enhanced HUD/UI and Menus.</strong> Be aware it is a <em>replacement</em> for k1hrm&#x27;s own 3440x1440 set, not an addition to it. Its map frame is identical to k1hrm&#x27;s, so this mod&#x27;s checks pass on either. Its bundled exe carries the k1hrm centring defect described above, which this patcher detects and fixes.</li><li><strong>Override art and texture mods,</strong> including HD UI Menu Pack, Pretty Good! Icons, HD portraits, Main Menu Widescreen Fix and KOTOR Widescreen Fade Fix. No shared ground with anything this mod writes. Anything that does not modify the game exe will probably work.</li><li><strong>Larger Text Fonts.</strong> Works alongside this mod. Be aware it is separately known to break item stack counts on its own; that is not caused by this mod.</li></ul>
+<h4>Works, with one setting turned off</h4>
+<ul><li><strong>Kotor Patch Manager (KPM).</strong> Fine alongside this mod as long as you switch off its KotorUniResPatch. Everything else KPM does is unaffected. That one patch is an alternative to this mod rather than an addition to it: it rescales the same area map at runtime using the same shared constants, so with both live the map gets scaled twice and comes out wrong, and no install order fixes that. This patcher warns you if it spots KPM&#x27;s files in your game folder rather than refusing to run, because having KPM installed does not mean that particular patch is switched on.</li></ul>
+<h4>Expected to work, not tested</h4>
+<ul><li><strong>True Controller Support.</strong> It is a <code>dinput8.dll</code> ASI that works at the process level and touches none of the same bytes, so there is no reason for it to conflict, but it has not been tested.</li><li><strong>The other 45 resolutions.</strong> Checked automatically, never seen on a screen.</li></ul>
+<h4>Not tested</h4>
+<ul><li><strong>No-CD executables.</strong> If yours still measures 4,042,752 bytes the patcher will accept it, but nothing here has been checked against one.</li></ul>
+<h4>Incompatible</h4>
+<ul><li><strong>Flawless Widescreen.</strong> It injects into the running process and leaves nothing on disk, so this mod cannot detect it and cannot warn you. Do not use it together with this stack. WSGF themselves recommend UniWS and k1hrm for KOTOR 1 and reserve Flawless Widescreen for KOTOR 2.</li></ul>
+<p>Maybe we will add support for it in the future.</p>
+<h4>Not supported</h4>
+<ul><li><strong>4-CD retail build.</strong> Probably patchable in principle, but there is no such binary here to test against and its spare code space is not guaranteed to match. The patcher refuses anything that is not 4,042,752 bytes.</li></ul>
+<blockquote><p>One thing that is not about mod conflicts but will bite you anyway: Steam&#x27;s &quot;verify integrity of game files&quot; replaces any exe it does not recognise, which undoes this mod and every other exe mod. Keep a copy of your patched <code>swkotor.exe</code> somewhere outside the game folder.</p></blockquote>
+<h3>Uninstallation</h3>
+<p>Double-click <code>Uninstall.bat</code>. It puts your original <code>swkotor.exe</code> back, exactly as it was. UniWS and k1hrm stay installed, so your game still runs at your resolution, it just does not have the map fixes any more.</p>
+<p>You can drag your game folder onto <code>Uninstall.bat</code> as well, the same way as with install, which helps if you have two separate KOTOR installs.</p>
+<p>Your original exe is copied somewhere safe before anything is changed:</p>
+<pre><code>%LOCALAPPDATA%\K1AreaMapFixes\backup</code></pre>
+<p>Paste that into File Explorer&#x27;s address bar to see it. It is kept out of the download folder and out of the game folder deliberately, so deleting the download cannot cost you your original game file. <strong>If you have already deleted the mod folder and want to uninstall, download the mod again and run <code>Uninstall.bat</code> from the new copy.</strong> It will find the backup.</p>
+<p>If you installed the K1 Ultrawide Letterbox Fix, uninstall this mod first and theirs second.</p>
+<h3>What the patcher does</h3>
+<p>It is built to refuse rather than guess.</p>
+<ul><li>Copies your <code>swkotor.exe</code> to <code>%LOCALAPPDATA%\K1AreaMapFixes\backup</code> before changing anything.</li><li>Reads your resolution out of the exe instead of asking, then cross-checks it against <code>Override\map.gui</code>, so it will tell you if UniWS and k1hrm disagree with each other. That mismatch is the most common failure in this category of mod.</li><li>Refuses an executable that is not the expected build, an install where UniWS or k1hrm has not been run, and a second install on top of itself.</li><li>Refuses to run from inside the zip, so your backup cannot end up in a temp folder Windows later deletes.</li><li>Warns you if it finds Kotor Patch Manager in your game folder.</li><li>After writing, re-reads the file from disk and runs 21 checks against it, including one that no byte outside the intended ranges changed. If any check fails it says so and points you at the backup. It does not report success on a write it has not verified.</li><li>Writes an install record next to the backup listing every step, its offsets, and hashes of the exe before and after.</li></ul>
+<p>Every run also writes <code>last-run-log.txt</code> next to <code>Install.bat</code>, so if something goes wrong there is a file to attach to a report rather than a command to re-run.</p>
+<h3>Technical details</h3>
+<p>Every offset this mod writes is documented in <code>More info\TECHNICAL.txt</code> in the download, and the full source is in <code>More info\source\</code>. It is published so that a collision with another executable patcher can be diagnosed by someone other than the author, which is the precedent k1hrm set by publishing its own offsets.</p>
+<p>A few things worth knowing without reading all of it:</p>
+<ul><li>The patcher only accepts the 4,042,752-byte executable, which is what you have after the Editable Executable (or GOG&#x27;s own exe) plus UniWS and k1hrm. Anything else is refused rather than written into on the assumption that the spare space matches.</li><li>The exe grows by 8 KB. That is a reserved region added at the end of the resource section, holding the 250-entry note correction table, and it is the only change to the file&#x27;s size.</li><li>The two float constants the area map divides by are shared with the HUD minimap, so they are <strong>not</strong> rewritten in place. Editing them directly turns the minimap black. Scaled private copies are written elsewhere instead, and only the area map&#x27;s own operands are pointed at them.</li></ul>
+<p>The note corrections are keyed on each note&#x27;s position in the game world rather than on module or index numbers, which is why they survive mods that edit module files.</p>
+<h3>Credits</h3>
+<ul><li><strong>ndix UR</strong> for KotOR High Resolution Menus, and for <code>hires_patcher.pl</code>, which the map scaling here is derived from. Required, and not included here.</li><li><strong>wsgf.org</strong> for UniWS. Required, and not included here.</li><li><strong>LaneDibello</strong> for Kotor Patch Manager, whose published address database was a useful cross-check against findings worked out here independently.</li><li><strong>PyKotor</strong> for reading the game&#x27;s file formats.</li><li>Everyone at DeadlyStream who documented this engine over the last decade.</li></ul>
+<h3>License</h3>
+<p>GPL version 3 or later. The full text is in <code>More info\LICENSE</code>.</p>
+<p>The resolution work this builds on is ndix UR&#x27;s <code>hires_patcher.pl</code>, also GPLv3. None of it is included in this download; you install it yourself, as step 3 of the requirements.</p>
+      </div>
+    </article>
+    <article class="doc" id="nexus-view" hidden>
+      <p class="raw-hint">Nexus's description field is plain-text BBCode, not a rich-text
+      paste target - so unlike the DeadlyStream tab, this is meant to be pasted as literal
+      text. Nexus has no heading tag (shifted to [size=N]) and no table tag at all, so the
+      Resolutions table below is a plain aligned table inside [code], the standard
+      workaround. Click "Copy BBCode", then paste directly into the description box.</p>
+      <pre id="nexus-pre"><code id="nexus-code">[size=5]K1 Area Map Fixes[/size]
+
+[b]High Resolution Area Map &amp; Map Marker Fix[/b]
+
+[line]
+
+[size=4]TL;DR[/size]
+
+When you play KOTOR 1 at widescreen or high resolution the area map screen is broken: the map sits shrunken in a corner instead of filling its frame. This mod fixes that. It also corrects 250 map note positions that BioWare put in a strange spot in 2003.
+
+It does not change your resolution. It fixes the map after something else has already got the game running at your resolution, so [b]UniWS[/b] and [b]KotOR High Resolution Menus[/b] have to be installed first, in that order. Steam users need the [b]KOTOR Editable Executable[/b] before either of those; GOG users do not.
+
+Unzip the folder somewhere and double-click [font=Courier New]Install.bat[/font]. It finds the game and reads your resolution out of the exe, so there is nothing to configure and nothing to pick wrong. [font=Courier New]Uninstall.bat[/font] puts your original exe back.
+
+Detailed installation instructions are bellow.
+
+[size=4]What this fixes[/size]
+
+At widescreen and high resolutions the area map is drawn at its old size in a corner of the frame. This mod rescales the map to fill the frame, puts all three kinds of marker where they belong (scaling the icons up at very high resolutions so they stay big enough to see), and corrects 250 map notes that BioWare left in the slightly (sometimes majorly) wrong spot.
+
+[size=3]One thing it fixes that is not its own bug[/size]
+
+KotOR High Resolution Menus ships two copies of its patcher and they disagree; the [font=Courier New].exe[/font] one, leaves the area map shoved off to one side (at 1920x1080, 640 pixels right and 300 down, hanging off the screen). That happens whether or not you install this mod, but it looks exactly like this mod&#x27;s fault, so the patcher checks for it and finishes the job, and [font=Courier New]Uninstall.bat[/font] undoes that along with everything else.
+
+[size=4]Requirements[/size]
+
+[size=3]Required, in this order[/size]
+
+[b]1. KOTOR Editable Executable[/b] (for Steam only) [url=https://deadlystream.com/files/file/1320-kotor-editable-executable/]https://deadlystream.com/files/file/1320-kotor-editable-executable/[/url]
+
+Steam ships a locked [font=Courier New]swkotor.exe[/font] that no mod can edit, including the two below. This is an unlocked copy you drop into your game folder.
+
+[b]On GOG, skip this step.[/b] GOG&#x27;s own v1.03 [font=Courier New]swkotor.exe[/font] is already the same unlocked file, byte for byte, apart from 16 bytes of unused header padding. Start at step 2.
+
+[b]2. UniWS[/b] [url=https://www.wsgf.org/article/universal-widescreen-uniws-patcher]https://www.wsgf.org/article/universal-widescreen-uniws-patcher[/url]
+
+Makes the game run at your screen resolution. Pick &quot;Star Wars: KOTOR&quot; from the list, choose 1024x768 interface. Choose your game folder, type in resolution of your screen and patch it.
+
+[b]3. KotOR High Resolution Menus (k1hrm)[/b] by ndix UR [url=https://deadlystream.com/files/file/1159-kotor-high-resolution-menus/]https://deadlystream.com/files/file/1159-kotor-high-resolution-menus/[/url]
+
+Redraws all the menus for your resolution. Run its patcher, then copy the menu files for your resolution into your game&#x27;s [font=Courier New]Override[/font] folder.
+
+Then this mod, last.
+
+If those links are dead by the time you read this, search DeadlyStream for the mod names. They have all been up for years.
+
+[size=3]Resolutions support[/size]
+
+The maths is checked automatically against all 49 resolutions k1hrm supports, from 800x600 up to 15360x8640. Four of them have actually been played:
+
+[code]
+Resolution  Aspect
+----------  ------
+2560x1600   16:10 
+1920x1080   16:9  
+3840x2400   16:10 
+1600x1200   4:3   
+[/code]
+
+Everything else is checked but has not been looked at on a real screen. That includes ultrawide (21:9 and 32:9), because there was no ultrawide monitor here to test on. If you run one, we would genuinely like to hear how it goes, either way. Should be working.
+
+[size=4]Installation[/size]
+
+[list=1]
+[*]Install the requirements above first, in that order. Steam needs all three, GOG needs UniWS and k1hrm only.
+[*]Unzip this mod&#x27;s folder somewhere. Do not run it from inside the zip; if you try, it stops and tells you to unzip first.
+[*]Double-click [font=Courier New]Install.bat[/font].
+[*]Wait until it says it has finished. It can take a moment to think.
+[/list]
+
+That is the whole thing. It finds your game folder on its own and reads the resolution out of the exe, so it never asks you questions.
+
+[quote][b]If it cannot find your game:[/b] drag your KOTOR folder onto [font=Courier New]Install.bat[/font] and let go. That means the whole main game folder, the one with [font=Courier New]swkotor.exe[/font] inside it, not the exe itself.[/quote]
+
+[quote][b]If Windows shows a blue &quot;Windows protected your PC&quot; box:[/b] click &quot;More info&quot;, then &quot;Run anyway&quot;. Any small unsigned mod tool gets this warning.[/quote]
+
+[quote][b]If you would rather not run an exe at all:[/b] the whole thing is a Python script and it is in the download.[/quote]
+
+[code]python &quot;More info\source\install.py&quot;[/code]
+
+That does exactly what [font=Courier New]Install.bat[/font] does. This route needs Python installed; [font=Courier New]Install.bat[/font] does not. [font=Courier New]More info\SHA256SUMS.txt[/font] lists a checksum for every file in the download if you want to check nothing changed in transit.
+
+[size=4]Compatibility[/size]
+
+[size=3]Tested and working[/size]
+
+[list]
+[*][b]KOTOR 1 Community Patch (K1CP) 1.10.0.[/b] Checked by measurement: K1CP moves 35 waypoints and none of them is a map note, so all 250 note corrections still match. The whole stack was then played at 2560x1600 with K1CP, k1hrm and this mod together, and everything was working.
+[*][b]K1 Ultrawide Letterbox Fix.[/b] Both install orders were tested, and it has to go [b]before[/b] this mod. The other way round its patcher refuses to run and blames your game build, which is misleading, because your build is fine. Uninstall in reverse: this mod first, theirs second.
+[*][b]4 GB (Large Address Aware) patch.[/b] Confirmed with the real NTCore tool, and it leaves everything this mod uses untouched. Apply it [b]before[/b] this mod: nothing breaks if you do it afterwards, but [font=Courier New]Uninstall.bat[/font] restores the exe from the backup taken at install time, so uninstalling this mod later would quietly take the 4 GB patch with it.
+[*][b]GOG retail v1.03.[/b] Played at 3840x2400, area map and HUD minimap both correct.
+[/list]
+
+[size=3]Compatible[/size]
+
+[list]
+[*][b]3440x1440 Enhanced HUD/UI and Menus.[/b] Be aware it is a [i]replacement[/i] for k1hrm&#x27;s own 3440x1440 set, not an addition to it. Its map frame is identical to k1hrm&#x27;s, so this mod&#x27;s checks pass on either. Its bundled exe carries the k1hrm centring defect described above, which this patcher detects and fixes.
+[*][b]Override art and texture mods,[/b] including HD UI Menu Pack, Pretty Good! Icons, HD portraits, Main Menu Widescreen Fix and KOTOR Widescreen Fade Fix. No shared ground with anything this mod writes. Anything that does not modify the game exe will probably work.
+[*][b]Larger Text Fonts.[/b] Works alongside this mod. Be aware it is separately known to break item stack counts on its own; that is not caused by this mod.
+[/list]
+
+[size=3]Works, with one setting turned off[/size]
+
+[list]
+[*][b]Kotor Patch Manager (KPM).[/b] Fine alongside this mod as long as you switch off its KotorUniResPatch. Everything else KPM does is unaffected. That one patch is an alternative to this mod rather than an addition to it: it rescales the same area map at runtime using the same shared constants, so with both live the map gets scaled twice and comes out wrong, and no install order fixes that. This patcher warns you if it spots KPM&#x27;s files in your game folder rather than refusing to run, because having KPM installed does not mean that particular patch is switched on.
+[/list]
+
+[size=3]Expected to work, not tested[/size]
+
+[list]
+[*][b]True Controller Support.[/b] It is a [font=Courier New]dinput8.dll[/font] ASI that works at the process level and touches none of the same bytes, so there is no reason for it to conflict, but it has not been tested.
+[*][b]The other 45 resolutions.[/b] Checked automatically, never seen on a screen.
+[/list]
+
+[size=3]Not tested[/size]
+
+[list]
+[*][b]No-CD executables.[/b] If yours still measures 4,042,752 bytes the patcher will accept it, but nothing here has been checked against one.
+[/list]
+
+[size=3]Incompatible[/size]
+
+[list]
+[*][b]Flawless Widescreen.[/b] It injects into the running process and leaves nothing on disk, so this mod cannot detect it and cannot warn you. Do not use it together with this stack. WSGF themselves recommend UniWS and k1hrm for KOTOR 1 and reserve Flawless Widescreen for KOTOR 2.
+[/list]
+
+Maybe we will add support for it in the future.
+
+[size=3]Not supported[/size]
+
+[list]
+[*][b]4-CD retail build.[/b] Probably patchable in principle, but there is no such binary here to test against and its spare code space is not guaranteed to match. The patcher refuses anything that is not 4,042,752 bytes.
+[/list]
+
+[quote]One thing that is not about mod conflicts but will bite you anyway: Steam&#x27;s &quot;verify integrity of game files&quot; replaces any exe it does not recognise, which undoes this mod and every other exe mod. Keep a copy of your patched [font=Courier New]swkotor.exe[/font] somewhere outside the game folder.[/quote]
+
+[size=4]Uninstallation[/size]
+
+Double-click [font=Courier New]Uninstall.bat[/font]. It puts your original [font=Courier New]swkotor.exe[/font] back, exactly as it was. UniWS and k1hrm stay installed, so your game still runs at your resolution, it just does not have the map fixes any more.
+
+You can drag your game folder onto [font=Courier New]Uninstall.bat[/font] as well, the same way as with install, which helps if you have two separate KOTOR installs.
+
+Your original exe is copied somewhere safe before anything is changed:
+
+[code]%LOCALAPPDATA%\K1AreaMapFixes\backup[/code]
+
+Paste that into File Explorer&#x27;s address bar to see it. It is kept out of the download folder and out of the game folder deliberately, so deleting the download cannot cost you your original game file. [b]If you have already deleted the mod folder and want to uninstall, download the mod again and run [font=Courier New]Uninstall.bat[/font] from the new copy.[/b] It will find the backup.
+
+If you installed the K1 Ultrawide Letterbox Fix, uninstall this mod first and theirs second.
+
+[size=4]What the patcher does[/size]
+
+It is built to refuse rather than guess.
+
+[list]
+[*]Copies your [font=Courier New]swkotor.exe[/font] to [font=Courier New]%LOCALAPPDATA%\K1AreaMapFixes\backup[/font] before changing anything.
+[*]Reads your resolution out of the exe instead of asking, then cross-checks it against [font=Courier New]Override\map.gui[/font], so it will tell you if UniWS and k1hrm disagree with each other. That mismatch is the most common failure in this category of mod.
+[*]Refuses an executable that is not the expected build, an install where UniWS or k1hrm has not been run, and a second install on top of itself.
+[*]Refuses to run from inside the zip, so your backup cannot end up in a temp folder Windows later deletes.
+[*]Warns you if it finds Kotor Patch Manager in your game folder.
+[*]After writing, re-reads the file from disk and runs 21 checks against it, including one that no byte outside the intended ranges changed. If any check fails it says so and points you at the backup. It does not report success on a write it has not verified.
+[*]Writes an install record next to the backup listing every step, its offsets, and hashes of the exe before and after.
+[/list]
+
+Every run also writes [font=Courier New]last-run-log.txt[/font] next to [font=Courier New]Install.bat[/font], so if something goes wrong there is a file to attach to a report rather than a command to re-run.
+
+[size=4]Technical details[/size]
+
+Every offset this mod writes is documented in [font=Courier New]More info\TECHNICAL.txt[/font] in the download, and the full source is in [font=Courier New]More info\source\[/font]. It is published so that a collision with another executable patcher can be diagnosed by someone other than the author, which is the precedent k1hrm set by publishing its own offsets.
+
+A few things worth knowing without reading all of it:
+
+[list]
+[*]The patcher only accepts the 4,042,752-byte executable, which is what you have after the Editable Executable (or GOG&#x27;s own exe) plus UniWS and k1hrm. Anything else is refused rather than written into on the assumption that the spare space matches.
+[*]The exe grows by 8 KB. That is a reserved region added at the end of the resource section, holding the 250-entry note correction table, and it is the only change to the file&#x27;s size.
+[*]The two float constants the area map divides by are shared with the HUD minimap, so they are [b]not[/b] rewritten in place. Editing them directly turns the minimap black. Scaled private copies are written elsewhere instead, and only the area map&#x27;s own operands are pointed at them.
+[/list]
+
+The note corrections are keyed on each note&#x27;s position in the game world rather than on module or index numbers, which is why they survive mods that edit module files.
+
+[size=4]Credits[/size]
+
+[list]
+[*][b]ndix UR[/b] for KotOR High Resolution Menus, and for [font=Courier New]hires_patcher.pl[/font], which the map scaling here is derived from. Required, and not included here.
+[*][b]wsgf.org[/b] for UniWS. Required, and not included here.
+[*][b]LaneDibello[/b] for Kotor Patch Manager, whose published address database was a useful cross-check against findings worked out here independently.
+[*][b]PyKotor[/b] for reading the game&#x27;s file formats.
+[*]Everyone at DeadlyStream who documented this engine over the last decade.
+[/list]
+
+[size=4]License[/size]
+
+GPL version 3 or later. The full text is in [font=Courier New]More info\LICENSE[/font].
+
+The resolution work this builds on is ndix UR&#x27;s [font=Courier New]hires_patcher.pl[/font], also GPLv3. None of it is included in this download; you install it yourself, as step 3 of the requirements.</code></pre>
+    </article>
+    <article class="doc" id="raw-view" hidden>
+      <p class="raw-hint">Raw Markdown - for reference only. Pasting this literally into
+      DeadlyStream's editor will NOT render: it has no Markdown parser, so the # and **
+      characters would show up as plain text. Use the "DeadlyStream Paste" tab instead.</p>
+      <pre id="raw-pre"><code id="raw-code"></code></pre>
+    </article>
+  </main>
+</div>
+
+<script>
+(function(){
+  var md = "# K1 Area Map Fixes\n\n**High Resolution Area Map & Map Marker Fix**\n\n## TL;DR\n\nWhen you play KOTOR 1 at widescreen or high resolution the area map screen is broken: the map sits shrunken in a corner instead of filling its frame. This mod fixes that. It also corrects 250 map note positions that BioWare put in a strange spot in 2003.\n\nIt does not change your resolution. It fixes the map after something else has already got the game running at your resolution, so **UniWS** and **KotOR High Resolution Menus** have to be installed first, in that order. Steam users need the **KOTOR Editable Executable** before either of those; GOG users do not.\n\nUnzip the folder somewhere and double-click `Install.bat`. It finds the game and reads your resolution out of the exe, so there is nothing to configure and nothing to pick wrong. `Uninstall.bat` puts your original exe back.\n\nDetailed installation instructions are bellow.\n\n## What this fixes\n\nAt widescreen and high resolutions the area map is drawn at its old size in a corner of the frame. This mod rescales the map to fill the frame, puts all three kinds of marker where they belong (scaling the icons up at very high resolutions so they stay big enough to see), and corrects 250 map notes that BioWare left in the slightly (sometimes majorly) wrong spot.\n\n### One thing it fixes that is not its own bug\n\nKotOR High Resolution Menus ships two copies of its patcher and they disagree; the `.exe` one, leaves the area map shoved off to one side (at 1920x1080, 640 pixels right and 300 down, hanging off the screen). That happens whether or not you install this mod, but it looks exactly like this mod's fault, so the patcher checks for it and finishes the job, and `Uninstall.bat` undoes that along with everything else.\n\n## Requirements\n\n### Required, in this order\n\n**1. KOTOR Editable Executable** (for Steam only)\nhttps://deadlystream.com/files/file/1320-kotor-editable-executable/\n\nSteam ships a locked `swkotor.exe` that no mod can edit, including the two below. This is an unlocked copy you drop into your game folder.\n\n**On GOG, skip this step.** GOG's own v1.03 `swkotor.exe` is already the same unlocked file, byte for byte, apart from 16 bytes of unused header padding. Start at step 2.\n\n**2. UniWS**\nhttps://www.wsgf.org/article/universal-widescreen-uniws-patcher\n\nMakes the game run at your screen resolution. Pick \"Star Wars: KOTOR\" from the list, choose 1024x768 interface. Choose your game folder, type in resolution of your screen and patch it.\n\n**3. KotOR High Resolution Menus (k1hrm)** by ndix UR\nhttps://deadlystream.com/files/file/1159-kotor-high-resolution-menus/\n\nRedraws all the menus for your resolution. Run its patcher, then copy the menu files for your resolution into your game's `Override` folder.\n\nThen this mod, last.\n\nIf those links are dead by the time you read this, search DeadlyStream for the mod names. They have all been up for years.\n\n### Resolutions support\n\nThe maths is checked automatically against all 49 resolutions k1hrm supports, from 800x600 up to 15360x8640. Four of them have actually been played:\n\n| Resolution | Aspect |\n|---|---|\n| 2560x1600 | 16:10 |\n| 1920x1080 | 16:9 |\n| 3840x2400 | 16:10 |\n| 1600x1200 | 4:3 |\n\nEverything else is checked but has not been looked at on a real screen. That includes ultrawide (21:9 and 32:9), because there was no ultrawide monitor here to test on. If you run one, we would genuinely like to hear how it goes, either way. Should be working.\n\n## Installation\n\n1. Install the requirements above first, in that order. Steam needs all three, GOG needs UniWS and k1hrm only.\n2. Unzip this mod's folder somewhere. Do not run it from inside the zip; if you try, it stops and tells you to unzip first.\n3. Double-click `Install.bat`.\n4. Wait until it says it has finished. It can take a moment to think.\n\nThat is the whole thing. It finds your game folder on its own and reads the resolution out of the exe, so it never asks you questions.\n\n**If it cannot find your game:** drag your KOTOR folder onto `Install.bat` and let go. That means the whole main game folder, the one with `swkotor.exe` inside it, not the exe itself.\n\n**If Windows shows a blue \"Windows protected your PC\" box:** click \"More info\", then \"Run anyway\". Any small unsigned mod tool gets this warning.\n\n**If you would rather not run an exe at all:** the whole thing is a Python script and it is in the download.\n\n```\npython \"More info\\source\\install.py\"\n```\n\nThat does exactly what `Install.bat` does. This route needs Python installed; `Install.bat` does not. `More info\\SHA256SUMS.txt` lists a checksum for every file in the download if you want to check nothing changed in transit.\n\n## Compatibility\n\n### Tested and working\n\n- **KOTOR 1 Community Patch (K1CP) 1.10.0.** Checked by measurement: K1CP moves 35 waypoints and none of them is a map note, so all 250 note corrections still match. The whole stack was then played at 2560x1600 with K1CP, k1hrm and this mod together, and everything was working.\n- **K1 Ultrawide Letterbox Fix.** Both install orders were tested, and it has to go **before** this mod. The other way round its patcher refuses to run and blames your game build, which is misleading, because your build is fine. Uninstall in reverse: this mod first, theirs second.\n- **4 GB (Large Address Aware) patch.** Confirmed with the real NTCore tool, and it leaves everything this mod uses untouched. Apply it **before** this mod: nothing breaks if you do it afterwards, but `Uninstall.bat` restores the exe from the backup taken at install time, so uninstalling this mod later would quietly take the 4 GB patch with it.\n- **GOG retail v1.03.** Played at 3840x2400, area map and HUD minimap both correct.\n\n### Compatible\n\n- **3440x1440 Enhanced HUD/UI and Menus.** Be aware it is a *replacement* for k1hrm's own 3440x1440 set, not an addition to it. Its map frame is identical to k1hrm's, so this mod's checks pass on either. Its bundled exe carries the k1hrm centring defect described above, which this patcher detects and fixes.\n- **Override art and texture mods,** including HD UI Menu Pack, Pretty Good! Icons, HD portraits, Main Menu Widescreen Fix and KOTOR Widescreen Fade Fix. No shared ground with anything this mod writes. Anything that does not modify the game exe will probably work.\n- **Larger Text Fonts.** Works alongside this mod. Be aware it is separately known to break item stack counts on its own; that is not caused by this mod.\n\n### Works, with one setting turned off\n\n- **Kotor Patch Manager (KPM).** Fine alongside this mod as long as you switch off its KotorUniResPatch. Everything else KPM does is unaffected. That one patch is an alternative to this mod rather than an addition to it: it rescales the same area map at runtime using the same shared constants, so with both live the map gets scaled twice and comes out wrong, and no install order fixes that. This patcher warns you if it spots KPM's files in your game folder rather than refusing to run, because having KPM installed does not mean that particular patch is switched on.\n\n### Expected to work, not tested\n\n- **True Controller Support.** It is a `dinput8.dll` ASI that works at the process level and touches none of the same bytes, so there is no reason for it to conflict, but it has not been tested.\n- **The other 45 resolutions.** Checked automatically, never seen on a screen.\n\n### Not tested\n\n- **No-CD executables.** If yours still measures 4,042,752 bytes the patcher will accept it, but nothing here has been checked against one.\n\n### Incompatible\n\n- **Flawless Widescreen.** It injects into the running process and leaves nothing on disk, so this mod cannot detect it and cannot warn you. Do not use it together with this stack. WSGF themselves recommend UniWS and k1hrm for KOTOR 1 and reserve Flawless Widescreen for KOTOR 2.\nMaybe we will add support for it in the future.\n\n### Not supported\n\n- **4-CD retail build.** Probably patchable in principle, but there is no such binary here to test against and its spare code space is not guaranteed to match. The patcher refuses anything that is not 4,042,752 bytes.\n\nOne thing that is not about mod conflicts but will bite you anyway: Steam's \"verify integrity of game files\" replaces any exe it does not recognise, which undoes this mod and every other exe mod. Keep a copy of your patched `swkotor.exe` somewhere outside the game folder.\n\n## Uninstallation\n\nDouble-click `Uninstall.bat`. It puts your original `swkotor.exe` back, exactly as it was. UniWS and k1hrm stay installed, so your game still runs at your resolution, it just does not have the map fixes any more.\n\nYou can drag your game folder onto `Uninstall.bat` as well, the same way as with install, which helps if you have two separate KOTOR installs.\n\nYour original exe is copied somewhere safe before anything is changed:\n\n```\n%LOCALAPPDATA%\\K1AreaMapFixes\\backup\n```\n\nPaste that into File Explorer's address bar to see it. It is kept out of the download folder and out of the game folder deliberately, so deleting the download cannot cost you your original game file. **If you have already deleted the mod folder and want to uninstall, download the mod again and run `Uninstall.bat` from the new copy.** It will find the backup.\n\nIf you installed the K1 Ultrawide Letterbox Fix, uninstall this mod first and theirs second.\n\n## What the patcher does\n\nIt is built to refuse rather than guess.\n\n- Copies your `swkotor.exe` to `%LOCALAPPDATA%\\K1AreaMapFixes\\backup` before changing anything.\n- Reads your resolution out of the exe instead of asking, then cross-checks it against `Override\\map.gui`, so it will tell you if UniWS and k1hrm disagree with each other. That mismatch is the most common failure in this category of mod.\n- Refuses an executable that is not the expected build, an install where UniWS or k1hrm has not been run, and a second install on top of itself.\n- Refuses to run from inside the zip, so your backup cannot end up in a temp folder Windows later deletes.\n- Warns you if it finds Kotor Patch Manager in your game folder.\n- After writing, re-reads the file from disk and runs 21 checks against it, including one that no byte outside the intended ranges changed. If any check fails it says so and points you at the backup. It does not report success on a write it has not verified.\n- Writes an install record next to the backup listing every step, its offsets, and hashes of the exe before and after.\n\nEvery run also writes `last-run-log.txt` next to `Install.bat`, so if something goes wrong there is a file to attach to a report rather than a command to re-run.\n\n## Technical details\n\nEvery offset this mod writes is documented in `More info\\TECHNICAL.txt` in the download, and the full source is in `More info\\source\\`. It is published so that a collision with another executable patcher can be diagnosed by someone other than the author, which is the precedent k1hrm set by publishing its own offsets.\n\nA few things worth knowing without reading all of it:\n\n- The patcher only accepts the 4,042,752-byte executable, which is what you have after the Editable Executable (or GOG's own exe) plus UniWS and k1hrm. Anything else is refused rather than written into on the assumption that the spare space matches.\n- The exe grows by 8 KB. That is a reserved region added at the end of the resource section, holding the 250-entry note correction table, and it is the only change to the file's size.\n- The two float constants the area map divides by are shared with the HUD minimap, so they are **not** rewritten in place. Editing them directly turns the minimap black. Scaled private copies are written elsewhere instead, and only the area map's own operands are pointed at them.\n\nThe note corrections are keyed on each note's position in the game world rather than on module or index numbers, which is why they survive mods that edit module files.\n\n## Credits\n\n- **ndix UR** for KotOR High Resolution Menus, and for `hires_patcher.pl`, which the map scaling here is derived from. Required, and not included here.\n- **wsgf.org** for UniWS. Required, and not included here.\n- **LaneDibello** for Kotor Patch Manager, whose published address database was a useful cross-check against findings worked out here independently.\n- **PyKotor** for reading the game's file formats.\n- Everyone at DeadlyStream who documented this engine over the last decade.\n\n## License\n\nGPL version 3 or later. The full text is in `More info\\LICENSE`.\n\nThe resolution work this builds on is ndix UR's `hires_patcher.pl`, also GPLv3. None of it is included in this download; you install it yourself, as step 3 of the requirements.\n";
+  var bbcode = "[size=5]K1 Area Map Fixes[/size]\n\n[b]High Resolution Area Map & Map Marker Fix[/b]\n\n[line]\n\n[size=4]TL;DR[/size]\n\nWhen you play KOTOR 1 at widescreen or high resolution the area map screen is broken: the map sits shrunken in a corner instead of filling its frame. This mod fixes that. It also corrects 250 map note positions that BioWare put in a strange spot in 2003.\n\nIt does not change your resolution. It fixes the map after something else has already got the game running at your resolution, so [b]UniWS[/b] and [b]KotOR High Resolution Menus[/b] have to be installed first, in that order. Steam users need the [b]KOTOR Editable Executable[/b] before either of those; GOG users do not.\n\nUnzip the folder somewhere and double-click [font=Courier New]Install.bat[/font]. It finds the game and reads your resolution out of the exe, so there is nothing to configure and nothing to pick wrong. [font=Courier New]Uninstall.bat[/font] puts your original exe back.\n\nDetailed installation instructions are bellow.\n\n[size=4]What this fixes[/size]\n\nAt widescreen and high resolutions the area map is drawn at its old size in a corner of the frame. This mod rescales the map to fill the frame, puts all three kinds of marker where they belong (scaling the icons up at very high resolutions so they stay big enough to see), and corrects 250 map notes that BioWare left in the slightly (sometimes majorly) wrong spot.\n\n[size=3]One thing it fixes that is not its own bug[/size]\n\nKotOR High Resolution Menus ships two copies of its patcher and they disagree; the [font=Courier New].exe[/font] one, leaves the area map shoved off to one side (at 1920x1080, 640 pixels right and 300 down, hanging off the screen). That happens whether or not you install this mod, but it looks exactly like this mod's fault, so the patcher checks for it and finishes the job, and [font=Courier New]Uninstall.bat[/font] undoes that along with everything else.\n\n[size=4]Requirements[/size]\n\n[size=3]Required, in this order[/size]\n\n[b]1. KOTOR Editable Executable[/b] (for Steam only) [url=https://deadlystream.com/files/file/1320-kotor-editable-executable/]https://deadlystream.com/files/file/1320-kotor-editable-executable/[/url]\n\nSteam ships a locked [font=Courier New]swkotor.exe[/font] that no mod can edit, including the two below. This is an unlocked copy you drop into your game folder.\n\n[b]On GOG, skip this step.[/b] GOG's own v1.03 [font=Courier New]swkotor.exe[/font] is already the same unlocked file, byte for byte, apart from 16 bytes of unused header padding. Start at step 2.\n\n[b]2. UniWS[/b] [url=https://www.wsgf.org/article/universal-widescreen-uniws-patcher]https://www.wsgf.org/article/universal-widescreen-uniws-patcher[/url]\n\nMakes the game run at your screen resolution. Pick \"Star Wars: KOTOR\" from the list, choose 1024x768 interface. Choose your game folder, type in resolution of your screen and patch it.\n\n[b]3. KotOR High Resolution Menus (k1hrm)[/b] by ndix UR [url=https://deadlystream.com/files/file/1159-kotor-high-resolution-menus/]https://deadlystream.com/files/file/1159-kotor-high-resolution-menus/[/url]\n\nRedraws all the menus for your resolution. Run its patcher, then copy the menu files for your resolution into your game's [font=Courier New]Override[/font] folder.\n\nThen this mod, last.\n\nIf those links are dead by the time you read this, search DeadlyStream for the mod names. They have all been up for years.\n\n[size=3]Resolutions support[/size]\n\nThe maths is checked automatically against all 49 resolutions k1hrm supports, from 800x600 up to 15360x8640. Four of them have actually been played:\n\n[code]\nResolution  Aspect\n----------  ------\n2560x1600   16:10 \n1920x1080   16:9  \n3840x2400   16:10 \n1600x1200   4:3   \n[/code]\n\nEverything else is checked but has not been looked at on a real screen. That includes ultrawide (21:9 and 32:9), because there was no ultrawide monitor here to test on. If you run one, we would genuinely like to hear how it goes, either way. Should be working.\n\n[size=4]Installation[/size]\n\n[list=1]\n[*]Install the requirements above first, in that order. Steam needs all three, GOG needs UniWS and k1hrm only.\n[*]Unzip this mod's folder somewhere. Do not run it from inside the zip; if you try, it stops and tells you to unzip first.\n[*]Double-click [font=Courier New]Install.bat[/font].\n[*]Wait until it says it has finished. It can take a moment to think.\n[/list]\n\nThat is the whole thing. It finds your game folder on its own and reads the resolution out of the exe, so it never asks you questions.\n\n[quote][b]If it cannot find your game:[/b] drag your KOTOR folder onto [font=Courier New]Install.bat[/font] and let go. That means the whole main game folder, the one with [font=Courier New]swkotor.exe[/font] inside it, not the exe itself.[/quote]\n\n[quote][b]If Windows shows a blue \"Windows protected your PC\" box:[/b] click \"More info\", then \"Run anyway\". Any small unsigned mod tool gets this warning.[/quote]\n\n[quote][b]If you would rather not run an exe at all:[/b] the whole thing is a Python script and it is in the download.[/quote]\n\n[code]python \"More info\\source\\install.py\"[/code]\n\nThat does exactly what [font=Courier New]Install.bat[/font] does. This route needs Python installed; [font=Courier New]Install.bat[/font] does not. [font=Courier New]More info\\SHA256SUMS.txt[/font] lists a checksum for every file in the download if you want to check nothing changed in transit.\n\n[size=4]Compatibility[/size]\n\n[size=3]Tested and working[/size]\n\n[list]\n[*][b]KOTOR 1 Community Patch (K1CP) 1.10.0.[/b] Checked by measurement: K1CP moves 35 waypoints and none of them is a map note, so all 250 note corrections still match. The whole stack was then played at 2560x1600 with K1CP, k1hrm and this mod together, and everything was working.\n[*][b]K1 Ultrawide Letterbox Fix.[/b] Both install orders were tested, and it has to go [b]before[/b] this mod. The other way round its patcher refuses to run and blames your game build, which is misleading, because your build is fine. Uninstall in reverse: this mod first, theirs second.\n[*][b]4 GB (Large Address Aware) patch.[/b] Confirmed with the real NTCore tool, and it leaves everything this mod uses untouched. Apply it [b]before[/b] this mod: nothing breaks if you do it afterwards, but [font=Courier New]Uninstall.bat[/font] restores the exe from the backup taken at install time, so uninstalling this mod later would quietly take the 4 GB patch with it.\n[*][b]GOG retail v1.03.[/b] Played at 3840x2400, area map and HUD minimap both correct.\n[/list]\n\n[size=3]Compatible[/size]\n\n[list]\n[*][b]3440x1440 Enhanced HUD/UI and Menus.[/b] Be aware it is a [i]replacement[/i] for k1hrm's own 3440x1440 set, not an addition to it. Its map frame is identical to k1hrm's, so this mod's checks pass on either. Its bundled exe carries the k1hrm centring defect described above, which this patcher detects and fixes.\n[*][b]Override art and texture mods,[/b] including HD UI Menu Pack, Pretty Good! Icons, HD portraits, Main Menu Widescreen Fix and KOTOR Widescreen Fade Fix. No shared ground with anything this mod writes. Anything that does not modify the game exe will probably work.\n[*][b]Larger Text Fonts.[/b] Works alongside this mod. Be aware it is separately known to break item stack counts on its own; that is not caused by this mod.\n[/list]\n\n[size=3]Works, with one setting turned off[/size]\n\n[list]\n[*][b]Kotor Patch Manager (KPM).[/b] Fine alongside this mod as long as you switch off its KotorUniResPatch. Everything else KPM does is unaffected. That one patch is an alternative to this mod rather than an addition to it: it rescales the same area map at runtime using the same shared constants, so with both live the map gets scaled twice and comes out wrong, and no install order fixes that. This patcher warns you if it spots KPM's files in your game folder rather than refusing to run, because having KPM installed does not mean that particular patch is switched on.\n[/list]\n\n[size=3]Expected to work, not tested[/size]\n\n[list]\n[*][b]True Controller Support.[/b] It is a [font=Courier New]dinput8.dll[/font] ASI that works at the process level and touches none of the same bytes, so there is no reason for it to conflict, but it has not been tested.\n[*][b]The other 45 resolutions.[/b] Checked automatically, never seen on a screen.\n[/list]\n\n[size=3]Not tested[/size]\n\n[list]\n[*][b]No-CD executables.[/b] If yours still measures 4,042,752 bytes the patcher will accept it, but nothing here has been checked against one.\n[/list]\n\n[size=3]Incompatible[/size]\n\n[list]\n[*][b]Flawless Widescreen.[/b] It injects into the running process and leaves nothing on disk, so this mod cannot detect it and cannot warn you. Do not use it together with this stack. WSGF themselves recommend UniWS and k1hrm for KOTOR 1 and reserve Flawless Widescreen for KOTOR 2.\n[/list]\n\nMaybe we will add support for it in the future.\n\n[size=3]Not supported[/size]\n\n[list]\n[*][b]4-CD retail build.[/b] Probably patchable in principle, but there is no such binary here to test against and its spare code space is not guaranteed to match. The patcher refuses anything that is not 4,042,752 bytes.\n[/list]\n\n[quote]One thing that is not about mod conflicts but will bite you anyway: Steam's \"verify integrity of game files\" replaces any exe it does not recognise, which undoes this mod and every other exe mod. Keep a copy of your patched [font=Courier New]swkotor.exe[/font] somewhere outside the game folder.[/quote]\n\n[size=4]Uninstallation[/size]\n\nDouble-click [font=Courier New]Uninstall.bat[/font]. It puts your original [font=Courier New]swkotor.exe[/font] back, exactly as it was. UniWS and k1hrm stay installed, so your game still runs at your resolution, it just does not have the map fixes any more.\n\nYou can drag your game folder onto [font=Courier New]Uninstall.bat[/font] as well, the same way as with install, which helps if you have two separate KOTOR installs.\n\nYour original exe is copied somewhere safe before anything is changed:\n\n[code]%LOCALAPPDATA%\\K1AreaMapFixes\\backup[/code]\n\nPaste that into File Explorer's address bar to see it. It is kept out of the download folder and out of the game folder deliberately, so deleting the download cannot cost you your original game file. [b]If you have already deleted the mod folder and want to uninstall, download the mod again and run [font=Courier New]Uninstall.bat[/font] from the new copy.[/b] It will find the backup.\n\nIf you installed the K1 Ultrawide Letterbox Fix, uninstall this mod first and theirs second.\n\n[size=4]What the patcher does[/size]\n\nIt is built to refuse rather than guess.\n\n[list]\n[*]Copies your [font=Courier New]swkotor.exe[/font] to [font=Courier New]%LOCALAPPDATA%\\K1AreaMapFixes\\backup[/font] before changing anything.\n[*]Reads your resolution out of the exe instead of asking, then cross-checks it against [font=Courier New]Override\\map.gui[/font], so it will tell you if UniWS and k1hrm disagree with each other. That mismatch is the most common failure in this category of mod.\n[*]Refuses an executable that is not the expected build, an install where UniWS or k1hrm has not been run, and a second install on top of itself.\n[*]Refuses to run from inside the zip, so your backup cannot end up in a temp folder Windows later deletes.\n[*]Warns you if it finds Kotor Patch Manager in your game folder.\n[*]After writing, re-reads the file from disk and runs 21 checks against it, including one that no byte outside the intended ranges changed. If any check fails it says so and points you at the backup. It does not report success on a write it has not verified.\n[*]Writes an install record next to the backup listing every step, its offsets, and hashes of the exe before and after.\n[/list]\n\nEvery run also writes [font=Courier New]last-run-log.txt[/font] next to [font=Courier New]Install.bat[/font], so if something goes wrong there is a file to attach to a report rather than a command to re-run.\n\n[size=4]Technical details[/size]\n\nEvery offset this mod writes is documented in [font=Courier New]More info\\TECHNICAL.txt[/font] in the download, and the full source is in [font=Courier New]More info\\source\\[/font]. It is published so that a collision with another executable patcher can be diagnosed by someone other than the author, which is the precedent k1hrm set by publishing its own offsets.\n\nA few things worth knowing without reading all of it:\n\n[list]\n[*]The patcher only accepts the 4,042,752-byte executable, which is what you have after the Editable Executable (or GOG's own exe) plus UniWS and k1hrm. Anything else is refused rather than written into on the assumption that the spare space matches.\n[*]The exe grows by 8 KB. That is a reserved region added at the end of the resource section, holding the 250-entry note correction table, and it is the only change to the file's size.\n[*]The two float constants the area map divides by are shared with the HUD minimap, so they are [b]not[/b] rewritten in place. Editing them directly turns the minimap black. Scaled private copies are written elsewhere instead, and only the area map's own operands are pointed at them.\n[/list]\n\nThe note corrections are keyed on each note's position in the game world rather than on module or index numbers, which is why they survive mods that edit module files.\n\n[size=4]Credits[/size]\n\n[list]\n[*][b]ndix UR[/b] for KotOR High Resolution Menus, and for [font=Courier New]hires_patcher.pl[/font], which the map scaling here is derived from. Required, and not included here.\n[*][b]wsgf.org[/b] for UniWS. Required, and not included here.\n[*][b]LaneDibello[/b] for Kotor Patch Manager, whose published address database was a useful cross-check against findings worked out here independently.\n[*][b]PyKotor[/b] for reading the game's file formats.\n[*]Everyone at DeadlyStream who documented this engine over the last decade.\n[/list]\n\n[size=4]License[/size]\n\nGPL version 3 or later. The full text is in [font=Courier New]More info\\LICENSE[/font].\n\nThe resolution work this builds on is ndix UR's [font=Courier New]hires_patcher.pl[/font], also GPLv3. None of it is included in this download; you install it yourself, as step 3 of the requirements.";
+  document.getElementById('raw-code').textContent = md;
+  var panels = {
+    rendered: document.getElementById('rendered'),
+    ds:       document.getElementById('ds-view'),
+    nexus:    document.getElementById('nexus-view'),
+    raw:      document.getElementById('raw-view')
+  };
+  var buttons = {
+    rendered: document.getElementById('btn-view-rendered'),
+    ds:       document.getElementById('btn-view-ds'),
+    nexus:    document.getElementById('btn-view-nexus'),
+    raw:      document.getElementById('btn-view-raw')
+  };
+  var copyLabels = { rendered: 'Copy Rich Text', ds: 'Copy Rich Text', nexus: 'Copy BBCode', raw: 'Copy Markdown' };
+  var current = 'rendered';
+  var btnCopy = document.getElementById('btn-copy'),
+      nav     = document.querySelector('nav');
+
+  function show(which){
+    current = which;
+    Object.keys(panels).forEach(function(k){
+      panels[k].hidden = k !== which;
+      buttons[k].classList.toggle('on', k === which);
+      buttons[k].setAttribute('aria-pressed', String(k === which));
+    });
+    btnCopy.textContent = copyLabels[which];
+    if (nav) nav.style.visibility = which === 'rendered' ? '' : 'hidden';
+    window.scrollTo(0,0);
+    sync();
+  }
+  buttons.rendered.addEventListener('click', function(){ show('rendered'); });
+  buttons.ds.addEventListener('click', function(){ show('ds'); });
+  buttons.nexus.addEventListener('click', function(){ show('nexus'); });
+  buttons.raw.addEventListener('click', function(){ show('raw'); });
+
+  btnCopy.addEventListener('click', function(){
+    var done = function(ok){
+      var label = copyLabels[current];
+      btnCopy.textContent = ok ? 'Copied' : 'Press Ctrl+C';
+      btnCopy.classList.add('on');
+      setTimeout(function(){ btnCopy.textContent = label; btnCopy.classList.remove('on'); }, 1800);
+    };
+
+    if (current === 'raw' || current === 'nexus') {
+      var text = current === 'raw' ? md : bbcode;
+      var fallbackId = current === 'raw' ? 'raw-code' : 'nexus-code';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){
+          var r = document.createRange();
+          r.selectNodeContents(document.getElementById(fallbackId));
+          var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+          done(false);
+        });
+      }
+      return;
+    }
+
+    if (current !== 'ds') show('ds');
+    var el = document.getElementById('ds-content');
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    var s = window.getSelection();
+    s.removeAllRanges(); s.addRange(r);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    s.removeAllRanges();
+    done(ok);
+  });
+
+  var links = [].slice.call(document.querySelectorAll('#rail a'));
+  var targets = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); });
+  function sync(){
+    if (panels.rendered.hidden) return;
+    var best = 0;
+    for (var i=0;i<targets.length;i++){
+      if (targets[i] && targets[i].getBoundingClientRect().top <= 120) best = i;
+    }
+    links.forEach(function(a,i){ a.classList.toggle('active', i===best); });
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if (!ticking){ ticking = true; requestAnimationFrame(function(){ sync(); ticking = false; }); }
+  }, {passive:true});
+  sync();
+})();
+</script>
+</body>
+</html>
