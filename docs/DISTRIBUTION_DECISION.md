@@ -1,9 +1,10 @@
 # DISTRIBUTION — how 1.0 reaches normal users
 
 Written 2026-08-30 as analysis only. **Updated 2026-08-31: the three proposed
-changes are implemented and Q1 is answered.** Q2 (linking the Editable
-Executable) and Q3 (the "I couldn't find your KOTOR folder" prompt) are still
-open.
+changes are implemented and Q1 is answered.** **Updated 2026-09-01: Q2's GOG
+half is answered by measurement — the prerequisite is Steam-only now.** Q2's
+Steam-only legal/naming half and Q3 (the "I couldn't find your KOTOR folder"
+prompt) are still open.
 
 The question put to the debate: *single installer/exe, or multiple visible
 files?* Two agents argued opposing sides from the actual repo; this is the
@@ -157,9 +158,38 @@ covered). A clean-VM run stays a nice-to-have, not a blocker.
 
 ### Q2. Do we link to the Editable Executable? Is that legal?
 
+**Point 2 ANSWERED 2026-09-01, by measurement, on real hardware — GOG owners
+don't need this question at all.** The user sourced a real GOG 1.03 (build
+29871) install and it was diffed byte-for-byte against `downloads/swkotor.exe`:
+16 differing bytes in one run at file offset `0x0AC0`, all in unmapped PE
+header padding (`SizeOfHeaders`/`.text` raw start both `0x1000`) — never
+mapped, never executed. **GOG's retail exe IS the Editable Executable.** Full
+measurement: `docs/REVERSE_ENGINEERING.md` — "The GOG retail exe IS the
+Editable Executable". Confirmed working end-to-end: full chain (UniWS → k1hrm
+→ this mod) applied directly to the GOG exe with no unlocking step, run in
+game at 3840x2400, Area Map and HUD minimap both PASS (Endar Spire).
+
+So: **the prerequisite is Steam-only.** `README.txt`, `TROUBLESHOOTING.txt`,
+`TECHNICAL.txt`, `COMPATIBILITY.txt` and the `detect.py:check_build` refusal
+message were all rewritten 2026-09-01 to say so instead of grouping Steam and
+GOG together. `RELEASE_PLAN_SIMPLE.md:30` had this right all along.
+
+**Point 1 — the legal/naming question — is still open**, and now applies to
+Steam owners only. **State of play 2026-08-31, unchanged: a three-agent
+web-research pass was started and aborted before any agent reported** — one
+died on an API error, all three were stopped to save tokens. **There are no
+external findings yet; do not treat anything in this session as researched.**
+
+1. **`docs/REVERSE_ENGINEERING.md` records the crack as tagged "Hellspawn
+   Reborn"** (corrected 2026-08-31 — it was wrongly attributed to "FairLight"
+   for months with no source; do not reintroduce that name). Whether a
+   Steam-owner-only unlock tool is something to link under our own name is
+   still the open legal/naming question below.
+
 The wsgf/UniWS site declines to give a direct URL to the "cracked"/no-CD exe.
-Our `README.txt:57` links straight to DeadlyStream #1320
-(KOTOR Editable Executable). Decide:
+Our `README.txt` links straight to DeadlyStream #1320
+(KOTOR Editable Executable, now labelled "Steam only, skip if you're on GOG").
+Decide:
 
 - is a link to a de-DRM'd `swkotor.exe` on a third-party host something we are
   willing to publish under our own name?

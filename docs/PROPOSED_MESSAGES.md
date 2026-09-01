@@ -166,7 +166,15 @@ through. It has just never been written down anywhere.*
 
 ### 3c. Wrong game version
 
-**Now**
+**DONE 2026-09-01 — shipped wording superseded the "Now"/"Proposed" pair below.**
+The GOG finding (`docs/REVERSE_ENGINEERING.md` — GOG retail v1.03 IS the
+Editable Executable, byte-for-byte save for 16 bytes of unused header padding)
+made the original "Proposed" text wrong: it told GOG owners to install the
+Editable Executable, which they neither need nor should. `detect.py`'s
+`check_build` refusal, `patcher/TROUBLESHOOTING.txt` and `patcher/README.txt`
+now split Steam and GOG instead of grouping them. Kept below for the record.
+
+**Now (original, pre-GOG-finding)**
 ```
 swkotor.exe is 5619712 bytes; this patcher only knows the 4042752-byte
 "Editable Executable" that UniWS and KotOR High Resolution Menus are made for.
@@ -174,7 +182,7 @@ If you are on the Steam release, swap in the Editable Executable first...
 The GOG and 4-CD builds are untested and will be refused here rather than
 guessed at.
 ```
-**Proposed**
+**Proposed (original, pre-GOG-finding — DO NOT reintroduce, wrong about GOG)**
 ```
 This isn't the version of the game this mod can patch.
 
@@ -187,8 +195,22 @@ Once that's in, install UniWS and the high-res menus mod, then run this.
 
 Your game has not been changed.
 ```
-**Your call:** worth naming DeadlyStream and the download here? I'd say yes —
-a novice who hits this has no idea what an "Editable Executable" is.
+**Shipped instead** (`patcher/k1amf/detect.py:check_build`):
+```
+This isn't the version of the game this mod can patch.
+
+If you're on Steam: Steam ships a swkotor.exe that no mod can patch - not
+this one, not UniWS, not the high-res menus mod. Install the "KOTOR
+Editable Executable" first. It's a free download on DeadlyStream and it's
+the normal first step for this kind of mod. Then run UniWS and the
+high-res menus mod, then this.
+
+If you're on GOG: your own swkotor.exe should already work directly. This
+usually means a different patch/language build, or the old 4-CD retail
+disc, which this patcher doesn't recognise.
+
+(Your swkotor.exe is %d bytes; the one I'm expecting is %d.)
+```
 
 ### 3d. Menu files don't match the resolution
 
@@ -390,3 +412,15 @@ Your game has not been changed.
   bat with the full `--details` output, whether or not it was asked for. It
   costs nothing, and it turns "please re-run with --details and paste it" into
   "attach that file". My recommendation: yes.
+
+## 7. UX feedback from the clean-install test, 2026-09-01 — NOT YET ACTIONED
+
+Raised by the user while testing; explicitly deferred, not analyzed or
+implemented yet. Record only.
+
+- **`Uninstall.bat` gives no feedback while it's running** — during the wait at
+  the start, nothing on screen says an uninstall is in progress.
+- **`Uninstall.bat` doesn't clearly say it's done** when it finishes — no
+  obvious "the mod is uninstalled" moment.
+- **`Install.bat`'s finished state needs to be more visible** too — make it
+  clearer/more prominent when installation has completed successfully.

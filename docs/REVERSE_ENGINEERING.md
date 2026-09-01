@@ -7,9 +7,43 @@ NOT hold for `.rsrc`** (raw 0x3A4000 vs RVA 0x436000) — anything addressing th
 new table region must go through the section table
 (`pe_space.rva_to_off`). This bit us once.
 
-Target binary: the UniWS-patched **"KOTOR Editable Executable"** (FairLight
-pre-Steam-DRM v1.03), sha256 `761f9466f456a839…c49e9886`. The packed Steam exe
+Target binary: the UniWS-patched **"KOTOR Editable Executable"** (pre-Steam-DRM
+v1.03), sha256 `761f9466f456a839…c49e9886`. The packed Steam exe
 (`.bind` section, `.text` entropy 8.00) cannot be statically patched at all.
+
+**CORRECTED 2026-08-31 — the crack is tagged `Hellspawn Reborn`, not FairLight.**
+This line claimed FairLight for months with no source. Measured against a fresh
+**GOG retail** `swkotor.exe` (see below), the Editable Executable's only
+distinguishing content is the 16 ASCII bytes `Hellspawn Reborn` at **file offset
+`0x0AC0`**. Nothing else in the file differs. Do not reintroduce "FairLight".
+
+### The GOG retail exe IS the Editable Executable — MEASURED 2026-08-31
+
+A clean GOG 1.03 (build 29871) install was diffed byte-for-byte against
+`downloads/swkotor.exe`:
+
+    GOG retail   4,042,752 B  sha256 9c10e0450a6eeca4…d156944dea91435
+    Editable Ex. 4,042,752 B  sha256 761f9466f456a839…17ba20a8c49e9886
+    -> 16 differing bytes, ONE run, file offset 0x0AC0-0x0ACF
+       retail = 16x 0x00   |   editable = "Hellspawn Reborn"
+
+`SizeOfHeaders` is `0x1000` and `.text` `PointerToRawData` is `0x1000`, so
+`0x0AC0` lies in **PE header padding, before any section's raw data**. It is
+never mapped and never executed. All 4,042,736 other bytes are identical.
+
+Consequences:
+
+- **A GOG owner does not need the Editable Executable at all.** Their retail exe
+  is already the unlocked build every offset in this project was calibrated on.
+  `README.txt:28` is therefore wrong; `RELEASE_PLAN.md:187`, `SHIPPING.md:74`
+  and `RELEASE_PLAN_SIMPLE.md:30` ("Steam only") were right.
+- `detect.py`'s `BASE_SIZE = 4_042_752` gate accepts the retail exe unchanged,
+  and so do `NEG_X/POS_X`, `CENTRING_X/Y` and every `MAP_OFFSETS` site — they
+  are all in `.text`, which is byte-identical.
+- The "gog-build offsets" comments in `detect.py:35` and `:57` are now literally
+  true of a real GOG build, not just of the crack derived from one.
+- This does **not** settle Q2 for Steam owners, whose packed exe still cannot be
+  patched. Q2 narrows to: do we link the Editable Executable for Steam only?
 
 ## Cross-check: the KPM symbol database
 

@@ -10,7 +10,11 @@ THE BUILD THIS DESCRIBES
 ------------------------
 The "KOTOR Editable Executable" (4,042,752 bytes) after UniWS and after KotOR
 High Resolution Menus (k1hrm) 1.5 have both been run on it. The patcher refuses
-any other size, and refuses to guess at the GOG or 4-CD builds.
+any other size. GOG's own retail v1.03 swkotor.exe is this same file byte for
+byte - confirmed by direct comparison, the only difference is 16 bytes of
+unused PE header padding - so it's accepted directly with no unlocking step.
+The 4-CD retail build hasn't been measured and the patcher still refuses to
+guess at it.
 
 After this patcher runs, the file is 4,050,944 bytes - 8 KB larger. That growth
 is step 5 below and is the only change to the file's size.

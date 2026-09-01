@@ -21,10 +21,16 @@ MESSAGES YOU MIGHT GET, AND WHAT THEY MEAN
     fixes the map afterwards. The README has both, with links.
 
 "This isn't the version of the game this mod can patch"
-    Your swkotor.exe is the locked one Steam and GOG ship. No mod can edit
-    it - not this one, not UniWS, not the menus mod. Install the KOTOR
-    Editable Executable first (link in the README), then the other two,
-    then this.
+    On Steam: your swkotor.exe is the locked one Steam ships. No mod can
+    edit it - not this one, not UniWS, not the menus mod. Install the
+    KOTOR Editable Executable first (link in the README), then the other
+    two, then this.
+
+    On GOG: this shouldn't happen - GOG's own swkotor.exe (v1.03) already
+    works directly, no unlocking needed. You're most likely on a different
+    patch/language build, or the old 4-CD retail disc, which this patcher
+    doesn't recognise. See "More info\TECHNICAL.txt" for the exact byte
+    count it expects.
 
 "I couldn't find your KOTOR folder"
     Drag your KOTOR folder onto Install.bat and let go. That's the folder
@@ -71,7 +77,7 @@ The map is off to one side, or hanging off the screen
     you it's doing so. (If you'd rather that mod did its own job, run its
     hires_patcher.pl instead of its .exe, which needs Perl.)
 
-The small corner map is black or missing
+The minimap is black or missing
     This mod can't cause that. It specifically avoids the change that does,
     because that exact thing went wrong twice while building it. Suspect
     another exe mod. Run Uninstall.bat and see if it's still black - if it
@@ -84,6 +90,8 @@ The map looks doubly stretched, or markers are wildly off
 A map note is still in the wrong place
     250 notes are corrected out of the 340 in the game. Ones that weren't
     reviewed are left exactly as BioWare shipped them. Expected, not a bug.
+    But most of them were moved by hand, so if you notice some strange placement
+    it is worth reporting to us.
 
 The game won't start after patching
     Run Uninstall.bat. That puts your original game file back. Then please

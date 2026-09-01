@@ -595,3 +595,29 @@ consequences: the state we handle is one real users are already shipped into by 
 mod that has nothing to do with us, and this is a second, independent witness for
 the upstream report to ndix UR.
 
+### <a id="f26"></a>F26. `hires_patcher.bat` invokes `hires_patcher` by bare name — no path, no `.exe` — CONFIRMED 2026-09-01
+
+Found live during the user's clean-GOG acceptance test. The shipped wrapper is:
+
+    hires_patcher %WIDTH% %HEIGHT% %LTRBOX% %EXE%
+
+No path, no extension — Windows resolves it only via cwd or `PATH`. Launching the
+`.bat` with "Run as administrator" resets cwd to `System32` on this machine (a
+known Windows elevation quirk, not ours), so the four `set /p` prompts all work
+(they're pure batch) and only the final line fails: `'hires_patcher' is not
+recognized...`. Nothing gets written to the exe when this happens — the failure
+is before the patcher runs, so it's a clean no-op, not a partial patch. Fix for a
+user in this state: re-run the `.bat` with a plain double-click from inside
+`k1hrm-1.5/`, not elevated.
+
+**This is the second independent k1hrm defect this project has hit** (see F25 —
+`hires_patcher.exe` vs `.pl` disagreeing on the centring constants). Both are in
+the *documented, normal* Windows path (`.bat` → `.exe`), not an edge case.
+**Open question raised by the user 2026-09-01: is k1hrm reliable enough to keep
+as a required prerequisite, or should Phase 7 scope a from-scratch replacement
+for the GUI-layout patching k1hrm does** (the per-resolution `.gui` file
+generation), separate from the engine-level UniWS step which has never shown a
+defect? No decision yet — needs weighing against the size of k1hrm's own
+resolution-set coverage (49 sets) that we'd be reimplementing. Tracked in
+`STATE.md`.
+

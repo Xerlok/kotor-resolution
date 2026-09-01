@@ -30,11 +30,16 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from k1amf import PRODUCT, __version__            # noqa: E402
-from k1amf import detect, manifest, steps, verify  # noqa: E402
+from k1amf import detect, manifest, steps, ui, verify  # noqa: E402
 from k1amf.detect import Refusal                   # noqa: E402
 from k1amf.steps import PatchError                 # noqa: E402
 
 LOG_NAME = "last-run-log.txt"
+
+try:                                    # belt-and-braces: see k1amf/ui.py
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except (AttributeError, ValueError):
+    pass
 
 
 class Output:
@@ -92,7 +97,7 @@ def main(argv):
     detect.check_not_temp(manifest.visible_home())
 
     # --- find the game ---------------------------------------------------
-    out.say("Looking at your game...")
+    out.say("Checking your game...")
     if exe_override:
         exe_path = os.path.abspath(exe_override)
         game_dir = os.path.dirname(exe_path)
@@ -102,7 +107,7 @@ def main(argv):
         game_dir = detect.find_game_dir(args[0] if args else None,
                                         start=os.path.dirname(os.path.abspath(__file__)))
         exe_path = os.path.join(game_dir, "swkotor.exe")
-    out.say("  Found it:  %s" % game_dir)
+    out.say(ui.field("Location", game_dir))
 
     with open(exe_path, "rb") as fh:
         before = bytearray(fh.read())
@@ -112,49 +117,49 @@ def main(argv):
     out.detail("  swkotor.exe is the %d-byte Editable Executable" % len(before))
 
     width, height = detect.read_resolution(before)
-    out.say("  Your game is set up to run at %dx%d." % (width, height))
-    out.say("  UniWS and the high-res menus mod are both installed. Good.")
+    out.say(ui.field("Resolution", "%dx%d" % (width, height)))
+    out.say(ui.field("UniWS", "installed"))
+    out.say(ui.field("High-res menus", "installed"))
 
     centring = detect.check_centring(before, width, height)
     if centring == "stale":
-        out.say("")
-        out.say("  One thing to mention: the high-res menus mod didn't quite")
-        out.say("  finish its own job here. Its Windows patcher leaves the map")
-        out.say("  sitting %d across and %d down from where it belongs. That's"
-                % ((width - detect.VANILLA_W) // 2,
-                   (height - detect.VANILLA_H) // 2))
-        out.say("  not this mod, and it happens without this mod too.")
-        out.say("  I'll finish it off while I'm here. Uninstall.bat undoes it.")
-        out.say("")
+        # Real, and worth having in the log for a bug report, but not
+        # something the default player needs to be told mid-install - the
+        # patcher is already finishing the job for them.
+        out.detail("  the high-res menus mod left the map centring vanilla;")
+        out.detail("  finishing that off (sitting %d across, %d down) -"
+                   % ((width - detect.VANILLA_W) // 2,
+                      (height - detect.VANILLA_H) // 2))
+        out.detail("  Uninstall.bat undoes it along with everything else")
     else:
         out.detail("  the map centring values are already correct")
 
     import hires_patch  # noqa: E402  (tools/ is on sys.path via k1amf)
     icon_s = hires_patch.note_icon_scale(width, height)
     if icon_s > 1:
-        out.say("  Your screen is big enough that the map markers would be hard")
-        out.say("  to see, so I'll make them %dx bigger." % icon_s)
+        out.detail("  map markers will be made %dx bigger for this resolution"
+                   % icon_s)
     else:
         out.detail("  map markers stay their vanilla size at this resolution")
 
     extent = detect.check_map_gui(game_dir, width, height)
-    out.say("  Your menu files match your resolution. Good.")
+    out.say(ui.field("Menu files", "match your resolution"))
     out.detail("  Override/map.gui draws the map at %s" % (extent,))
 
     conflicts = detect.conflicting_mods(game_dir)
     if conflicts:
         out.say("")
         out.block(conflicts, out.say)
-        out.say("")
     else:
-        out.say("  Nothing installed that clashes with this mod.")
+        out.say(ui.field("Conflicts", "none found"))
 
     state, per_layer = detect.layer_state(before, width, height)
     if state == "full":
         out.say("")
-        out.say("This mod is already installed. Nothing to do.")
+        out.say(ui.banner("NOTHING TO DO - ALREADY INSTALLED"))
         out.say("")
-        out.say("If you want to install it again, run Uninstall.bat first.")
+        out.say("  This mod is already installed. If you want to install it")
+        out.say("  again, run Uninstall.bat first.")
         return 0
     if state == "partial":
         for label, st in per_layer.items():
@@ -191,11 +196,11 @@ def main(argv):
         return 0
 
     out.say("")
-    out.say("Making a backup...")
+    out.say("Backing up your original game file...")
     backup = manifest.backup_exe(exe_path)
-    out.say("  Your original game file is saved here, safely away from this")
-    out.say("  folder and from your game, and Uninstall.bat knows where it is:")
-    out.say("  %s" % backup)
+    out.say("  Saved to: %s" % backup)
+    out.detail("  (safely away from this folder and your game; Uninstall.bat")
+    out.detail("  knows where to find it)")
 
     with open(exe_path, "wb") as fh:
         fh.write(after)
@@ -203,13 +208,15 @@ def main(argv):
 
     out.say("")
     out.say("Patching...")
-    out.say("  - the map now fills the map screen instead of sitting in a corner")
-    out.say("  - the small corner map still works")
-    out.say("  - your marker, your party and the map notes land in the right spots")
-    out.say("  - %d map notes moved to where they should have been"
-            % meta["entries"])
+    out.say("")
+    out.say(ui.done("Map screen fills the available area"))
+    out.say(ui.done("Corner minimap still works"))
+    out.say(ui.done("Player and party markers land where they belong"))
+    out.say(ui.done("Map notes render in the correct position"))
+    out.say(ui.done("%d map notes moved to their correct location"
+                    % meta["entries"]))
     if icon_s > 1:
-        out.say("  - map markers made %dx bigger so you can see them" % icon_s)
+        out.say(ui.done("Map markers enlarged %dx for this resolution" % icon_s))
 
     # --- verify, from disk -----------------------------------------------
     with open(exe_path, "rb") as fh:
@@ -231,10 +238,9 @@ def main(argv):
         out.detail("  [%s] %s" % ("x" if good else " ", label))
 
     passed = sum(1 for good, _ in results if good)
+    out.say("")
+    out.say("Verifying... %d/%d checks passed." % (passed, len(results)))
     if passed != len(results):
-        out.say("")
-        out.say("  Checked the patched file: %d of %d checks passed."
-                % (passed, len(results)))
         for good, label in results:
             if not good:
                 out.say("    FAILED: %s" % label)
@@ -247,9 +253,6 @@ def main(argv):
             "Then please report this, and include the FAILED line above and\n"
             "%s from this folder. That says exactly what happened." % LOG_NAME)
 
-    out.say("")
-    out.say("Checking the patched file... all %d checks passed." % len(results))
-
     manifest.write(
         game_dir=game_dir, exe=os.path.basename(exe_path),
         resolution=[width, height], map_gui_extent=list(extent),
@@ -261,12 +264,16 @@ def main(argv):
         steps=done)
 
     out.say("")
-    out.say("Done. Load a save and take a look at two things before you play")
-    out.say("for long: the map screen, and the small map in the corner.")
+    out.say(ui.banner("PATCHING FINISHED SUCCESSFULLY"))
     out.say("")
-    out.say("If anything looks wrong, run Uninstall.bat and you're back to how")
-    out.say("you were. Your backup is kept outside this folder, so that still")
-    out.say("works even if you delete the download - re-download it if you did.")
+    out.say("You can now launch KOTOR and check:")
+    out.say("  - the full-screen map")
+    out.say("  - the corner minimap")
+    out.say("")
+    out.say("If everything looks good, you're done.")
+    out.say("")
+    out.say("If something is wrong, run Uninstall.bat to restore your")
+    out.say("original game file.")
     return 0
 
 
@@ -276,26 +283,30 @@ if __name__ == "__main__":
         code = main(sys.argv[1:])
     except (Refusal, PatchError) as exc:
         out.say("")
-        out.say("=" * 70)
+        out.say(ui.banner("INSTALL STOPPED" if isinstance(exc, Refusal)
+                          else "PATCHING FAILED"))
+        out.say("")
         out.block(exc, out.say)
         if isinstance(exc, Refusal):
             # Refusals happen before anything is written, by construction.
             out.say("")
             out.say("  Your game has not been changed.")
-        out.say("=" * 70)
+        out.say("")
+        out.say(ui.rule())
         code = 1
     except Exception as exc:                       # noqa: BLE001
         import traceback
         out.detail(traceback.format_exc())
         out.say("")
-        out.say("=" * 70)
-        out.say("  Something unexpected went wrong:")
-        out.say("    %s: %s" % (type(exc).__name__, exc))
+        out.say(ui.banner("UNEXPECTED ERROR"))
+        out.say("")
+        out.say("  %s: %s" % (type(exc).__name__, exc))
         out.say("")
         out.say("  Please report this and attach %s from this folder." % LOG_NAME)
-        out.say("=" * 70)
+        out.say("")
+        out.say(ui.rule())
         code = 1
     saved = out.save()
     if saved and not out.details:
-        print("\n(A full technical log of this run is in %s)" % LOG_NAME)
+        print("\nFull log: %s" % LOG_NAME)
     raise SystemExit(code)

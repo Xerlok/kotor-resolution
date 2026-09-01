@@ -172,8 +172,12 @@ def main():
         with open(stale_exe, "wb") as fh:
             fh.write(data)
 
-        out = run("install.py", stale)
-        assert "didn't quite" in out and "finish its own job" in out, out[-1500:]
+        # --details, not the default: this note is log-only now (the patcher
+        # just fixes it silently for the default player), so the proof that
+        # it fired lives in the detail stream and in the md5 convergence
+        # below, not in what a player sees on screen.
+        out = run("install.py", stale, "--details")
+        assert "left the map centring vanilla" in out, out[-1500:]
         for line in out.splitlines():
             if line.startswith("  [ ]"):
                 raise SystemExit("a verification check failed:\n" + out[-3000:])

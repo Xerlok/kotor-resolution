@@ -181,7 +181,7 @@ def main():
         print(r.stderr[-1000:])
     check("the frozen patcher ran and reported success", r.returncode == 0)
     check("it told the player nothing clashes, in plain words",
-          "Nothing installed that clashes" in r.stdout)
+          "Conflicts:" in r.stdout and "none found" in r.stdout)
     # A real hex address, not the "0x1600" inside "2560x1600".
     hexes = re.findall(r"(?<![0-9A-Za-z])0x[0-9A-Fa-f]{3,}", r.stdout)
     check("the default output has no hex addresses in it",

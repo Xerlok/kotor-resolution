@@ -68,6 +68,117 @@ still **1.0.0** — nothing was ever published, so there is nothing to supersede
 DeadlyStream "Editable Executable"? Q3 — rework the "I couldn't find your KOTOR
 folder / drag it onto Install.bat" prompt.
 
+**New open question, raised 2026-09-01 during the clean-install test: is k1hrm
+reliable enough to stay a required prerequisite?** Second independent defect
+found in its shipped Windows path — see
+[F26](docs/EXPERIMENTS_AND_FAILED_APPROACHES.md#f26) (`hires_patcher.bat` calls
+`hires_patcher` by bare name, breaks under "Run as administrator"; F25 was the
+`.exe`/`.pl` centring-constant mismatch). Consider whether to write our own
+per-resolution GUI-layout patcher instead of depending on k1hrm for that half
+(UniWS, the engine-level half, has never shown a defect here). Not decided —
+needs weighing against reimplementing k1hrm's 49-resolution-set coverage.
+
+### NEXT SESSION STARTS HERE — the clean-install acceptance test is RUNNING, unfinished
+
+**2026-08-31, late. The user was tired and stopped mid-test — nothing is broken,
+nothing is half-patched. Resume at "the handoff" below.**
+
+#### What got done this session
+
+**1. GOG KOTOR 1.03 (build 29871) is installed at `C:\Claude\games\kotor`.**
+Complete and launch-verified by the user ("the game is working"). Retail
+`swkotor.exe` = **4,042,752 B**, sha256 `9c10e0450a6eeca4…d156944dea91435`.
+Pristine copy saved **outside the game folder** per the backup rule:
+`backups/swkotor.exe.gog-retail-pristine`. Recovery is one copy:
+
+    copy "C:\Claude\mods\kotor-resolution\backups\swkotor.exe.gog-retail-pristine" "C:\Claude\games\kotor\swkotor.exe"
+
+Note this is a **second, clean install**. `tools/state.py` still points at the
+user's fully-patched **Steam** install (`C:\Program Files (x86)\Steam\…`,
+4,050,944 B = `PATCHED_SIZE`). Don't confuse the two.
+
+**2. Q2 is ANSWERED for GOG, by measurement — the old FairLight note was wrong.**
+Full write-up: `docs/REVERSE_ENGINEERING.md`, section "The GOG retail exe IS the
+Editable Executable". Short form: retail vs `downloads/swkotor.exe` differ by
+**16 bytes in one run at file offset `0x0AC0`** — retail has zeros, the Editable
+Executable has the ASCII tag **`Hellspawn Reborn`** (so: not FairLight). That
+offset is PE header padding (`SizeOfHeaders` `0x1000`, `.text` raw starts
+`0x1000`) — never mapped, never executed. All other 4,042,736 bytes identical.
+
+So **GOG owners can skip the Editable Executable entirely**, `README.txt:28` is
+wrong, and the `4,042,752` gate plus every `.text` offset accepts retail bytes
+unchanged. Q2 narrows to Steam-only: do we link the Editable Executable for
+Steam owners, whose packed exe still can't be patched?
+
+**Docs corrected already:** `REVERSE_ENGINEERING.md:10` (FairLight → Hellspawn
+Reborn + the whole measured section).
+**NOT yet corrected — still carry the wrong claim:** `patcher/README.txt:28`,
+`docs/PROPOSED_MESSAGES.md:181`, and Q2 in `docs/DISTRIBUTION_DECISION.md`.
+Hold those until the test below confirms the chain works without step 1.
+
+**3. `patcher/selftest.py` — ALL PASS, 9/9, md5 `435108fdb65bac2151ab694e7fb8e36a`.**
+Matches the documented `435108fd…`. Patch logic unchanged this session. No patch
+byte, no offset and no shipped module was edited. Takes >120 s — background it.
+
+#### The handoff — the test the user chose and started
+
+**Goal: the first real player run on a clean retail install.** Decided with the
+user: **full player chain, at 3440x1440**, following `patcher/README.txt`
+verbatim **except step 1 (Editable Executable) is deliberately SKIPPED** to prove
+the GOG finding above. **The user is driving it by hand, on purpose** — the point
+is to catch where our own README misleads a player, which is what found the
+Phase 6b defects. Do not offer to automate it; they declined that explicitly.
+
+Everything is local, nothing needs re-downloading:
+
+| README step | file |
+|---|---|
+| 1. Editable Executable | **SKIP — proven unnecessary on GOG** |
+| 2. UniWS | `downloads/uniws.exe` (needs `patches.ini` beside it; GUI-only, no CLI switches). Interface **1024x768**, NOT 800x600. |
+| 3. k1hrm | `downloads/k1hrm-1.5/` — `hires_patcher.exe`, menu files in `21-by-9/gui.3440x1440` |
+| the mod | `dist/K1-Area-Map-Fixes-1.0.0.zip` → extract to a **real folder, not `%TEMP%`** |
+
+Two expected-not-a-bug items, so nobody chases them:
+
+- `hires_patcher.exe` leaves the centring constants **stale** — that is the known
+  F25 defect. **Our layer detects and finishes it**; `selftest` covers this case.
+- `Install.bat` **refuses** to run from inside the zip or a temp folder
+  (`detect.check_not_temp`). That refusal is itself worth testing.
+
+**Status: RUNNING, first module checked, PASS.** Target resolution changed
+mid-test from the originally-planned 3440×1440 to **3840×2400** (the user's real
+native is 2560×1600; 3440×1440 doesn't correspond to any DSR multiple of it —
+was a leftover number from an earlier, unrelated decision, not the user's actual
+monitor). Full chain now applied on the GOG exe: UniWS → k1hrm (hit
+[F26](docs/EXPERIMENTS_AND_FAILED_APPROACHES.md#f26) along the way, worked
+around) → our mod, all at 3840×2400.
+
+**2026-09-01, Endar Spire (first map) checked in game:** Area Map fills its box,
+map notes in correct positions, note/marker icons visibly bigger (scaling
+confirmed working) — all PASS on GOG, matching the Steam-side Phase 3-5 results.
+**HUD minimap works but is small** — reconfirms the known 120×120-fixed-size
+finding (§10 of the release plan), and the user now wants to prioritize it for
+the next release rather than leave it an open-ended maybe.
+
+**TEST CLOSED 2026-09-01, by user decision.** Endar Spire is the only module
+checked — the user judged that sufficient (both Area Map and HUD minimap
+PASS there) and chose not to sweep further modules by hand: anything module-
+specific that surfaces later will come from real users, to be triaged then.
+**The GOG clean-install acceptance test is DONE. No further action on it
+planned this session.**
+
+**Deferred, explicitly, to a final pass before publishing:** the
+README/TROUBLESHOOTING/PROPOSED_MESSAGES corrections this test was meant to
+surface (the FairLight→Hellspawn Reborn fix, Q2, Q3, plus F26 and the §7 UX
+feedback logged above). The user will do one last check of all player-facing
+text right before release rather than now.
+
+**What to collect when it runs:** every point where the README is wrong, unclear
+or out of order — not just whether the map ends up right. Per the project rule,
+**both** the in-menu Area Map **and** the in-game HUD minimap must be confirmed
+before calling it a pass. Then write up the README/PROPOSED_MESSAGES/Q2
+corrections listed above.
+
 ### Phase 6b — release polish, DONE 2026-08-30
 
 A user-experience pass over the packaged release, driven by "pretend you have

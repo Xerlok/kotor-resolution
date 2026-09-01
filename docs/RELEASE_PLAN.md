@@ -986,6 +986,36 @@ longer write into `patcher/` at all. The four stale 4 MB copies were pruned
   `LBL_ARROW` moved in a file **k1hrm owns**, and 1.0's scope is deliberately
   "our own work only" (§0). Decide at packaging time whether it is a 1.1 feature
   or a separate mod; do not let it delay 1.0.
+  **Scoping research done 2026-09-01 (read-only, no files touched) — confirms
+  it's real work, still correctly kept out of 1.0:**
+  - **CORRECTION, same day: the "no GFF writer" claim below was wrong.**
+    `tools/gff_writer.py` (`dumps()`) has existed since the initial commit and
+    is a real, exercised writer — `tools/map_frame_fix.py` uses it to rewrite
+    `map.gui`'s `LBL_Map` extent in place on a live install, and
+    `patcher/selftest.py` uses it to build a mismatched-`.gui` test fixture.
+    `detect.check_map_gui` only *reads* `map.gui` because nothing has needed to
+    *write* one in the shipped patcher yet, not because the capability is
+    missing. So a `mipc16x12.gui` rect edit is not blocked on new GFF-writing
+    work or a PyKotor size tradeoff — `gff.load` + `gff_writer.dumps` already
+    do it. The real open questions are the exe-side ones below (§0x688100's own
+    pixel bounds, isolating its operand from the Area Map's).
+  - **`0x688100` also reads `0x68ABF8`, a real texture-size value**, not just
+    the shared `0x747748`/`0x7455D4` pair — one more operand to account for in
+    the redirect, and one more thing to confirm is minimap-only before touching
+    it (same "verify by reference, not proximity" discipline F7 already taught
+    the hard way).
+  - **Two things still unconfirmed and must be answered (by disassembly, then
+    an in-game test) before writing any patch code:** (1) whether `0x688100`
+    has its own hardcoded pixel-loop bounds independent of the GUI `EXTENT` —
+    if so a GUI-only resize can't work regardless of the exe redirect; (2)
+    whether the goal is "same map content, rendered bigger" (likely a pure
+    scale, closer to the marker-icon precedent) vs. "show more map area" (needs
+    the 440/256 tile math itself to change — materially harder, and the one
+    F6/F8 actually broke on).
+  - Net: the marker-icon technique transfers in *shape*, not automatically in
+    *safety* — confirms this stays a 1.1+ item with real pre-work, not a
+    first-release candidate. **User confirmed 2026-09-01: not in the first
+    release.**
 - **The player/party double-rounding fix** (≤2 px; vanilla is imprecise too). The
   right fix is at the writer `0x5790C0`, in the subsystem that broke twice.
 - **The Area Map frame line** — DXT1 art editing on an asset k1hrm owns.

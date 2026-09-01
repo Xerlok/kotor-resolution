@@ -116,19 +116,23 @@ True Controller Support
   level and touches none of our bytes - but it has not been run here. Not
   confirmed.
 
+SUPPORTED
+---------
+GOG retail build (v1.03)
+  Confirmed 2026-09-01. GOG's own swkotor.exe is byte-for-byte the same file
+  the Editable Executable unlocks (16 bytes of unused header padding is the
+  only difference), so no unlocking step is needed - just run UniWS and
+  k1hrm directly on it. Run in game at 3840x2400: Area Map and HUD minimap
+  both correct.
+
 NOT SUPPORTED
 -------------
-GOG and 4-CD retail builds
+4-CD retail build
   Probably patchable in principle, but we have no such binary to test against
-  and their spare code space is not guaranteed to match. The patcher refuses
-  anything that is not the 4,042,752-byte Editable Executable rather than
-  writing into space it has not verified is free.
+  and its spare code space is not guaranteed to match. The patcher refuses
+  anything that is not the 4,042,752-byte size rather than writing into space
+  it has not verified is free.
 
 No-CD patched executables
   Not tested. If yours still measures 4,042,752 bytes the patcher will accept
   it, but nothing here has been checked against one.
-
-Ultrawide (21:9) and super-ultrawide (32:9)
-  The maths is verified offline at every one of k1hrm's 49 resolution sets,
-  including the ultrawide ones, but no ultrawide display was available to test
-  on. Treated as untested - see README.txt's support table.

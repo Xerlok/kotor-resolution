@@ -19,14 +19,20 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from k1amf import PRODUCT                 # noqa: E402
-from k1amf import detect, manifest        # noqa: E402
+from k1amf import detect, manifest, ui    # noqa: E402
 from k1amf.detect import Refusal          # noqa: E402
+
+try:                                    # belt-and-braces: see k1amf/ui.py
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except (AttributeError, ValueError):
+    pass
 
 
 def main(argv):
     force = "--force" in argv
     print("%s - uninstall" % PRODUCT)
     print("")
+    print("Uninstalling...")
 
     record = manifest.read()
     if record is None:
@@ -84,8 +90,11 @@ def main(argv):
             raise Refusal(
                 msg + "\n\nIf you're happy to lose it, run:   "
                 "Uninstall.bat --force")
-        print("WARNING")
-        print(msg)
+        print("-" * ui.WIDTH)
+        print("  WARNING")
+        print("-" * ui.WIDTH)
+        for line in msg.splitlines():
+            print(("  " + line).rstrip())
         print("")
         print("--force was given, so restoring anyway.")
         print("")
@@ -103,12 +112,29 @@ def main(argv):
                 "    %s\n"
                 "by hand, replacing it." % (backup, exe_path))
 
-    print("Put your original game file back.")
     os.replace(manifest.MANIFEST, manifest.MANIFEST + ".reverted")
+    try:
+        # The backup has just done its one job - the bytes it held are
+        # verified back on the live exe - so keep it around any longer and
+        # every install/uninstall cycle leaves another copy behind forever.
+        # Best-effort: a successful uninstall must not fail over cleanup.
+        os.remove(backup)
+    except OSError:
+        pass
+    try:
+        # Only removes it if truly empty - so this can never eat a backup
+        # from a different install left over for some other reason, and
+        # never touches installed.json.reverted, which stays on purpose.
+        os.rmdir(manifest.BACKUP_DIR)
+    except OSError:
+        pass
     print("")
-    print("UniWS and the high-res menus mod are untouched - your game still")
-    print("runs at %dx%d, it just doesn't have the map fixes any more."
+    print(ui.banner("UNINSTALL FINISHED SUCCESSFULLY"))
+    print("")
+    print("Your original game file is back. UniWS and the high-res menus mod")
+    print("are untouched - your game still runs at %dx%d, it just doesn't"
           % tuple(record["resolution"]))
+    print("have the map fixes any more.")
     return 0
 
 
@@ -116,10 +142,13 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main(sys.argv[1:]))
     except Refusal as exc:
-        print("\n" + "=" * 70)
+        print("")
+        print(ui.banner("UNINSTALL STOPPED"))
+        print("")
         for line in str(exc).splitlines():
             print(("  " + line).rstrip())
         print("")
         print("  Your game has not been changed.")
-        print("=" * 70)
+        print("")
+        print(ui.rule())
         raise SystemExit(1)
