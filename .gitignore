@@ -20,6 +20,8 @@ patcher/dist/
 patcher/build/
 
 # Release build output: the frozen build and the zip, both regenerable with
-# `python tools/build_release.py`. The hashes that identify a published
-# release are recorded in docs/, not here.
+# `python tools/build_release.py`.
 dist/
+
+# Internal dev notes, not part of the public repo.
+docs/
