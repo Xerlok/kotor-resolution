@@ -291,6 +291,12 @@ if __name__ == "__main__":
             # Refusals happen before anything is written, by construction.
             out.say("")
             out.say("  Your game has not been changed.")
+        if isinstance(exc, PatchError) and getattr(exc, "log_detail", None):
+            # Log-only: a hex dump of whatever made the check refuse. Too
+            # long and too technical for the screen, but exactly what a bug
+            # report needs to identify what wrote it.
+            out.detail("")
+            out.block(exc.log_detail, out.detail)
         out.say("")
         out.say(ui.rule())
         code = 1

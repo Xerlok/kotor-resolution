@@ -169,6 +169,58 @@ PRIVATE_FLOAT_SLOTS = {"x": 0x38CC00, "y": 0x38CC04}
 IMAGE_BASE = 0x400000
 
 
+# --- forensic dumps for bug reports --------------------------------------
+# Not called during a normal patch run. When a "not free" / "unexpected
+# bytes" refusal fires, the check that raised it already knows exactly which
+# fixed byte ranges it looked at; these re-read the same ranges and format
+# them so the *contents* - not just the address - end up in last-run-log.txt.
+# That is what actually identifies which other tool wrote there.
+def dump_bytes(data, regions):
+    """`regions`: [(file_off, length, va_for_label, label), ...]."""
+    blocks = []
+    for off, length, va, label in regions:
+        chunk = bytes(data[off:off + length])
+        rows = []
+        for i in range(0, len(chunk), 16):
+            row = chunk[i:i + 16]
+            hexpart = " ".join("%02X" % b for b in row)
+            ascii_part = "".join(chr(b) if 32 <= b < 127 else "." for b in row)
+            rows.append("      0x%08X  %-47s  %s" % (va + i, hexpart, ascii_part))
+        blocks.append("  %s (VA 0x%X, %d bytes):\n%s" % (label, va, length, "\n".join(rows)))
+    return "\n".join(blocks)
+
+
+def describe_map_scale_state(data):
+    regions = [(SHARED_FLOAT_X, 4, IMAGE_BASE + SHARED_FLOAT_X, "shared float 440.0"),
+               (SHARED_FLOAT_Y, 4, IMAGE_BASE + SHARED_FLOAT_Y, "shared float 256.0")]
+    for axis, slot in PRIVATE_FLOAT_SLOTS.items():
+        regions.append((slot, 4, IMAGE_BASE + slot, "private %s float slot" % axis))
+    for axis, opnds in BIGMAP_FLOAT_OPERANDS.items():
+        for opnd in opnds:
+            regions.append((opnd, 4, IMAGE_BASE + opnd, "Area Map %s operand" % axis))
+    return dump_bytes(data, regions)
+
+
+def describe_note_icons_state(data):
+    regions = [(off, struct.calcsize(tpl), IMAGE_BASE + off, label)
+               for off, tpl, _default, label in MARKER_ICON_SITES]
+    return dump_bytes(data, regions)
+
+
+def describe_marker_fix_state(data):
+    regions = [
+        (MARKER_HOOK_VA - IMAGE_BASE, len(MARKER_HOOK_DEFAULT), MARKER_HOOK_VA, "marker hook"),
+        (MARKER_CAVE_VA - IMAGE_BASE, len(MARKER_CAVE_BYTES), MARKER_CAVE_VA, "marker cave"),
+        (MARKER_KX_SLOT, 4, IMAGE_BASE + MARKER_KX_SLOT, "marker kx slot"),
+        (MARKER_KY_SLOT, 4, IMAGE_BASE + MARKER_KY_SLOT, "marker ky slot"),
+        (PARTY_HOOK_VA - IMAGE_BASE, len(PARTY_HOOK_DEFAULT), PARTY_HOOK_VA, "party hook"),
+        (PLAYER_HOOK_VA - IMAGE_BASE, len(PLAYER_HOOK_DEFAULT), PLAYER_HOOK_VA, "player hook"),
+        (PARTY_CAVE_VA - IMAGE_BASE, len(PARTY_CAVE_BYTES) + len(PLAYER_CAVE_BYTES),
+         PARTY_CAVE_VA, "party/player cave"),
+    ]
+    return dump_bytes(data, regions)
+
+
 def find_map_matches(data):
     """Per-offset default check, same spirit as find_matches - map fields are
     never a hard gate (matches the original script's behavior: even if none

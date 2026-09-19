@@ -29,17 +29,29 @@ DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 
 
 class PatchError(Exception):
-    """A layer refused. The exe on disk has not been touched."""
+    """A layer refused. The exe on disk has not been touched.
+
+    `log_detail`, when set, is a hex dump of the bytes that made a layer
+    refuse - too long and too technical for the default screen message, but
+    exactly what identifies which other tool wrote them. install.py logs it
+    unconditionally (`out.detail`), same as everything else that only
+    belongs in last-run-log.txt.
+    """
+
+    def __init__(self, message, log_detail=None):
+        super().__init__(message)
+        self.log_detail = log_detail
 
 
-def _file_state_error(what, technical, hint=None):
+def _file_state_error(what, technical, hint=None, dump=None):
     """A PatchError for 'this part of the exe isn't what we expected'.
 
     `what` says in plain words what step was being attempted. `technical`
     is the raw message from the tools/ layer (addresses, hex bytes) - kept
     at the end, labelled, rather than dropped: it is what a bug report or a
     second look at COMPATIBILITY.txt needs, even though a first-time modder
-    does not.
+    does not. `dump`, if given, is a hex dump of the bytes actually found -
+    see PatchError.log_detail.
     """
     lines = [
         what,
@@ -57,7 +69,9 @@ def _file_state_error(what, technical, hint=None):
     if hint:
         lines += ["", hint]
     lines += ["", "(technical detail: %s)" % technical]
-    return PatchError("\n".join(lines))
+    log_detail = ("Bytes actually found, where known values were expected:\n%s"
+                  % dump) if dump else None
+    return PatchError("\n".join(lines), log_detail=log_detail)
 
 
 def load_note_table():
@@ -125,13 +139,14 @@ def apply_all(data, width, height, table):
     except RuntimeError as e:
         raise _file_state_error(
             "Couldn't set the Area Map's zoom level for this resolution.",
-            str(e))
+            str(e), dump=hires_patch.describe_map_scale_state(data))
     n_sites = sum(len(v) for v in matches.values())
     if n_sites != detect.SCALE_SITE_COUNT:
         raise _file_state_error(
             "Couldn't set the Area Map's zoom level for this resolution.",
             "%d map-scale constants held their expected values, not the %d "
-            "this exe should have" % (n_sites, detect.SCALE_SITE_COUNT))
+            "this exe should have" % (n_sites, detect.SCALE_SITE_COUNT),
+            dump=hires_patch.describe_map_scale_state(data))
     steps.append({"step": "map scale", "sites": n_sites,
                   "private_floats": {k: hex(hires_patch.IMAGE_BASE + v)
                                      for k, v in hires_patch.PRIVATE_FLOAT_SLOTS.items()}})
@@ -147,7 +162,7 @@ def apply_all(data, width, height, table):
         raise _file_state_error(
             "Couldn't resize the map markers (notes, player arrow, party "
             "members) for this resolution.",
-            str(e))
+            str(e), dump=hires_patch.describe_note_icons_state(data))
     if icon_sites:
         steps.append({"step": "map marker icon scale", "scale": icon_scale,
                       "sites": icon_sites,
@@ -165,7 +180,8 @@ def apply_all(data, width, height, table):
             str(e),
             hint="If you have KMRP (KOTOR Modern Restoration Patch) applied "
                  "to this exe: that mod and this one write to the same "
-                 "spot and cannot be used together. See COMPATIBILITY.txt.")
+                 "spot and cannot be used together. See COMPATIBILITY.txt.",
+            dump=hires_patch.describe_marker_fix_state(data))
     steps.append({"step": "map-note marker calibration",
                   "cave": hex(hires_patch.MARKER_CAVE_VA),
                   "hook": hex(hires_patch.MARKER_HOOK_VA)})
@@ -182,7 +198,7 @@ def apply_all(data, width, height, table):
         raise _file_state_error(
             "Couldn't make room in the file for the corrected map-note "
             "positions.",
-            str(e))
+            str(e), dump=pe_space.describe_sections(data))
     steps.append({"step": "reserve table space",
                   "region": hex(pe_space.IMAGE_BASE + region_rva),
                   "bytes": len(data) - before, "already_present": not grew})
@@ -208,7 +224,9 @@ def apply_all(data, width, height, table):
         raise _file_state_error(
             "Couldn't set up the map-note position correction.",
             "the map-note hook site at 0x%X does not hold the expected "
-            "original bytes" % ntp.HOOK_VA)
+            "original bytes" % ntp.HOOK_VA,
+            dump=hires_patch.dump_bytes(
+                data, [(hook_off, 5, ntp.HOOK_VA, "map-note hook")]))
     code_off = ntp.va_to_off(data, code_va)
     table_off = ntp.va_to_off(data, table_va)
     for label, off, length in (("match routine", code_off, len(code)),
@@ -216,7 +234,10 @@ def apply_all(data, width, height, table):
         if set(data[off:off + length]) != {0}:
             raise _file_state_error(
                 "Couldn't set up the map-note position correction.",
-                "the destination for the %s is not free" % label)
+                "the destination for the %s is not free" % label,
+                dump=hires_patch.dump_bytes(
+                    data, [(off, min(length, 256), code_va if label == "match routine" else table_va,
+                            label + " (truncated to 256 bytes)" if length > 256 else label)]))
 
     data[code_off:code_off + len(code)] = code
     data[table_off:table_off + len(table)] = table

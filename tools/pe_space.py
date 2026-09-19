@@ -71,6 +71,18 @@ def sections(data):
     return out
 
 
+def describe_sections(data):
+    """The PE section table, formatted for a bug report. Not used during a
+    normal run - only when `extend()` refuses, to show what shape of file it
+    was actually looking at."""
+    lines = ["  file size: 0x%X (%d)" % (len(data), len(data))]
+    for s in sections(data):
+        lines.append(
+            "  %-8s  rva 0x%08X  vsize 0x%-8X  rawptr 0x%08X  rawsize 0x%X"
+            % (s["name"], s["rva"], s["vsize"], s["rawptr"], s["rawsize"]))
+    return "\n".join(lines)
+
+
 def rva_to_off(data, rva):
     """File offset for a virtual address. NOT `va - IMAGE_BASE`: that identity
     only holds for .text, whose raw pointer happens to equal its RVA."""
