@@ -15,5 +15,5 @@ Layout:
     manifest.py  - what was done, so Revert can undo exactly that
 """
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 PRODUCT = "K1 Area Map Fixes"
