@@ -46,6 +46,7 @@ Full instructions, troubleshooting, and a byte-level writeup of everything the p
 **Doesn't work with:**
 - Kotor Patch Manager's `KotorUniResPatch` specifically: it hooks the same Area Map draw function and rescales using the same shared constants, so with both active the map gets scaled twice. KPM itself is fine; that one patch inside it isn't. The installer detects KPM's presence and warns.
 - Flawless Widescreen: process injection, nothing on disk to detect, not supported. WSGF's own guidance points KOTOR 1 users at UniWS + k1hrm anyway.
+- KOTOR Modern Restoration Patch (KMRP) by RayesDiyab: an alternative to this mod, not an addition to it. It fixes the same Area Map problems by patching the same functions and appending its own note table over the same free space this mod uses, so there's no install order that makes both work. Pick one. See `COMPATIBILITY.txt` for the byte-level detail.
 
 ## How It Works
 

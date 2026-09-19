@@ -40,8 +40,35 @@ WHAT IS WRITTEN
 
    These four are k1hrm's, not ours. Its hires_patcher.pl writes them; its
    compiled hires_patcher.exe - the one its own .bat and readme point Windows
-   users at - does not. Left vanilla, the engine draws the Area Map
-   ((W-640)/2, (H-480)/2) pixels off its box.
+   users at - does not.
+
+   The four are two pairs belonging to two methods of the same class, and they
+   do different jobs. Corrected 2026-09-04 after disassembling them; an earlier
+   version of this file said all four were about drawing, which is wrong.
+
+   0x2928B3 / 0x2928C3   CSWGuiInGameMap::Draw            at VA 0x00692810
+       sub eax, 640 / sar eax, 1 / add   <- ADDS the centring term
+   0x292959 / 0x29296B   CSWGuiInGameMap::HitCheckMouse   at VA 0x00692930
+       sub eax, 640 / sar eax, 1 / neg / add  <- the INVERSE
+
+   Left vanilla, the Draw pair makes the engine draw the Area Map
+   ((W-640)/2, (H-480)/2) pixels off its box. Measured at 1920x1080: the art
+   landed at (927, 566) against a box origin of (285, 266), a displacement of
+   (642, 300) against a predicted (640, 300).
+
+   The HitCheckMouse pair is the same arithmetic negated, so left vanilla it
+   should offset clicks on the area-map panel by the same amount. That is an
+   inference from the disassembly and from the KOTOR Patch Manager symbol
+   database, which names both functions; the measurement above was taken with
+   all four sites vanilla and so does not separate the two pairs. It has not
+   been observed in play. Writing all four is correct either way.
+
+   The same pattern holds one level up: CSWGuiPanel::HitCheckMouse
+   (VA 0x0040B690, operands at FILE 0xB6C7 / 0xB6DA) and
+   CSWGuiPanel::GetLocalMouseCoords (VA 0x0040BA20, operands at FILE 0xBA6C /
+   0xBA83) each carry their own copy of the 640x480 design size. Those are
+   k1hrm's "click menu buttons" and "click list items" edits. Every class that
+   overrides HitCheckMouse has its own copy and every copy has to be written.
 
    This patcher writes them only when they hold exactly 640/480 AND the canvas
    constants already prove k1hrm ran at your resolution. Any other value is
@@ -52,7 +79,7 @@ WHAT IS WRITTEN
 1. Map scale (the Area Map filling its box) + the private float copies
 
    16 scale constants inside the Area Map draw path are rewritten for your
-   resolution. The two shared floats the map divides by -
+   resolution. Two shared floats -
 
    VA 0x747748  (440.0)   FILE 0x347748
    VA 0x7455D4  (256.0)   FILE 0x3455D4
@@ -64,6 +91,24 @@ WHAT IS WRITTEN
    VA 0x78CC00  FILE 0x38CC00   private X float
    VA 0x78CC04  FILE 0x38CC04   private Y float
    (VA 0x78CC00-0x78CC0F / FILE 0x38CC00-0x38CC0F is reserved for these.)
+
+   What those two floats actually do - corrected 2026-09-04. An earlier version
+   of this file called them "the two shared floats the map divides by". That is
+   backwards. Both reading sites in each path are fdivr, a reverse divide, each
+   preceded by fild of a grid counter:
+
+   VA 0x006944A8  fild [esp+0x50] / fdivr [0x747748]   Area Map, grid setup
+   VA 0x006944C4  fild [esp+0x50] / fdivr [0x7455D4]   Area Map, grid setup
+   VA 0x00688153  fdivr [0x747748]                     HUD minimap, same job
+   VA 0x00688161  fdivr [0x7455D4]                     HUD minimap, same job
+
+   So they compute 440.0 / cells and 256.0 / cells, i.e. map units per grid
+   cell. The map does not divide by them. The coordinate transform at
+   VA 0x00578E00 divides by a per-object field ([esi+0x18] / [esi+0x1c]); the
+   440 and 256 that appear inside that function are cmp bounds checks, not
+   scale factors. Redirecting our two operands therefore changes the Area Map's
+   own fog/grid tile size, which is exactly what this step needs, and nothing
+   else.
 
 1b. Marker icon size - ONLY AT RESOLUTIONS THAT NEED IT
 

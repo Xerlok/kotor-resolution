@@ -76,6 +76,28 @@ Kotor Patch Manager's KotorUniResPatch
   finds them. It warns rather than refuses, because KPM is a patch manager and
   its presence does not prove that particular patch is switched on.
 
+KMRP - KOTOR Modern Restoration Patch (RayesDiyab)
+  Not an addition to this mod - an alternative to it. Established 2026-09-04
+  from its own published byte inventory and our offset tables, not by running
+  the two together.
+
+  It reserves VA 0x0086D000 for its first appended section, which is exactly
+  where our 8 KB K1MAPNTS region sits - both projects append at the first byte
+  past the end of the clean image, file offset 0x3DB000. Beyond that it writes
+  the same map centring pair and the same four map constructor immediates we
+  do, its marker hooks land byte-adjacent to ours in the same three functions,
+  and it ships its own copy of the same 250-entry note correction table. There
+  is no install order that makes both work.
+
+  One consequence worth knowing if you compare builds: it writes 0.285714 (2/7)
+  at file offset 0x355788 for its dialogue letterbox, where a k1hrm exe holds
+  0.428571 (3/7). Our dev-side letterbox detection looks for the 3/7 value, so
+  on a KMRP-patched exe it finds no match and skips that step with a warning
+  rather than failing. The shipped patcher never touches that offset.
+
+  Its author has permission to use the 250 map-note corrections and credits
+  them correctly.
+
 Flawless Widescreen
   Injects into the running process; nothing lands on disk, so we cannot detect
   it and cannot warn you. Do not use it together with this stack. WSGF itself
@@ -115,6 +137,20 @@ True Controller Support
   Expected to be fine - it is a dinput8.dll ASI that works at the process
   level and touches none of our bytes - but it has not been run here. Not
   confirmed.
+
+K1 Modern Driver Compatibility (Synchro)
+  Expected to be fine, not run here. Restores KOTOR's lighting, reflections,
+  fog and soft shadows on modern drivers and fixes grass tearing on every
+  vendor. It never writes swkotor.exe: it ships dinput8.dll plus an .asi and
+  patches its own process in memory at startup, verifying eight sites by their
+  original bytes rather than by hashing the exe. None of those eight is
+  anything we write - they are GL and render-init code plus one .rdata string -
+  so it should be indifferent to our patch and ours to it. Established
+  2026-09-04 from the kotor1.hooks.toml the author publishes, not by testing.
+
+  Like True Controller Support it uses a dinput8.dll proxy, so it and any other
+  ASI loader in the game folder have to be reconciled with each other. That is
+  nothing to do with us.
 
 SUPPORTED
 ---------
