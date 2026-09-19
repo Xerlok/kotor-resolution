@@ -32,6 +32,34 @@ class PatchError(Exception):
     """A layer refused. The exe on disk has not been touched."""
 
 
+def _file_state_error(what, technical, hint=None):
+    """A PatchError for 'this part of the exe isn't what we expected'.
+
+    `what` says in plain words what step was being attempted. `technical`
+    is the raw message from the tools/ layer (addresses, hex bytes) - kept
+    at the end, labelled, rather than dropped: it is what a bug report or a
+    second look at COMPATIBILITY.txt needs, even though a first-time modder
+    does not.
+    """
+    lines = [
+        what,
+        "",
+        "This patcher checks the exact bytes it's about to change before it",
+        "writes anything, and what's there now isn't what it expects. Your",
+        "game file has not been touched.",
+        "",
+        "The usual reasons, most likely first:",
+        "  - this patch is already installed",
+        "  - another mod has changed this part of swkotor.exe - see",
+        "    COMPATIBILITY.txt for mods known to conflict with this one",
+        "  - this isn't the exact game build this patcher supports",
+    ]
+    if hint:
+        lines += ["", hint]
+    lines += ["", "(technical detail: %s)" % technical]
+    return PatchError("\n".join(lines))
+
+
 def load_note_table():
     """(table_bytes, metadata) as reviewed and frozen by tools/freeze_note_table.py."""
     bin_path = os.path.join(DATA, "note_table.bin")
@@ -42,7 +70,11 @@ def load_note_table():
         with open(meta_path, encoding="utf-8") as fh:
             meta = json.load(fh)
     except OSError as e:
-        raise PatchError("the map-note table is missing from the patcher: %s" % e)
+        raise PatchError(
+            "Couldn't read the map data that ships with this patcher (%s).\n"
+            "\n"
+            "Your download is probably incomplete or was unzipped\n"
+            "incorrectly. Unzip it again, or download it fresh." % e)
     if hashlib.sha256(table).hexdigest() != meta.get("sha256") or \
             len(table) != meta.get("bytes"):
         raise PatchError(
@@ -52,7 +84,9 @@ def load_note_table():
             "checksum, so something went wrong downloading or unzipping it.\n"
             "Download it again.")
     if len(table) % ntp.ENTRY_BYTES:
-        raise PatchError("the map-note table is not a whole number of entries")
+        raise PatchError(
+            "The map data that ships with this patcher looks damaged (its\n"
+            "size is wrong). Unzip the download again, or download it fresh.")
     return table, meta
 
 
@@ -89,14 +123,15 @@ def apply_all(data, width, height, table):
     try:
         matches = hires_patch.patch_map_scale(data, width, height)
     except RuntimeError as e:
-        raise PatchError(str(e))
+        raise _file_state_error(
+            "Couldn't set the Area Map's zoom level for this resolution.",
+            str(e))
     n_sites = sum(len(v) for v in matches.values())
     if n_sites != detect.SCALE_SITE_COUNT:
-        raise PatchError(
-            "%d map-scale constants held their expected values, not the %d this "
-            "exe should have - it is not the build this patcher knows, or "
-            "something else has edited it. Nothing was written."
-            % (n_sites, detect.SCALE_SITE_COUNT))
+        raise _file_state_error(
+            "Couldn't set the Area Map's zoom level for this resolution.",
+            "%d map-scale constants held their expected values, not the %d "
+            "this exe should have" % (n_sites, detect.SCALE_SITE_COUNT))
     steps.append({"step": "map scale", "sites": n_sites,
                   "private_floats": {k: hex(hires_patch.IMAGE_BASE + v)
                                      for k, v in hires_patch.PRIVATE_FLOAT_SLOTS.items()}})
@@ -109,7 +144,10 @@ def apply_all(data, width, height, table):
     try:
         icon_scale, icon_sites = hires_patch.patch_note_icons(data, width, height)
     except RuntimeError as e:
-        raise PatchError(str(e))
+        raise _file_state_error(
+            "Couldn't resize the map markers (notes, player arrow, party "
+            "members) for this resolution.",
+            str(e))
     if icon_sites:
         steps.append({"step": "map marker icon scale", "scale": icon_scale,
                       "sites": icon_sites,
@@ -121,7 +159,13 @@ def apply_all(data, width, height, table):
         hires_patch.add_area_map_marker_fix(data, width, height)
         hires_patch.add_party_player_marker_fix(data)
     except RuntimeError as e:
-        raise PatchError(str(e))
+        raise _file_state_error(
+            "Couldn't fix where the player, party and map-note markers are "
+            "drawn on the Area Map.",
+            str(e),
+            hint="If you have KMRP (KOTOR Modern Restoration Patch) applied "
+                 "to this exe: that mod and this one write to the same "
+                 "spot and cannot be used together. See COMPATIBILITY.txt.")
     steps.append({"step": "map-note marker calibration",
                   "cave": hex(hires_patch.MARKER_CAVE_VA),
                   "hook": hex(hires_patch.MARKER_HOOK_VA)})
@@ -135,7 +179,10 @@ def apply_all(data, width, height, table):
     try:
         region_rva, grew = pe_space.extend(data)
     except ValueError as e:
-        raise PatchError(str(e))
+        raise _file_state_error(
+            "Couldn't make room in the file for the corrected map-note "
+            "positions.",
+            str(e))
     steps.append({"step": "reserve table space",
                   "region": hex(pe_space.IMAGE_BASE + region_rva),
                   "bytes": len(data) - before, "already_present": not grew})
@@ -146,20 +193,30 @@ def apply_all(data, width, height, table):
     problems = ntp.verify_code(code, code_va, table_va, table_va + len(table),
                                ntp.RESUME_VA, quiet=True)
     if problems:
-        raise PatchError("the map-note match routine failed its own "
-                         "verification:\n  " + "\n  ".join(problems))
+        raise PatchError(
+            "Hit an internal problem preparing the map-note correction "
+            "code - not something about your game file. Your game has not "
+            "been changed.\n"
+            "\n"
+            "This shouldn't happen. Please report it and attach "
+            "last-run-log.txt from this folder.\n"
+            "\n"
+            "(technical detail: " + "; ".join(problems) + ")")
 
     hook_off = ntp.HOOK_VA - hires_patch.IMAGE_BASE
     if bytes(data[hook_off:hook_off + 5]) != ntp.HOOK_DEFAULT:
-        raise PatchError("the map-note hook site at 0x%X does not hold the "
-                         "expected original bytes" % ntp.HOOK_VA)
+        raise _file_state_error(
+            "Couldn't set up the map-note position correction.",
+            "the map-note hook site at 0x%X does not hold the expected "
+            "original bytes" % ntp.HOOK_VA)
     code_off = ntp.va_to_off(data, code_va)
     table_off = ntp.va_to_off(data, table_va)
     for label, off, length in (("match routine", code_off, len(code)),
                                ("note table", table_off, len(table))):
         if set(data[off:off + length]) != {0}:
-            raise PatchError("the destination for the %s is not free - "
-                             "refusing to overwrite it" % label)
+            raise _file_state_error(
+                "Couldn't set up the map-note position correction.",
+                "the destination for the %s is not free" % label)
 
     data[code_off:code_off + len(code)] = code
     data[table_off:table_off + len(table)] = table
