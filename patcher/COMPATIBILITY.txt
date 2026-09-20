@@ -95,8 +95,27 @@ KMRP - KOTOR Modern Restoration Patch (RayesDiyab)
   on a KMRP-patched exe it finds no match and skips that step with a warning
   rather than failing. The shipped patcher never touches that offset.
 
-  Its author has permission to use the 250 map-note corrections and credits
-  them correctly.
+K1 Marked Empty Containers (Thor110, DeadlyStream file 3006, "MarkEmptyContainers.exe")
+  Not an addition to this mod - a genuine conflict, no install order fixes it.
+  Confirmed 2026-09-20 from a real failed install.
+  Its trampoline lands in the same spare .text bytes we reserve for our three
+  marker calibration caves, VA 0x73C1D0-0x73C2A9 (FILE 0x33C1D0-0x33C2A9).
+  Whichever of us gets there first blocks the other; neither mod can be told
+  to use different bytes, so there is no sequencing that lets both keep it.
+
+  Verified from the reporter's exe, by disassembly:
+    - A 5-byte jmp written over VA 0x680085 (inside the function that sets a
+      container's icon/state bits at [esi+0x828]) redirects into VA 0x73C1D0.
+      That code reads two item-slot fields at object+0x28 and object+0x98,
+      treats both == -1 as "empty", and sets edi to 7 (has items) or 2
+      (empty) before rejoining the original function at VA 0x68008a.
+    - A call written over VA 0x685e69 redirects into VA 0x73C20A, which
+      confirms the object's vtable is 0x7537D0, then assembles the literal
+      ASCII bytes " (empty)" on the stack and passes them to a name-handling
+      routine at VA 0x5E5140.
+
+  That is this mod's advertised behaviour - appending "(empty)" to the hover
+  name of a container that holds nothing.
 
 Flawless Widescreen
   Injects into the running process; nothing lands on disk, so we cannot detect

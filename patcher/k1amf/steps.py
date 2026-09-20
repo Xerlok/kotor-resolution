@@ -178,9 +178,10 @@ def apply_all(data, width, height, table):
             "Couldn't fix where the player, party and map-note markers are "
             "drawn on the Area Map.",
             str(e),
-            hint="If you have KMRP (KOTOR Modern Restoration Patch) applied "
-                 "to this exe: that mod and this one write to the same "
-                 "spot and cannot be used together. See COMPATIBILITY.txt.",
+            hint="If you have KMRP (KOTOR Modern Restoration Patch) or K1 "
+                 "Marked Empty Containers applied to this exe: those mods "
+                 "and this one write to the same spot and cannot be used "
+                 "together. See COMPATIBILITY.txt.",
             dump=hires_patch.describe_marker_fix_state(data))
     steps.append({"step": "map-note marker calibration",
                   "cave": hex(hires_patch.MARKER_CAVE_VA),

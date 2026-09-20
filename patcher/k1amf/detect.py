@@ -319,6 +319,39 @@ def check_build(data, exe_path):
             % (len(data), BASE_SIZE))
 
 
+# --- K1 Marked Empty Containers -------------------------------------------
+# Thor110's mod (DeadlyStream file 3006, ships as MarkEmptyContainers.exe)
+# writes its own hook into swkotor.exe, and it lands in the exact spare bytes
+# this patcher needs for its marker calibration fix - VA 0x73C1D0, the same
+# cave hires_patch.MARKER_CAVE_VA reserves. No install order lets both keep
+# it; see COMPATIBILITY.txt.
+#
+# Confirmed 2026-09-20 from a player's own exe after a failed install: the
+# 5-byte jmp below, read directly from that report, is what its installer
+# plants at VA 0x680085. Verified against that one installation only - it's
+# a small single-purpose patcher for this same exe build, so later copies
+# are expected to match, but that has not been checked against a second one.
+MARKED_EMPTY_CONTAINERS_HOOK_VA = 0x680085
+MARKED_EMPTY_CONTAINERS_HOOK_JMP = bytes.fromhex("e946c10b00")
+
+
+def check_marked_empty_containers(data):
+    """Refuse early, by name, instead of letting the marker-cave step fail
+    with a generic hex dump - this exact conflict is already diagnosed."""
+    off = MARKED_EMPTY_CONTAINERS_HOOK_VA - hires_patch.IMAGE_BASE
+    if bytes(data[off:off + 5]) == MARKED_EMPTY_CONTAINERS_HOOK_JMP:
+        raise Refusal(
+            "K1 Marked Empty Containers is installed, and it can't run\n"
+            "alongside this mod - both patchers need the same small spot\n"
+            "inside swkotor.exe, and only one of them can have it.\n"
+            "\n"
+            "There's no install order that fixes this. Undo K1 Marked Empty\n"
+            "Containers first - its own \"Revert Container Patch.bat\" - then\n"
+            "run this again.\n"
+            "\n"
+            "See COMPATIBILITY.txt if you want the details.")
+
+
 # --- what resolution is this exe patched for ----------------------------
 def _int32(data, off):
     return struct.unpack_from("<i", data, off)[0]

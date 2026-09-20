@@ -108,9 +108,14 @@ def backup_exe(exe_path):
     shutil.copy2(exe_path, dst)
     with open(dst, "rb") as fh:
         if sha256(fh.read()) != want:
-            raise Refusal("the backup copy did not read back identical - check "
-                          "the disk has free space, and do not run the game "
-                          "until this succeeds.")
+            raise Refusal(
+                "The backup copy of your original game file didn't come out "
+                "right - something corrupted it while copying, most likely a "
+                "full or failing disk.\n"
+                "\n"
+                "Your game hasn't been touched yet. Free up disk space (or "
+                "otherwise fix why the copy failed) and run Install.bat "
+                "again from the start.")
     return dst
 
 

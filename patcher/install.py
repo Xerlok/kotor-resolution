@@ -115,6 +115,7 @@ def main(argv):
     # --- gates -----------------------------------------------------------
     detect.check_build(before, exe_path)
     out.detail("  swkotor.exe is the %d-byte Editable Executable" % len(before))
+    detect.check_marked_empty_containers(before)
 
     width, height = detect.read_resolution(before)
     out.say(ui.field("Resolution", "%dx%d" % (width, height)))
@@ -227,7 +228,8 @@ def main(argv):
             "means something else is touching the game folder - antivirus, or\n"
             "a sync tool like OneDrive.\n"
             "\n"
-            "Don't start the game. Run Uninstall.bat to put your backup back.")
+            "Don't start the game. Run Uninstall.bat to put your backup back\n"
+            "and try again.")
 
     import note_table_patch as ntp
     code_va, table_va = ntp.layout(written, len(table))

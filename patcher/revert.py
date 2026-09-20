@@ -86,18 +86,25 @@ def main(argv):
                "\n"
                "If I put the old backup back now, whatever that other thing\n"
                "did gets thrown away.")
-        if not force:
-            raise Refusal(
-                msg + "\n\nIf you're happy to lose it, run:   "
-                "Uninstall.bat --force")
         print("-" * ui.WIDTH)
         print("  WARNING")
         print("-" * ui.WIDTH)
         for line in msg.splitlines():
             print(("  " + line).rstrip())
         print("")
-        print("--force was given, so restoring anyway.")
-        print("")
+        if force:
+            print("--force was given, so restoring anyway.")
+            print("")
+        else:
+            try:
+                answer = input(
+                    "Do you still want to restore your backup? [y/N]: ")
+            except EOFError:
+                answer = ""
+            print("")
+            if answer.strip().lower() not in ("y", "yes"):
+                raise Refusal(
+                    "Stopped. Your swkotor.exe has not been changed.")
 
     shutil.copy2(backup, exe_path)
     with open(exe_path, "rb") as fh:
