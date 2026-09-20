@@ -114,6 +114,15 @@ MAP_OFFSETS = {
     "map_offsets_y": ([0x17901A, 0x179358, 0x179383, 0x17938A, 0x178EA6, 0x178F24, 0x295064, 0x29508A], "<h", 256),
 }
 
+# Area Map frame-line fix (docs/plans/area-map-frame-line-fix.md 5): the
+# opening, the marker overlay and the map canvas all grow by this many
+# vanilla design pixels on every side, so the map picture covers the
+# one-pixel line the backdrop art bakes just outside the opening. Value set
+# by that plan's T1 (tools/map_frame_art_probe.py): the thickest measured
+# band, across both the vanilla and the HD backdrop, is 1.56 design px
+# (HD override, right side); overscan is ceil() of that.
+OVERSCAN_DESIGN_PX = 2
+
 # The shared .rdata float constants - deliberately LEFT AT THEIR VANILLA VALUES
 # so the HUD minimap keeps working (see the root-cause note above).
 SHARED_FLOAT_X = 0x347748  # 440.0f, VA 0x747748
@@ -252,16 +261,38 @@ def _round_half_up(x):
     return math.floor(x + 0.5)
 
 
+def overscan_px(width, height):
+    """(gx, gy): OVERSCAN_DESIGN_PX converted to screen pixels per axis, by
+    the same ceil(W/640) / ceil(H/480) scale factor the map geometry itself
+    uses. docs/plans/area-map-frame-line-fix.md 5.
+    """
+    return (math.ceil(width / 640.0) * OVERSCAN_DESIGN_PX,
+            math.ceil(height / 480.0) * OVERSCAN_DESIGN_PX)
+
+
 def map_scale_values(width, height):
-    """The four scaled int16 values for this resolution, unrounded.
+    """The four scaled int16 values for this resolution.
 
     One definition, so the patcher can check what it wrote (and what a later
     run finds already there) against the same formula that wrote it.
+
+    map_offsets_x/y are the grown marker-overlay/LBL_Map-opening size
+    (docs/plans/area-map-frame-line-fix.md 5), rounded here rather than left
+    raw: every other overscanned value - the canvas size, the private
+    tile-size floats redirect_bigmap_floats writes, and the kx'/ky' marker
+    constants add_area_map_marker_fix writes - has to derive from the exact
+    integer the RECT fields end up holding, not from the unrounded formula,
+    or the tile-size math would disagree with the geometry actually drawn.
+    map_grid is left unrounded: it never matches a site and is deliberately
+    not patched.
     """
+    gx, gy = overscan_px(width, height)
+    overlay_w = _round_half_up(width * (440.0 / 640.0) + 2 * gx)
+    overlay_h = _round_half_up(height * (256.0 / 480.0) + 2 * gy)
     return {
-        "map_projection_offsets_x": width * (512.0 / 640.0),
-        "map_offsets_x": width * (440.0 / 640.0),
-        "map_offsets_y": height * (256.0 / 480.0),
+        "map_projection_offsets_x": _round_half_up(overlay_w * (512.0 / 440.0)),
+        "map_offsets_x": overlay_w,
+        "map_offsets_y": overlay_h,
         "map_grid": height * (32.0 / 480.0),
     }
 
@@ -431,9 +462,14 @@ def add_area_map_marker_fix(data, width, height):
         if data[slot:slot + 4] != b"\x00\x00\x00\x00":
             raise RuntimeError(f"marker-fix {label} slot at 0x{slot:X} is not free - refusing to patch")
 
-    # 3) write the two rescale-ratio constants (k = target resolution / vanilla 640x480 GUI canvas)
-    kx = width / 640.0
-    ky = height / 480.0
+    # 3) write the two rescale-ratio constants (k = grown overlay size / vanilla
+    #    440x256 tile size - docs/plans/area-map-frame-line-fix.md 5's kx'/ky';
+    #    same overlay_w/overlay_h map_scale_values() rounds for the RECT fields,
+    #    so this stays self-consistent with the geometry the cave writes at
+    #    0x69503D rather than drifting a fraction of a pixel apart from it)
+    v = map_scale_values(width, height)
+    kx = v["map_offsets_x"] / 440.0
+    ky = v["map_offsets_y"] / 256.0
     struct.pack_into("<f", data, MARKER_KX_SLOT, kx)
     struct.pack_into("<f", data, MARKER_KY_SLOT, ky)
 
