@@ -498,6 +498,8 @@ def _sites():
          hp.PARTY_HOOK_DEFAULT, hp.PARTY_HOOK_JMP),
         ("player marker cave", hp.PLAYER_HOOK_VA - hp.IMAGE_BASE,
          hp.PLAYER_HOOK_DEFAULT, hp.PLAYER_HOOK_JMP + hp.PLAYER_HOOK_NOP_PAD),
+        ("area-map opening cave", hp.FRAME_HOOK_VA - hp.IMAGE_BASE,
+         hp.FRAME_HOOK_DEFAULT, hp.FRAME_HOOK_JMP + hp.FRAME_HOOK_NOP_PAD),
     ]
 
 

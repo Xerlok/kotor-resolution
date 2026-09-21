@@ -186,7 +186,7 @@ def main(argv):
     after = bytearray(before)
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        done = steps.apply_all(after, width, height, table)
+        done = steps.apply_all(after, width, height, table, extent)
     out.detail("")
     out.detail("-- what was written ---------------------------------------")
     out.block(buf.getvalue().rstrip("\n"), out.detail)
@@ -233,7 +233,8 @@ def main(argv):
 
     import note_table_patch as ntp
     code_va, table_va = ntp.layout(written, len(table))
-    results = verify.check(before, written, width, height, table, code_va, table_va)
+    results = verify.check(before, written, width, height, table, code_va,
+                           table_va, extent)
     out.detail("")
     out.detail("-- checking every change against the file on disk ----------")
     for good, label in results:

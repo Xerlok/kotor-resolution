@@ -82,6 +82,19 @@ def describe_exe(path):
           % ("x" if _at(data, MARKER_HOOK_VA, 5) == MARKER_HOOK_JMP else " ",
              MARKER_HOOK_VA))
 
+    # The Area Map opening cave is built per install (its guard and its target
+    # rectangle are immediates), so there are no fixed bytes to compare - read
+    # the two rectangles back out of it instead.
+    import hires_patch
+    framed = _at(data, hires_patch.FRAME_HOOK_VA, 5) == hires_patch.FRAME_HOOK_JMP
+    rects = hires_patch.frame_cave_rects(data) if framed else None
+    print("    [%s] area-map opening hook 0x%X -> cave 0x%X"
+          % ("x" if framed else " ", hires_patch.FRAME_HOOK_VA,
+             hires_patch.FRAME_CAVE_VA))
+    if framed:
+        print("        %s" % ("sets LBL_Map %s -> %s" % rects if rects else
+                              "cave unreadable <== unexpected"))
+
     hooked = _at(data, NOTE_HOOK_VA, 1) == b"\xe9"
     vanilla = _at(data, NOTE_HOOK_VA, 5) == NOTE_HOOK_ORIG
     print("    [%s] NOTE TABLE hook 0x%X%s"

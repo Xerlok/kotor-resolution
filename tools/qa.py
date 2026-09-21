@@ -110,9 +110,10 @@ def build_official_base(width, height, letterbox=LETTERBOX):
 
 
 def check_map_gui_box(gui_set_dir, width, height):
-    """(ok, label) for the Override/map.gui box, using this set's own file -
-    not the live install's - via the same detect.check_map_gui the patcher
-    itself gates on."""
+    """(ok, label, extent) for the Override/map.gui box, using this set's own
+    file - not the live install's - via the same detect.check_map_gui the
+    patcher itself gates on. `extent` is None when the box is refused; the
+    patcher needs it for the Area Map opening cave's guard."""
     scratch = tempfile.mkdtemp(dir=WORK)
     try:
         override = os.path.join(scratch, "Override")
@@ -122,10 +123,10 @@ def check_map_gui_box(gui_set_dir, width, height):
         try:
             got = kdetect.check_map_gui(scratch, width, height)
         except Refusal as e:
-            return False, "Override/map.gui LBL_Map box: %s" % e
+            return False, "Override/map.gui LBL_Map box: %s" % e, None
         want = kdetect.expected_map_extent(width, height)
         return True, ("Override/map.gui LBL_Map box is %s (formula: %s, "
-                      "tolerance %dpx)" % (got, want, kdetect.GUI_TOLERANCE))
+                      "tolerance %dpx)" % (got, want, kdetect.GUI_TOLERANCE)), got
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
 
@@ -141,11 +142,19 @@ def check_resolution(width, height, gui_set_dir, table):
         result["error"] = str(e)
         return result
 
+    # The .gui box first: the Area Map opening cave guards on this set's real
+    # LBL_Map rectangle, so apply_all cannot run without it.
+    ok_gui, label_gui, extent = check_map_gui_box(gui_set_dir, width, height)
+    if extent is None:
+        result["checks"] = [(ok_gui, label_gui)]
+        result["error"] = "no usable Override/map.gui box: %s" % label_gui
+        return result
+
     data = bytearray(before)
     log = io.StringIO()
     try:
         with contextlib.redirect_stdout(log):
-            ksteps.apply_all(data, width, height, table)
+            ksteps.apply_all(data, width, height, table, extent)
     except PatchError as e:
         result["error"] = "our layer refused: %s\n%s" % (e, log.getvalue())
         return result
@@ -157,9 +166,8 @@ def check_resolution(width, height, gui_set_dir, table):
         before_arr[:n] != after_arr[:n])) + abs(before_arr.size - after_arr.size)
 
     code_va, table_va = ntp.layout(data, len(table))
-    checks = kverify.check(before, data, width, height, table, code_va, table_va)
-
-    ok_gui, label_gui = check_map_gui_box(gui_set_dir, width, height)
+    checks = kverify.check(before, data, width, height, table, code_va,
+                           table_va, extent)
     checks.append((ok_gui, label_gui))
 
     # Explicit int16-range assertion (spec item A.4): apply_all/struct.pack_into
@@ -185,7 +193,7 @@ def check_resolution(width, height, gui_set_dir, table):
     if converged:
         try:
             with contextlib.redirect_stdout(log):
-                ksteps.apply_all(stale, width, height, table)
+                ksteps.apply_all(stale, width, height, table, extent)
             converged = bytes(stale) == bytes(data)
         except PatchError:
             converged = False

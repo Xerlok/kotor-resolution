@@ -104,11 +104,14 @@ def load_note_table():
     return table, meta
 
 
-def apply_all(data, width, height, table):
+def apply_all(data, width, height, table, extent):
     """Run every layer against `data` in place. Returns what was done, for the
     manifest. Raises PatchError before writing anything if a layer refuses.
 
     `data` is a scratch copy: the caller writes it to disk only if this returns.
+    `extent` is LBL_Map's stock (left, top, width, height), read out of the
+    player's own Override/map.gui by `detect.check_map_gui` - the Area Map
+    opening step needs the real numbers, not the formula.
     """
     steps = []
 
@@ -190,6 +193,49 @@ def apply_all(data, width, height, table):
                   "hook": hex(hires_patch.PARTY_HOOK_VA)})
     steps.append({"step": "player marker", "cave": hex(hires_patch.PLAYER_CAVE_VA),
                   "hook": hex(hires_patch.PLAYER_HOOK_VA)})
+
+    # 3b. the Area Map opening. The overlay and the canvas grew with the
+    # overscan back in step 1 (they are immediates); the opening is read from
+    # the player's map.gui at runtime, so it takes a cave of its own, which
+    # rewrites LBL_Map's rectangle once per map-screen construction. Built
+    # fresh here rather than frozen: the guard and the new rectangle are both
+    # per-install values.
+    stock = tuple(extent)
+    grown = hires_patch.frame_extent(stock, width, height)
+    frame_code = hires_patch.build_frame_cave(stock, grown)
+    problems = hires_patch.verify_frame_cave(frame_code, stock, grown, quiet=True)
+    if problems:
+        raise PatchError(
+            "Hit an internal problem preparing the Area Map code - not "
+            "something about your game file. Your game has not been "
+            "changed.\n"
+            "\n"
+            "This shouldn't happen. Please report it and attach "
+            "last-run-log.txt from this folder.\n"
+            "\n"
+            "(technical detail: " + "; ".join(problems) + ")")
+    try:
+        hires_patch.add_area_map_frame_fix(data, frame_code)
+    except RuntimeError as e:
+        raise _file_state_error(
+            "Couldn't set the size of the Area Map's window onto the map.",
+            str(e),
+            hint="If you have KMRP (KOTOR Modern Restoration Patch) or K1 "
+                 "Marked Empty Containers applied to this exe: those mods "
+                 "and this one write to the same spot and cannot be used "
+                 "together. See COMPATIBILITY.txt.",
+            dump=hires_patch.describe_frame_fix_state(data))
+    print("  area-map opening: %d-byte cave at VA 0x%X, hook VA 0x%X\n"
+          "    LBL_Map %s -> %s (overscan %d design px, so the map picture\n"
+          "    covers the frame line the backdrop art bakes outside the box)"
+          % (len(frame_code), hires_patch.FRAME_CAVE_VA,
+             hires_patch.FRAME_HOOK_VA, stock, grown,
+             hires_patch.OVERSCAN_DESIGN_PX))
+    steps.append({"step": "Area Map opening (overscan)",
+                  "cave": hex(hires_patch.FRAME_CAVE_VA),
+                  "cave_bytes": len(frame_code),
+                  "hook": hex(hires_patch.FRAME_HOOK_VA),
+                  "from": list(stock), "to": list(grown)})
 
     # 4. room for the note table at the end of .rsrc (grows the file by 8 KB).
     before = len(data)

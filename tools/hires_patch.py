@@ -601,6 +601,332 @@ def add_party_player_marker_fix(data):
     )
 
 
+########################################################################
+# Area Map frame-line fix: the opening (docs/plans/area-map-frame-line-fix.md)
+#
+# The backdrop art `lbl_map` bakes a one-pixel highlight frame immediately
+# OUTSIDE the map opening, on all four sides. The engine stretches that art
+# across the whole screen, and `Override/map.gui`'s LBL_Map box sits at fixed
+# fractions of the same screen, so the line's position relative to the opening
+# is the same at every resolution. Covering it means growing the opening, the
+# marker overlay and the map canvas TOGETHER by OVERSCAN_DESIGN_PX design
+# pixels per side - growing the opening alone is what F18 tried twice, and it
+# just exposes surplus the overlay does not cover (a bright band at the right
+# and the bottom).
+#
+# The overlay and the canvas are immediates this patcher already writes
+# (map_scale_values() carries the overscan). The opening is not: it is read
+# from the player's own map.gui at runtime. This cave is the only part of the
+# fix that needs new bytes - it rewrites LBL_Map's rectangle after the GUI has
+# been parsed and before the screen draws.
+#
+# Hook site (plan 7 T3, static half, re-confirmed here against
+# downloads/swkotor.exe): VA 0x69503D inside the map screen's constructor
+# 0x694D50, one whole 6-byte instruction, `mov edx, [esi+0x1080]`. ESI holds
+# the screen `this` for the whole function (`mov esi, ecx` at 0x694D74) and
+# LBL_Map is ESI+0x64 (bound by name at 0x694E79). The site is after all nine
+# BindControl calls and after 0x40B8F0 releases the parsed GUI data, so the
+# rectangle is final; it is before the canvas and hider SetRect dispatches at
+# 0x695068 / 0x69508E, so those are sized after our write. A brute scan of
+# .text found no branch and no absolute reference into 0x69503D..0x695042.
+#
+# What the cave does, and what it must preserve:
+#   - EDX is the only register live across the hook (the replaced instruction
+#     feeds `call dword ptr [edx+4]` at 0x695068), and EDI is live too (read at
+#     0x69506B). pushad/popad saves everything, so nothing depends on the
+#     called function's own register discipline.
+#   - the rectangle is set through the control's OWN vtable slot 1
+#     (`SetRect(const RECT*)`, __thiscall, `ret 4`) - VA 0x417780 for this
+#     class, vtable 0x73E5B8, written by its constructor at 0x41ACD0. That is
+#     the same setter the engine's EXTENT loader calls (0x41B8FF), so LBL_Map's
+#     override propagates the new rect to its TEXT (+0x5C) and BORDER (+0xD0)
+#     children exactly as a GUI-file edit would. No field poking.
+#   - the guard compares the control's current rect against the FOUR VALUES
+#     READ OUT OF THE PLAYER'S OWN map.gui at patch time, not against the
+#     formula: 3 of k1hrm's 49 sets differ from it by a pixel, and an
+#     inexact guard would stop being idempotent. On any mismatch the cave does
+#     nothing, which is also what makes it safe if a third-party map.gui is
+#     installed after us, and what makes a second run a no-op.
+#
+# Unlike the three marker caves, these bytes CANNOT be frozen as a literal:
+# eight of the immediates are per-install (the guard's stock rect, and the
+# overscanned one). They are assembled with keystone and independently
+# re-disassembled and checked with capstone on every run instead - the same
+# build-then-verify treatment note_table_patch.py gives its match routine.
+FRAME_HOOK_VA = 0x69503D
+FRAME_HOOK_DEFAULT = bytes.fromhex("8b9680100000")  # mov edx,[esi+0x1080], 6 B
+FRAME_RESUME_VA = 0x695043                          # next instruction, unchanged
+FRAME_HOOK_JMP = b"\xe9" + struct.pack("<i", 0x73C2F0 - (FRAME_HOOK_VA + 5))
+FRAME_HOOK_NOP_PAD = b"\x90" * (len(FRAME_HOOK_DEFAULT) - len(FRAME_HOOK_JMP))
+
+# The first 16-byte-aligned address past the note-table match routine's own
+# window (note_table_patch.CAVE_VA 0x73C270 + 0x80). The note TABLE has lived
+# in the region pe_space reserves at the end of .rsrc ever since it outgrew
+# this tail, so nothing else claims this address; if it ever moved back here,
+# the note-table step's own free-space check would refuse rather than overwrite
+# (it runs after this one).
+FRAME_CAVE_VA = 0x73C2F0
+FRAME_CAVE_FREE_RUN = (0x33C2F0, 0x33D000)   # file offsets, verified all-zero (3344 B)
+FRAME_DUMP_BYTES = 160                       # cave bytes a refusal hex-dumps
+
+FRAME_CONTROL_OFF = 0x64        # LBL_Map, relative to the map screen `this`
+FRAME_RECT_OFFS = (0x04, 0x08, 0x0C, 0x10)   # left, top, width, height
+FRAME_SETRECT_SLOT = 1          # [vtbl+0x04]
+
+# capstone spells the two 386 stack instructions "pushal"/"popal"; keystone
+# takes "pushad"/"popad". Same opcodes (0x60 / 0x61) - the names below are the
+# ones the verifier has to match.
+FRAME_EXPECTED_FLOW = [
+    "pushal", "lea",                                  # save all, ecx = control
+    "cmp", "jne", "cmp", "jne", "cmp", "jne", "cmp", "jne",   # the stock-rect guard
+    "push", "push", "push", "push",                   # RECT{left,top,w,h} on the stack
+    "mov", "mov", "push", "call",                     # eax=&rect, edx=vtbl, SetRect
+    "add",                                            # drop the RECT (callee popped the arg)
+    "popal", "mov", "jmp",                            # restore, reproduce, resume
+]
+
+
+def frame_extent(extent, width, height):
+    """The overscanned LBL_Map rectangle for this install.
+
+    `extent` is the stock (left, top, width, height) read out of the player's
+    own Override/map.gui. The size comes from map_scale_values(), not from
+    `extent` + 2*g: the opening has to end up EXACTLY equal to the marker
+    overlay this patcher writes into the exe, which is the identity that keeps
+    surplus map picture from showing outside the fogged area (plan 4).
+    """
+    gx, gy = overscan_px(width, height)
+    v = map_scale_values(width, height)
+    return (extent[0] - gx, extent[1] - gy, v["map_offsets_x"], v["map_offsets_y"])
+
+
+def build_frame_cave(stock, grown, cave_va=FRAME_CAVE_VA):
+    """Assemble the cave. `stock`/`grown` are (left, top, width, height).
+
+    Assembled instruction by instruction with keystone, so no ModRM byte is
+    hand-encoded; only the four guard branches are computed here, and the
+    result is independently disassembled and checked by verify_frame_cave().
+    """
+    import keystone
+
+    ks = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_32)
+
+    def a(text):
+        enc, count = ks.asm(text)
+        if enc is None or count == 0:
+            raise RuntimeError("failed to assemble: %s" % text)
+        return bytes(enc)
+
+    head = a("pushad") + a("lea ecx, [esi + %d]" % FRAME_CONTROL_OFF)
+    guards = [a("cmp dword ptr [ecx + %d], %d" % (off, val))
+              for off, val in zip(FRAME_RECT_OFFS, stock)]
+    # RECT{left, top, width, height}: pushed back to front, so left lands at
+    # the lowest address. SetRect is __thiscall and `ret 4`, so the callee pops
+    # the pointer argument; `add esp, 0x10` drops the RECT itself.
+    body = b"".join(a("push %d" % v) for v in reversed(grown))
+    body += (a("mov eax, esp")
+             + a("mov edx, dword ptr [ecx]")
+             + a("push eax")
+             + a("call dword ptr [edx + %d]" % (4 * FRAME_SETRECT_SLOT))
+             + a("add esp, 0x10"))
+
+    JCC = 2
+    done_off = len(head) + sum(len(g) + JCC for g in guards) + len(body)
+
+    code = bytearray(head)
+    for g in guards:
+        code += g
+        d = done_off - (len(code) + JCC)              # from the next instruction
+        if not -128 <= d <= 127:
+            raise RuntimeError("guard branch out of rel8 range: %d" % d)
+        code += b"\x75" + struct.pack("<b", d)       # jne done
+    code += body
+    if len(code) != done_off:
+        raise RuntimeError("cave layout disagrees with itself: %d vs %d"
+                           % (len(code), done_off))
+    code += a("popad")
+    code += FRAME_HOOK_DEFAULT                        # reproduce the hooked instruction
+    code += b"\xe9" + struct.pack("<i", FRAME_RESUME_VA - (cave_va + len(code) + 5))
+    return bytes(code)
+
+
+def verify_frame_cave(code, stock, grown, cave_va=FRAME_CAVE_VA, quiet=True):
+    """Independently disassemble the cave and check every instruction, every
+    immediate and every branch target against the design. Returns a list of
+    problems, empty when it is right."""
+    import capstone
+    from capstone import x86
+
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    md.detail = True          # operands are checked structurally, not as text
+    insns = list(md.disasm(code, cave_va))
+    problems = []
+    if len(insns) != len(FRAME_EXPECTED_FLOW):
+        problems.append("expected %d instructions, disassembled %d"
+                        % (len(FRAME_EXPECTED_FLOW), len(insns)))
+    for insn, want in zip(insns, FRAME_EXPECTED_FLOW):
+        if insn.mnemonic != want:
+            problems.append("0x%X: %s %s - expected %s"
+                            % (insn.address, insn.mnemonic, insn.op_str, want))
+
+    def mem_operand(insn, i, reg, disp):
+        op = insn.operands[i]
+        return (op.type == x86.X86_OP_MEM and op.size == 4
+                and insn.reg_name(op.mem.base) == reg and op.mem.index == 0
+                and op.mem.disp == disp)
+
+    def imm_operand(insn, i, value):
+        op = insn.operands[i]
+        return op.type == x86.X86_OP_IMM and op.imm == value
+
+    by_mnem = {}
+    for insn in insns:
+        by_mnem.setdefault(insn.mnemonic, []).append(insn)
+
+    # ecx = the control, once, from the screen `this` in esi
+    leas = by_mnem.get("lea", [])
+    if len(leas) != 1 or leas[0].reg_name(leas[0].operands[0].reg) != "ecx" \
+            or not mem_operand(leas[0], 1, "esi", FRAME_CONTROL_OFF):
+        problems.append("expected exactly one `lea ecx, [esi + 0x%X]`, got %s"
+                        % (FRAME_CONTROL_OFF, [i.op_str for i in leas]))
+
+    # the guard: four `cmp dword ptr [ecx + field], stock`, in field order
+    cmps = by_mnem.get("cmp", [])
+    if len(cmps) != len(FRAME_RECT_OFFS):
+        problems.append("expected %d guard comparisons, found %d"
+                        % (len(FRAME_RECT_OFFS), len(cmps)))
+    for (off, val), insn in zip(zip(FRAME_RECT_OFFS, stock), cmps):
+        if not (mem_operand(insn, 0, "ecx", off) and imm_operand(insn, 1, val)):
+            problems.append("0x%X: guard reads `%s`, expected [ecx + 0x%X] "
+                            "against %d" % (insn.address, insn.op_str, off, val))
+
+    # every `jne` skips the whole body, to the `popad`
+    done_va = cave_va + len(code) - (1 + len(FRAME_HOOK_DEFAULT) + 5)
+    for insn in by_mnem.get("jne", []):
+        if not imm_operand(insn, 0, done_va):
+            problems.append("0x%X: guard branch goes to %s, expected 0x%X"
+                            % (insn.address, insn.op_str, done_va))
+
+    # the new rectangle, pushed back to front, then a pointer to it
+    pushes = by_mnem.get("push", [])
+    got = [i.operands[0].imm for i in pushes
+           if i.operands[0].type == x86.X86_OP_IMM]
+    if got != list(reversed(grown)):
+        problems.append("the pushed RECT reads %s, expected %s"
+                        % (got, list(reversed(grown))))
+    if not any(i.operands[0].type == x86.X86_OP_REG
+               and i.reg_name(i.operands[0].reg) == "eax" for i in pushes):
+        problems.append("the pointer to the RECT is never pushed")
+
+    # SetRect, through the control's own vtable
+    calls = by_mnem.get("call", [])
+    if len(calls) != 1 or not mem_operand(calls[0], 0, "edx",
+                                          4 * FRAME_SETRECT_SLOT):
+        problems.append("expected exactly one `call dword ptr [edx + %d]` "
+                        "(SetRect, vtable slot %d), got %s"
+                        % (4 * FRAME_SETRECT_SLOT, FRAME_SETRECT_SLOT,
+                           [c.op_str for c in calls]))
+
+    # ESP must come back exactly: SetRect's `ret 4` pops the pointer, the
+    # `add esp, 0x10` drops the RECT, and pushad/popad pair up around both.
+    adds = by_mnem.get("add", [])
+    if len(adds) != 1 or adds[0].reg_name(adds[0].operands[0].reg) != "esp" \
+            or not imm_operand(adds[0], 1, 4 * len(FRAME_RECT_OFFS)):
+        problems.append("the RECT is not dropped by `add esp, 0x%X` (got %s)"
+                        % (4 * len(FRAME_RECT_OFFS), [i.op_str for i in adds]))
+    if len(by_mnem.get("pushal", [])) != 1 or len(by_mnem.get("popal", [])) != 1:
+        problems.append("pushad/popad do not pair up exactly once each")
+
+    # the reproduced instruction and the way back
+    tail = by_mnem.get("mov", [])[-1:]
+    if not tail or tail[0].bytes != FRAME_HOOK_DEFAULT:
+        problems.append("the hooked instruction is not reproduced before the "
+                        "jump back (found %s)"
+                        % (tail[0].bytes.hex() if tail else "nothing"))
+    jmps = by_mnem.get("jmp", [])
+    if len(jmps) != 1 or not imm_operand(jmps[0], 0, FRAME_RESUME_VA):
+        problems.append("no single `jmp 0x%X` back to the call site"
+                        % FRAME_RESUME_VA)
+
+    # nothing may be left holding a register the hooked code still needs
+    for insn in insns:
+        if insn.mnemonic in ("pushal", "popal"):
+            continue
+        for op in insn.operands:
+            if op.type == x86.X86_OP_REG and insn.reg_name(op.reg) in ("esi", "edi", "ebx", "ebp"):
+                problems.append("0x%X: %s %s touches a register the caller needs"
+                                % (insn.address, insn.mnemonic, insn.op_str))
+
+    if not quiet:
+        for i in insns:
+            print("  0x%X  %-24s %s %s" % (i.address, i.bytes.hex(),
+                                           i.mnemonic, i.op_str))
+    return problems
+
+
+def frame_cave_rects(data):
+    """((stock), (grown)) read back out of an installed cave, or None.
+
+    For reporting what an exe on disk actually does, without being told the
+    resolution or the .gui box: the two rectangles are immediates in the cave,
+    so they can be recovered from the bytes. tools/state.py uses this.
+    """
+    import capstone
+    from capstone import x86
+
+    off = FRAME_CAVE_VA - IMAGE_BASE
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    md.detail = True
+    stock, grown = [], []
+    for insn in md.disasm(bytes(data[off:off + FRAME_DUMP_BYTES]), FRAME_CAVE_VA):
+        if insn.mnemonic == "cmp" and len(stock) < 4:
+            stock.append(insn.operands[1].imm)
+        elif insn.mnemonic == "push" and insn.operands[0].type == x86.X86_OP_IMM:
+            grown.append(insn.operands[0].imm)
+        elif insn.mnemonic == "jmp":
+            break
+    if len(stock) != 4 or len(grown) != 4:
+        return None
+    return tuple(stock), tuple(reversed(grown))
+
+
+def describe_frame_fix_state(data):
+    return dump_bytes(data, [
+        (FRAME_HOOK_VA - IMAGE_BASE, len(FRAME_HOOK_DEFAULT), FRAME_HOOK_VA,
+         "Area Map opening hook"),
+        (FRAME_CAVE_VA - IMAGE_BASE, FRAME_DUMP_BYTES, FRAME_CAVE_VA,
+         "Area Map opening cave"),
+    ])
+
+
+def add_area_map_frame_fix(data, code):
+    """Write the already-built, already-verified cave and its hook, in place.
+
+    Incremental, like the marker fixes: call this on an already-patched image,
+    after the overscanned overlay/canvas values are in (they are what the new
+    opening has to match).
+    """
+    hook_off = FRAME_HOOK_VA - IMAGE_BASE
+    cave_off = FRAME_CAVE_VA - IMAGE_BASE
+
+    current = bytes(data[hook_off:hook_off + len(FRAME_HOOK_DEFAULT)])
+    if current != FRAME_HOOK_DEFAULT:
+        raise RuntimeError(
+            f"Area Map opening hook at 0x{FRAME_HOOK_VA:X} is {current.hex()}, "
+            f"expected {FRAME_HOOK_DEFAULT.hex()} - refusing to patch "
+            f"(already patched, or an unexpected exe build)"
+        )
+    if data[cave_off:cave_off + len(code)] != b"\x00" * len(code):
+        raise RuntimeError(
+            f"Area Map opening cave at 0x{FRAME_CAVE_VA:X} is not free "
+            f"- refusing to patch")
+
+    data[cave_off:cave_off + len(code)] = code
+    data[hook_off:hook_off + len(FRAME_HOOK_JMP)] = FRAME_HOOK_JMP
+    pad_start = hook_off + len(FRAME_HOOK_JMP)
+    data[pad_start:pad_start + len(FRAME_HOOK_NOP_PAD)] = FRAME_HOOK_NOP_PAD
+
+
 # --------------------------------------------------------------------------
 # Area Map NOTE icon scaling
 #

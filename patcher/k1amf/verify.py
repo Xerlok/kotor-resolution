@@ -26,7 +26,7 @@ import pe_space
 CHUNK = 4096
 
 
-def declared_ranges(before, code_va, table_va, code_len, table_len):
+def declared_ranges(before, code_va, table_va, code_len, table_len, frame_len):
     """Every (start, end) file range this patcher is allowed to change."""
     hp = hires_patch
     out = []
@@ -57,6 +57,8 @@ def declared_ranges(before, code_va, table_va, code_len, table_len):
                        (hp.PARTY_CAVE_VA, len(hp.PARTY_CAVE_BYTES)),
                        (hp.PLAYER_HOOK_VA, len(hp.PLAYER_HOOK_DEFAULT)),
                        (hp.PLAYER_CAVE_VA, len(hp.PLAYER_CAVE_BYTES)),
+                       (hp.FRAME_HOOK_VA, len(hp.FRAME_HOOK_DEFAULT)),
+                       (hp.FRAME_CAVE_VA, frame_len),
                        (ntp.HOOK_VA, len(ntp.HOOK_DEFAULT))):
         off = va - hp.IMAGE_BASE
         out.append((off, off + length))
@@ -94,8 +96,13 @@ def unexpected_changes(before, after, allowed):
     return bad
 
 
-def check(before, after, width, height, table, code_va, table_va):
-    """[(ok, label), ...] - every post-write check, in the order run."""
+def check(before, after, width, height, table, code_va, table_va, extent):
+    """[(ok, label), ...] - every post-write check, in the order run.
+
+    `extent` is LBL_Map's stock box from Override/map.gui, the same one
+    `steps.apply_all` was given: the Area Map opening cave is rebuilt from it
+    here and compared against what actually landed on disk.
+    """
     hp = hires_patch
     results = []
 
@@ -169,6 +176,27 @@ def check(before, after, width, height, table, code_va, table_va):
         ok("%s routine at 0x%X (%d bytes)" % (label, va, len(want)),
            bytes(after[off:off + len(want)]) == want)
 
+    # --- 2b. the Area Map opening ---------------------------------------
+    stock = tuple(extent)
+    grown = hp.frame_extent(stock, width, height)
+    frame_code = hp.build_frame_cave(stock, grown)
+    off = hp.FRAME_HOOK_VA - hp.IMAGE_BASE
+    want = hp.FRAME_HOOK_JMP + hp.FRAME_HOOK_NOP_PAD
+    ok("Area Map opening hook at 0x%X" % hp.FRAME_HOOK_VA,
+       bytes(after[off:off + len(want)]) == want)
+    off = hp.FRAME_CAVE_VA - hp.IMAGE_BASE
+    on_disk = bytes(after[off:off + len(frame_code)])
+    ok("Area Map opening routine at 0x%X (%d bytes) is byte-exact"
+       % (hp.FRAME_CAVE_VA, len(frame_code)), on_disk == frame_code)
+    problems = hp.verify_frame_cave(on_disk, stock, grown, quiet=True)
+    ok("Area Map opening routine re-disassembles correctly (sets LBL_Map "
+       "%s -> %s, branches resolve)" % (stock, grown), not problems)
+    # The one identity the whole overscan design rests on (plan 4): the
+    # opening the cave writes must equal the marker overlay this patcher
+    # wrote into the exe, or surplus map picture shows outside the fog.
+    ok("the new opening is exactly the size of the marker overlay",
+       grown[2] == values["map_offsets_x"] and grown[3] == values["map_offsets_y"])
+
     # --- 3. reserved region ---------------------------------------------
     region = pe_space.find_region(after)
     ok("8 KB region reserved at the end of .rsrc", region is not None)
@@ -207,7 +235,8 @@ def check(before, after, width, height, table, code_va, table_va):
     ok("first and last correction read back as valid float pairs", good)
 
     # --- 5. nothing else changed ----------------------------------------
-    allowed = declared_ranges(before, code_va, table_va, len(code), len(table))
+    allowed = declared_ranges(before, code_va, table_va, len(code), len(table),
+                              len(frame_code))
     allowed.append((len(before), len(after)))          # the appended region
     if table_off >= len(before):
         pass                                           # table is in that region
