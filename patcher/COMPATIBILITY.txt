@@ -103,6 +103,13 @@ K1 Marked Empty Containers (Thor110, DeadlyStream file 3006, "MarkEmptyContainer
   Whichever of us gets there first blocks the other; neither mod can be told
   to use different bytes, so there is no sequencing that lets both keep it.
 
+  Since v1.0.3, this mod also reserves a SEPARATE range in the same spare
+  .text tail for the Area Map opening cave (the frame-line fix): VA
+  0x73C2F0-0x73C343 (FILE 0x33C2F0-0x33C343). The two ranges are not
+  contiguous (71 unused bytes between them). Anything else that scavenges this
+  same spare .text region for its own trampoline - not just this specific mod
+  - can collide with either range, not only the one named above.
+
   Verified from the reporter's exe, by disassembly:
     - A 5-byte jmp written over VA 0x680085 (inside the function that sets a
       container's icon/state bits at [esi+0x828]) redirects into VA 0x73C1D0.

@@ -58,7 +58,7 @@ The accepted input is the Editable Executable after UniWS and k1hrm have both al
 4. Patches three small calibration routines into spare code space for the note/player/party marker position math.
 5. Grows the `.rsrc` section by 8 KB and writes a table of 250 corrected note positions plus a small match routine, hooked into the note-loading path. Notes are keyed by their stored world position rather than by module or index, so the table keeps working under mods that edit module files; verified against K1CP specifically.
 
-Every write is re-read from disk afterward and checked: 21 checks in total, including one that nothing outside the documented byte ranges changed. A failed check means the run refuses to report success and points at the backup instead.
+Every write is re-read from disk afterward and checked: 25 checks in total, including one that nothing outside the documented byte ranges changed. A failed check means the run refuses to report success and points at the backup instead.
 
 Exact offsets, the VA/file-offset conventions, and what each one does are documented in `TECHNICAL.txt`.
 

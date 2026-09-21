@@ -79,7 +79,11 @@ WHAT IS WRITTEN
 1. Map scale (the Area Map filling its box) + the private float copies
 
    16 scale constants inside the Area Map draw path are rewritten for your
-   resolution. Two shared floats -
+   resolution. Since this patcher also removes the Area Map's frame line (see
+   step 2b below), these values are not the bare vanilla ratios - the map
+   opening, the marker overlay and the map canvas are all grown together by 2
+   design pixels ("overscan") so the drawn map covers the line baked into the
+   backdrop art. Two shared floats -
 
    VA 0x747748  (440.0)   FILE 0x347748
    VA 0x7455D4  (256.0)   FILE 0x3455D4
@@ -132,9 +136,28 @@ WHAT IS WRITTEN
    VA 0x694A42  FILE 0x294A42   VA 0x73C20C  FILE 0x33C20C   party markers
    VA 0x694AB1  FILE 0x294AB1   VA 0x73C232  FILE 0x33C232   player arrow
 
-   Total cave region occupied: VA 0x73C1D0-0x73C2A9, FILE 0x33C1D0-0x33C2A9.
-   Every byte of it read 0x00 before this patcher ran, and the patcher refuses
-   if it does not.
+   Cave region occupied by these three: VA 0x73C1D0-0x73C2A9,
+   FILE 0x33C1D0-0x33C2A9. Every byte of it read 0x00 before this patcher ran,
+   and the patcher refuses if it does not.
+
+2b. Area Map opening cave (frame-line fix), in spare .text
+
+   hook (6 bytes, jmp+nop)      cave
+   VA 0x69503D  FILE 0x29503D   VA 0x73C2F0  FILE 0x33C2F0   83 bytes
+
+   Removes the thin frame line baked into the Area Map's backdrop art by
+   growing the map opening, the marker overlay and the map canvas together by
+   2 design pixels ("overscan") at install time, guarded on your own
+   Override/map.gui's stock box so it does nothing if that box is not exactly
+   what k1hrm ships. This is the only cave whose bytes are not fixed - eight
+   of its immediates are assembled per install from your resolution and your
+   map.gui - so it is re-disassembled and structurally checked against its own
+   design on every run, the same as the note-table match routine below.
+
+   Occupied region: VA 0x73C2F0-0x73C343, FILE 0x33C2F0-0x33C343. This is a
+   SEPARATE range from the three marker caves above - the two are no longer
+   contiguous, with 71 unused bytes between them (0x73C2A9-0x73C2F0). A
+   collision with another executable patcher can land in either range.
 
 4. 8 KB reserved at the end of .rsrc
 
@@ -170,7 +193,7 @@ WHAT IS WRITTEN
 
 AFTER WRITING
 -------------
-The patcher re-reads the file from disk and runs 21 checks against it,
+The patcher re-reads the file from disk and runs 25 checks against it,
 including a check that no byte outside the ranges listed above changed. If any
 check fails it says so and points you at the backup; it does not report success
 on an unverified write.

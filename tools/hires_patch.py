@@ -114,13 +114,13 @@ MAP_OFFSETS = {
     "map_offsets_y": ([0x17901A, 0x179358, 0x179383, 0x17938A, 0x178EA6, 0x178F24, 0x295064, 0x29508A], "<h", 256),
 }
 
-# Area Map frame-line fix (docs/plans/area-map-frame-line-fix.md 5): the
+# Area Map frame-line fix (docs/FIX_IMPLEMENTATION.md Layer 6): the
 # opening, the marker overlay and the map canvas all grow by this many
 # vanilla design pixels on every side, so the map picture covers the
 # one-pixel line the backdrop art bakes just outside the opening. Value set
-# by that plan's T1 (tools/map_frame_art_probe.py): the thickest measured
-# band, across both the vanilla and the HD backdrop, is 1.56 design px
-# (HD override, right side); overscan is ceil() of that.
+# from tools/map_frame_art_probe.py's measurement (docs/ARCHITECTURE.md 5):
+# the thickest measured band, across both the vanilla and the HD backdrop, is
+# 1.56 design px (HD override, right side); overscan is ceil() of that.
 OVERSCAN_DESIGN_PX = 2
 
 # The shared .rdata float constants - deliberately LEFT AT THEIR VANILLA VALUES
@@ -264,7 +264,7 @@ def _round_half_up(x):
 def overscan_px(width, height):
     """(gx, gy): OVERSCAN_DESIGN_PX converted to screen pixels per axis, by
     the same ceil(W/640) / ceil(H/480) scale factor the map geometry itself
-    uses. docs/plans/area-map-frame-line-fix.md 5.
+    uses. docs/FIX_IMPLEMENTATION.md Layer 6.
     """
     return (math.ceil(width / 640.0) * OVERSCAN_DESIGN_PX,
             math.ceil(height / 480.0) * OVERSCAN_DESIGN_PX)
@@ -277,7 +277,7 @@ def map_scale_values(width, height):
     run finds already there) against the same formula that wrote it.
 
     map_offsets_x/y are the grown marker-overlay/LBL_Map-opening size
-    (docs/plans/area-map-frame-line-fix.md 5), rounded here rather than left
+    (docs/FIX_IMPLEMENTATION.md Layer 6), rounded here rather than left
     raw: every other overscanned value - the canvas size, the private
     tile-size floats redirect_bigmap_floats writes, and the kx'/ky' marker
     constants add_area_map_marker_fix writes - has to derive from the exact
@@ -463,7 +463,7 @@ def add_area_map_marker_fix(data, width, height):
             raise RuntimeError(f"marker-fix {label} slot at 0x{slot:X} is not free - refusing to patch")
 
     # 3) write the two rescale-ratio constants (k = grown overlay size / vanilla
-    #    440x256 tile size - docs/plans/area-map-frame-line-fix.md 5's kx'/ky';
+    #    440x256 tile size - docs/FIX_IMPLEMENTATION.md Layer 6's kx'/ky';
     #    same overlay_w/overlay_h map_scale_values() rounds for the RECT fields,
     #    so this stays self-consistent with the geometry the cave writes at
     #    0x69503D rather than drifting a fraction of a pixel apart from it)
@@ -602,7 +602,8 @@ def add_party_player_marker_fix(data):
 
 
 ########################################################################
-# Area Map frame-line fix: the opening (docs/plans/area-map-frame-line-fix.md)
+# Area Map frame-line fix: the opening (docs/FIX_IMPLEMENTATION.md Layer 6,
+# docs/REVERSE_ENGINEERING.md "The Area Map opening cave")
 #
 # The backdrop art `lbl_map` bakes a one-pixel highlight frame immediately
 # OUTSIDE the map opening, on all four sides. The engine stretches that art

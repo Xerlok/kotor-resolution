@@ -5,9 +5,10 @@ Confirms whether the light-blue/near-black line documented in F18
 `lbl_map` (the root TGuiPanel's BORDER.FILL, not the per-area map texture)
 at the 95/640, 118/480, 535/640, 374/480 design-pixel fractions the opening
 `LBL_Map` occupies, and measures its thickness in design pixels on each
-side. This is step 1 / T1 of docs/plans/area-map-frame-line-fix.md: it
-decides `overscan` and confirms the plan's §2 inference against the source
-art rather than one screenshot.
+side. This measurement (docs/ARCHITECTURE.md 5) decided `overscan` for the
+frame-line fix (docs/FIX_IMPLEMENTATION.md Layer 6) and confirmed the line's
+resolution-invariant position against the source art rather than one
+screenshot.
 
 Reads the vanilla `lbl_map` texture from the game's own
 TexturePacks/swpc_tex_gui.erf, and an HD replacement .tpc/.tga if the dev
