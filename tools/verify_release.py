@@ -45,8 +45,11 @@ sys.path.insert(0, os.path.join(ROOT, "patcher"))
 from k1amf import PRODUCT, __version__          # noqa: E402
 import selftest as st                            # noqa: E402
 
-# The exe this project confirmed in game, and that patcher/selftest.py pins.
-CONFIRMED_MD5 = "435108fdb65bac2151ab694e7fb8e36a"
+# The exe this project confirmed in game. Read from patcher/selftest.py rather
+# than duplicated as a literal, so the two acceptance tests cannot drift apart
+# the way they did before v1.0.3 (this file's own copy was still the
+# pre-frame-line-fix hash after selftest.py's had already moved on).
+CONFIRMED_MD5 = st.EXPECTED_MD5
 
 RELEASE = os.path.join(ROOT, "dist", "K1-Area-Map-Fixes-%s" % __version__)
 SANDBOX = os.path.join(ROOT, "staging", "release-check")
