@@ -39,7 +39,11 @@ VANILLA = os.path.join(ROOT, "downloads", "swkotor.exe")
 LIVE_GUI = os.path.join(ROOT, "downloads", "k1hrm-1.5", "16-by-10",
                         "gui.2560x1600", "map.gui")
 
-EXPECTED_MD5 = "435108fdb65bac2151ab694e7fb8e36a"   # the live, in-game-confirmed exe
+EXPECTED_MD5 = "f1e552a501371a0bdf74d7a3061a0240"   # the live, in-game-confirmed exe
+# Superseded: 435108fdb65bac2151ab694e7fb8e36a (v1.0.0-1.0.2, in-game-confirmed
+# 2026-08-29); a059b40280310d57229b572ff7644853 (step 5 alone, never confirmed
+# in game). This value adds step 6's Area Map opening cave, confirmed in game
+# 2026-09-21 (docs/plans/area-map-frame-line-fix.md step 7).
 
 
 def md5(path):
