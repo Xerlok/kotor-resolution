@@ -45,6 +45,7 @@ for _p in (TOOLS, PATCHER):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+import hires_patch  # noqa: E402
 import note_table_patch as ntp  # noqa: E402
 
 from k1amf import detect as kdetect  # noqa: E402
@@ -178,6 +179,32 @@ def check_resolution(width, height, gui_set_dir, table):
         (val,) = struct.unpack_from(tpl, data, off)
         range_ok &= -32768 <= val <= 32767
     checks.append((range_ok, "every map-scale int16 write is in signed 16-bit range"))
+
+    # Overscan identity (frame-line-fix plan, step 7 item 3): the opening the
+    # cave writes must equal the marker overlay exactly (plan 4), and the
+    # canvas must be the overlay scaled by 512/440 (plan 5). Both sides read
+    # back from the patched bytes on disk, not recomputed from the formula, so
+    # a wiring bug between the cave and the mapscale sites would show here
+    # rather than only in two separately-correct halves.
+    site_values = {}
+    for key, off, tpl, _default in kdetect.scale_sites():
+        (val,) = struct.unpack_from(tpl, data, off)
+        site_values.setdefault(key, set()).add(val)
+    rects = hires_patch.frame_cave_rects(data)
+    overlay_w = site_values.get("map_offsets_x", set())
+    overlay_h = site_values.get("map_offsets_y", set())
+    overlay_ok = (rects is not None and len(overlay_w) == 1 and len(overlay_h) == 1
+                  and rects[1][2] == next(iter(overlay_w))
+                  and rects[1][3] == next(iter(overlay_h)))
+    checks.append((overlay_ok,
+                   "the opening the cave writes equals the marker overlay exactly"))
+
+    canvas_w = site_values.get("map_projection_offsets_x", set())
+    canvas_ok = (overlay_ok and len(canvas_w) == 1
+                 and next(iter(canvas_w))
+                 == hires_patch._round_half_up(next(iter(overlay_w)) * 512.0 / 440.0))
+    checks.append((canvas_ok,
+                   "the canvas is the overlay scaled by 512/440, within rounding"))
 
     # The stale-k1hrm input (F25). `build_official_base` uses hires_patcher.PL,
     # which writes the four Area Map centring constants correctly - so the
