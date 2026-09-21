@@ -10,10 +10,10 @@ that both have been applied.
 
 Layout:
     detect.py    - find the game, read the resolution out of the exe, gate
-    steps.py     - the five patch layers, applied to one in-memory image
+    steps.py     - the six patch layers, applied to one in-memory image
     verify.py    - re-read from disk and prove every byte landed
     manifest.py  - what was done, so Revert can undo exactly that
 """
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 PRODUCT = "K1 Area Map Fixes"
